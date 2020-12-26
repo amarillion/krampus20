@@ -65,6 +65,19 @@ class StyledComponent : Component {
 	override void update() {}
 }
 
+class ImageComponent : StyledComponent {
+
+	ALLEGRO_BITMAP *img = null;
+
+	override void draw(GraphicsContext gc) {
+		assert(img);
+		// stretch mode...
+		al_draw_scaled_bitmap(img, 0, 0, img.al_get_bitmap_width, img.al_get_bitmap_height, x, y, w, h, 0);
+	}
+
+	override void update() {}
+}
+
 class Engine : Component
 {
 	void buildDialog(JSONValue data) {
@@ -76,9 +89,20 @@ class Engine : Component
 
 		// ## TODO: crashes here...???
 		foreach (eltData; data.array) {
-			// writeln(i);
 			// create child components
-			auto div = new StyledComponent();
+		
+			StyledComponent div = null;
+			string type = eltData["type"].str;
+			switch(type) {
+				case "image": {
+					ImageComponent img = new ImageComponent();
+					img.img = window.resources.getBitmap(eltData["src"].str);
+					div = img;
+					break;
+				}
+				default: div = new StyledComponent(); break;
+			}
+
 			JSONValue layout = eltData["layout"].object;
 			const top = layout["top"].integer;
 			const left = layout["left"].integer;
@@ -109,7 +133,6 @@ class Engine : Component
 	}
 
 	override void draw(GraphicsContext gc) {
-		al_clear_to_color(Color.WHITE);
 		foreach (child; children) {
 			child.draw(gc);
 		}

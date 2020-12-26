@@ -150,6 +150,12 @@ class ResourceManager
 		return fonts[name].get(size);
 	}
 
+	public ALLEGRO_BITMAP *getBitmap(string name)
+	{
+		assert (name in bitmaps, format("There is no bitmap named [%s]", name)); 
+		return bitmaps[name];
+	}
+
 	public JSONValue getJSON(string name) {
 		assert (name in jsons, format("There is no JSON named [%s]", name)); 
 		return jsons[name];
