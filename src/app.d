@@ -12,8 +12,12 @@ void main()
 		al_init();
 		auto mainloop = new MainLoop();
 		mainloop.init();
-		auto engine = new Engine();
-		mainloop.setEngineComponent(engine);
+		
+		mainloop.resources.addFile("data/DejaVuSans.ttf");
+		mainloop.resources.addFile("data/images/start3.png");
+
+		auto engine = new Engine(mainloop.resources);
+		mainloop.setRootComponent(engine);
 		mainloop.run();
 		return 0;
 	});

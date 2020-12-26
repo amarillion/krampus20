@@ -10,6 +10,7 @@ import allegro5.allegro_ttf;
 import allegro5.allegro_color;
 
 import helix.util;
+import helix.mainloop;
 
 class GraphicsContext
 {
@@ -69,7 +70,9 @@ class Component
 {	
 	/* may be null */
 	private Component cparent = null;
-	
+	MainLoop window = null;
+	protected Component[] children;
+
 	/** 
 		may only be called by container.add()
 		may only be called once: it's not allowed to reassign to a different parent.
@@ -106,28 +109,7 @@ class Component
 	{
 		cx = _x;
 		cy = _y;
-	}
-
-	/** return the font. If the font is not set expressly for this
-		component, the parent font is returned, or null
-		if there is no parent. */
-	@property public ALLEGRO_FONT *font()
-	{
-		if (cfont !is null) return cfont;
-		// if (cparent is null) return getDefaultFont();
-		return cparent.font;
-	}
-	
-	private static ALLEGRO_FONT *defaultFont;
-	
-	/**
-		Override the font for this component
-	  */
-	@property void font(ALLEGRO_FONT *value)
-	{
-		cfont = value;
-	}
-	
+	}	
 	
 	/** should return true if keyboard event is handled, false otherwise */
 	public bool onKey(int code, int c, int mod) { return false; }

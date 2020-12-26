@@ -21,19 +21,38 @@ import allegro5.allegro_ttf;
 import allegro5.allegro_color;
 
 import helix.component;
+import helix.resources;
+import helix.style;
+
+/**
+	MainLoop is responsible for:
+
+	* Initialising allegro
+	* Running the main event loop
+	* passing mouse & keyboard events, managing focus
+	* keeping a map of components by id
+	* Hooking up elements to style and resources
+	* Doing layout
+
+	TODO:
+	'MainLoop' could be renamed to 'Window'.
+*/
 
 class MainLoop
 {
 	private Component engine;
-	
-	void setEngineComponent(Component value)
+	ResourceManager resources;
+	private Style rootStyle;
+
+	void setRootComponent(Component value)
 	{
-		assert(display, "Programming error: display must be initialized before calling setEngineComponent()");
+		assert(display, "Programming error: display must be initialized before calling setRootComponent()");
 		this.engine = value;
 		engine.w = al_get_display_width(display);
 		engine.h = al_get_display_height(display);
 		engine.x = 0;
 		engine.y = 0;
+		engine.window = this;
 		// engine.applyLayoutRule(); //TODO
 	}
 	
@@ -68,11 +87,14 @@ class MainLoop
   		timer = al_create_timer(0.02);
 		al_register_event_source(queue, al_get_timer_event_source(timer));
 		al_start_timer(timer);
+
+		resources = new ResourceManager();
+		rootStyle = new Style(resources); //TODO
 	}
 
-	void run()	
+	void run()
 	{
-		assert (engine !is null, "Must call setEngineComponent() before run()");
+		assert (engine !is null, "Must call setRootComponent() before run()");
 		
 		bool exit = false;
 		bool need_redraw = true;
