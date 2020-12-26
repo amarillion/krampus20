@@ -4,6 +4,7 @@ import helix.color;
 import helix.component;
 import helix.style;
 import helix.resources;
+import helix.mainloop;
 
 import std.stdio;
 import std.conv;
@@ -66,11 +67,10 @@ class StyledComponent : Component {
 
 class Engine : Component
 {
-	this(ResourceManager resources) {
-		auto rootStyleData = parseJSON(`{ "font": "DejaVuSans" }`);
-		auto styleData = parseJSON(`{ "background": "#888888", "border": "#444444", "border-left": "#BBBBBB", "border-top": "#BBBBBB", "border-width": 2.0, "color": "#008000" }`);
-		Style rootStyle = new Style(resources, rootStyleData);
-		Style style = new Style(resources, styleData, rootStyle);
+	this(MainLoop window) {
+		
+		auto styleData = `{ "background": "#888888", "border": "#444444", "border-left": "#BBBBBB", "border-top": "#BBBBBB", "border-width": 2.0, "color": "#008000" }`;
+		Style style = window.createStyle(styleData);
 
 		// create child components
 		auto button = new StyledComponent();

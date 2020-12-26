@@ -23,13 +23,12 @@ class Style {
 		this.resources = resources;
 	}
 
-	this(ResourceManager resources, JSONValue styleData) {
-		this.resources = resources;
-		this.styleData = styleData;
+	this(ResourceManager resources, string styleDataStr, Style parent = null) {
+		this(resources, parseJSON(styleDataStr), parent);
 	}
 
-	this(ResourceManager resources, JSONValue styleData, Style parent) {
-		this.resources = resources;
+	this(ResourceManager resources, JSONValue styleData, Style parent = null) {
+		this(resources);
 		this.styleData = styleData;
 		this.parent = parent;
 	}

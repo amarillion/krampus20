@@ -15,8 +15,10 @@ void main()
 		
 		mainloop.resources.addFile("data/DejaVuSans.ttf");
 		mainloop.resources.addFile("data/images/start3.png");
-
-		auto engine = new Engine(mainloop.resources);
+		mainloop.resources.addFile("data/style.json");
+		mainloop.applyRootStyle("style");
+		
+		auto engine = new Engine(mainloop);
 		mainloop.setRootComponent(engine);
 		mainloop.run();
 		return 0;

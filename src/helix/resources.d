@@ -3,6 +3,9 @@ module helix.resources;
 import allegro5.allegro_font;
 import allegro5.allegro;
 import std.path;
+import std.json;
+import std.stdio;
+import std.format : format;
 
 /*
 struct ResourceHandle(T)
@@ -67,12 +70,19 @@ unittest {
 
 class ResourceManager
 {
+	this() {
+		fonts["builtin_font"] = new BuiltinFont();
+	}
+
+	interface FontWrapper {
+		ALLEGRO_FONT *get(int size = 12);
+	}
+
 	/**
 		Remembers file locations.
 		For each size requested, reloads font on demand.
 	*/
-	class FontLoader
-	{
+	class FontLoader : FontWrapper {
 		private string filename;
 		private ALLEGRO_FONT*[int] fonts;
 		
@@ -93,29 +103,56 @@ class ResourceManager
 		}
 	}
 	
-	private FontLoader[string] fonts;
+	class BuiltinFont : FontWrapper {
+		private ALLEGRO_FONT *cache = null;
+		ALLEGRO_FONT *get(int size = 0 /* size param is ignored */) {
+			if (!cache) {
+				cache = al_create_builtin_font();
+			}
+			return cache;
+		}
+	}
+
+	private FontWrapper[string] fonts;
 	private ALLEGRO_BITMAP*[string] bitmaps;
+	private JSONValue[string] jsons;
+
+	private JSONValue loadJson(string filename) {
+		File file = File(filename, "rt");
+		char[] buffer;
+		while (!file.eof()) {
+			buffer ~= file.readln();
+		}
+		// TODO: find streaming parser to support large files
+		JSONValue result = parseJSON(buffer);
+		return result;
+	}
 
 	public void addFile(string filename)
 	{
 		string ext = extension(filename); // ext includes .
 		string base = baseName(stripExtension(filename));
 		
-		// "data/DejaVuSans.ttf"
-		if (ext == ".ttf")
-		{
+		if (ext == ".ttf") {
 			fonts[base] = new FontLoader(filename);			
 		}
-		else if (ext == ".png")
-		{
+		else if (ext == ".png") {
 			bitmaps[base] = al_load_bitmap (cast(const char *)(filename ~ '\0'));
+		}
+		else if (ext == ".json") {
+			jsons[base] = loadJson(filename);
 		}
 	}
 	
 	public ALLEGRO_FONT *getFont(string name, int size = 12)
 	{
-		assert (name in fonts, "There is no font named [" ~ name ~ "]"); 
+		assert (name in fonts, format("There is no font named [%s]", name)); 
 		return fonts[name].get(size);
+	}
+
+	public JSONValue getJSON(string name) {
+		assert (name in jsons, format("There is no JSON named [%s]", name)); 
+		return jsons[name];
 	}
 
 }

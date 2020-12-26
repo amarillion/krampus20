@@ -12,6 +12,7 @@ pragma(lib, "allegro_color");
 
 import std.stdio;
 import std.string;
+import std.json;
 
 import allegro5.allegro;
 import allegro5.allegro_primitives;
@@ -38,12 +39,15 @@ import helix.style;
 	'MainLoop' could be renamed to 'Window'.
 */
 
+enum defaultRootStyleData = parseJSON(`{ "font": "builtin_font", "color": "white", "background": "black" }`);
+		
 class MainLoop
 {
 	private Component engine;
 	ResourceManager resources;
+	private Style defaultStyle;
 	private Style rootStyle;
-
+	
 	void setRootComponent(Component value)
 	{
 		assert(display, "Programming error: display must be initialized before calling setRootComponent()");
@@ -89,7 +93,16 @@ class MainLoop
 		al_start_timer(timer);
 
 		resources = new ResourceManager();
-		rootStyle = new Style(resources); //TODO
+		defaultStyle = new Style(resources, defaultRootStyleData); 
+		rootStyle = new Style(resources, "{}", defaultStyle);
+	}
+
+	void applyRootStyle(string resourceKey) {
+		rootStyle.styleData = resources.getJSON(resourceKey);
+	}
+
+	Style createStyle(string styleData) {
+		return new Style(resources, styleData, rootStyle);
 	}
 
 	void run()
