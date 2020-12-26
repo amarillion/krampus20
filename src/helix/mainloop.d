@@ -39,7 +39,7 @@ import helix.style;
 	'MainLoop' could be renamed to 'Window'.
 */
 
-enum defaultRootStyleData = parseJSON(`{ "font": "builtin_font", "color": "white", "background": "black" }`);
+enum defaultRootStyleData = parseJSON(`{ "font": "builtin_font", "font-size": 17, "color": "white", "background": "black" }`);
 		
 class MainLoop
 {

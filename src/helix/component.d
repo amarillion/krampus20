@@ -70,8 +70,11 @@ class Component
 {	
 	/* may be null */
 	private Component cparent = null;
-	MainLoop window = null;
+	
 	protected Component[] children;
+
+	MainLoop window = null;
+	string id;
 
 	/** 
 		may only be called by container.add()
@@ -94,7 +97,7 @@ class Component
 	abstract void draw(GraphicsContext gc);
 	
 	private double cx = 0, cy = 0, cw = 8, ch = 8;
-			
+	
 	/** set both position and size together */
 	public void setShape (double _x, double _y, double _w, double _h)
 	{

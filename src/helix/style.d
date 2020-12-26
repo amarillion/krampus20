@@ -52,26 +52,46 @@ class Style {
 		}
 	}
 
-	double getNumber(string key, double fallback = 0.0) {
+	double getNumber(string key) {
 		assert(key in [
-			"border-width": 1
+			"border-width": 1,
+			"font-size": 1,
 		]);
 		if (key in styleData) {
-			return styleData[key].floating;
+			JSONValue val = styleData[key];
+			if (val.type == JSONType.FLOAT) {
+				return styleData[key].floating;
+			}
+			else {
+				return styleData[key].integer;
+			}
 		}
 		else {
-			return fallback;
+			if (parent) {
+				return parent.getNumber(key);
+			}
 		}
+		return double.nan;
+	}
+
+	string getString(string key) {
+		assert(key in [
+			"font": 1
+		]);
+		if (key in styleData) {
+			return styleData[key].str;
+		}
+		else {
+			if (parent) {
+				return parent.getString(key);
+			}
+		}
+		return "";
 	}
 
 	ALLEGRO_FONT *getFont() {
-		if ("font" in styleData) {
-			string fontName = styleData["font"].str;
-			return resources.getFont(fontName);
-		}
-		if (parent) {
-			return parent.getFont();
-		}
-		return null;
+		const fontName = getString("font");
+		const fontSize = getNumber("font-size");
+		return resources.getFont(fontName, cast(int)fontSize);
 	}
 }

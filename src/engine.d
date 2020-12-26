@@ -67,17 +67,41 @@ class StyledComponent : Component {
 
 class Engine : Component
 {
-	this(MainLoop window) {
+	void buildDialog(JSONValue data) {
 		
-		auto styleData = `{ "background": "#888888", "border": "#444444", "border-left": "#BBBBBB", "border-top": "#BBBBBB", "border-width": 2.0, "color": "#008000" }`;
+		auto styleData = `{ "background": "#888888", "border": "#444444", "border-left": "#BBBBBB", "border-top": "#BBBBBB", "border-width": 2.0, "color": "#FFFFFF" }`;
 		Style style = window.createStyle(styleData);
 
-		// create child components
-		auto button = new StyledComponent();
-		button.setStyle(style);
-		button.setShape(50, 50, 120, 40);
-		button.text = "Hello World!";
-		addChild(button);
+		assert(data.type == JSONType.ARRAY);
+
+		// ## TODO: crashes here...???
+		foreach (eltData; data.array) {
+			// writeln(i);
+			// create child components
+			auto div = new StyledComponent();
+			JSONValue layout = eltData["layout"].object;
+			const top = layout["top"].integer;
+			const left = layout["left"].integer;
+			const width = layout["w"].integer;
+			const height = layout["h"].integer;
+			div.setShape(top, left, width, height);
+			if ("text" in eltData) {
+				div.text = eltData["text"].str;
+			}
+			div.style = style;
+			if ("id" in eltData) {
+				div.id = eltData["id"].text;
+			}
+			addChild(div);
+		}
+		
+
+	}
+
+	this(MainLoop window) {
+		this.window = window;
+		buildDialog(window.resources.getJSON("layout"));
+		// getElementById("btn_start_game").onClick({ writeln("Hello World"); });
 	}
 
 	void addChild(Component c) {
