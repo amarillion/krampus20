@@ -13,6 +13,7 @@ pragma(lib, "allegro_color");
 import std.stdio;
 import std.string;
 import std.json;
+import std.range;
 
 import allegro5.allegro;
 import allegro5.allegro_primitives;
@@ -24,6 +25,7 @@ import allegro5.allegro_color;
 import helix.component;
 import helix.resources;
 import helix.style;
+import helix.vec;
 
 /**
 	MainLoop is responsible for:
@@ -158,26 +160,14 @@ class MainLoop
 						break;
 					}
 					case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-					{
-						engine.onMouseDown(event.mouse.x, event.mouse.y);
-						break;
-					}
 					case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
-					{
-						engine.onMouseUp(event.mouse.x, event.mouse.y);
-						break;
-					}
 					case ALLEGRO_EVENT_MOUSE_AXES:
-					{
-						engine.onMouseMove(event.mouse.x, event.mouse.y);
+						dispatchMouseEvent(event);
 						break;
-					}
 					case ALLEGRO_EVENT_TIMER: 
-					{
 						engine.update();
 						need_redraw = true;
 						break;
-					}
 					default:
 				}
 			}
@@ -186,6 +176,52 @@ class MainLoop
 		
 		done();
 	}
+
+	void dispatchMouseEvent(ALLEGRO_EVENT event) {
+		
+		Point cursor = Point(event.mouse.x, event.mouse.y);
+		
+		Component comp = engine;
+		bool goDeeper = true;
+		while (goDeeper) {
+			bool match = false;
+			foreach (child; retro(comp.children)) {
+				// TODO also take into account scrollbars, viewports & offsets
+				if (child.contains(cursor)) {
+					match = true;
+					comp = child;
+					break;
+				}
+			}
+			if (!match) {
+				goDeeper = false;
+			}
+		}
+
+		// TODO: enter & leave events...
+		// TODO: capturing mouse events for scrollbars and sliders
+
+		// go down the component tree...
+		switch (event.type) {
+			case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+			{
+				comp.onMouseDown(cursor);
+				break;
+			}
+			case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+			{
+				comp.onMouseUp(cursor);
+				break;
+			}
+			case ALLEGRO_EVENT_MOUSE_AXES:
+			{
+				comp.onMouseMove(cursor);
+				break;
+			}
+			default: assert(false);
+		}
+	}
+
 	
 	private void done()
 	{

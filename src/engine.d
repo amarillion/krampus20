@@ -5,6 +5,7 @@ import helix.component;
 import helix.style;
 import helix.resources;
 import helix.mainloop;
+import helix.vec;
 
 import std.stdio;
 import std.conv;
@@ -18,17 +19,6 @@ import allegro5.allegro_ttf;
 import std.json;
 
 class StyledComponent : Component {
-
-	Style style = null;
-	string text = null;
-
-	void setStyle(Style value) {
-		style = value;
-	}
-
-	void setText(string value) {
-		text = value;
-	}
 
 	override void draw(GraphicsContext gc) {
 		assert(style);
@@ -72,14 +62,26 @@ class ImageComponent : StyledComponent {
 	override void draw(GraphicsContext gc) {
 		assert(img);
 		// stretch mode...
-		al_draw_scaled_bitmap(img, 0, 0, img.al_get_bitmap_width, img.al_get_bitmap_height, x, y, w, h, 0);
+		int iw = img.al_get_bitmap_width;
+		int ih = img.al_get_bitmap_height;
+		// TODO: why doesn't it stretch the right way?
+		al_draw_scaled_bitmap(img, 0, 0, iw, ih, x, y, w, h, 0);
 	}
 
 	override void update() {}
 }
 
+class Button : StyledComponent {
+
+	override void onMouseDown(Point p) {
+		onAction.dispatch();
+	}
+}
+
 class Engine : Component
 {
+	private Component[string] componentRegistry;
+
 	void buildDialog(JSONValue data) {
 		
 		auto styleData = `{ "background": "#888888", "border": "#444444", "border-left": "#BBBBBB", "border-top": "#BBBBBB", "border-width": 2.0, "color": "#FFFFFF" }`;
@@ -87,13 +89,16 @@ class Engine : Component
 
 		assert(data.type == JSONType.ARRAY);
 
-		// ## TODO: crashes here...???
 		foreach (eltData; data.array) {
 			// create child components
 		
 			StyledComponent div = null;
 			string type = eltData["type"].str;
 			switch(type) {
+				case "button": {
+					div = new Button();
+					break;
+				}
 				case "image": {
 					ImageComponent img = new ImageComponent();
 					img.img = window.resources.getBitmap(eltData["src"].str);
@@ -114,18 +119,21 @@ class Engine : Component
 			}
 			div.style = style;
 			if ("id" in eltData) {
-				div.id = eltData["id"].text;
+				div.id = eltData["id"].str;
+				componentRegistry[div.id] = div;
 			}
 			addChild(div);
 		}
-		
-
 	}
 
+	Component getElementById(string id) {
+		return componentRegistry[id];
+	}
+	
 	this(MainLoop window) {
 		this.window = window;
 		buildDialog(window.resources.getJSON("layout"));
-		// getElementById("btn_start_game").onClick({ writeln("Hello World"); });
+		getElementById("btn_start_game").onAction.add({ writeln("Hello World"); });
 	}
 
 	void addChild(Component c) {

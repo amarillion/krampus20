@@ -11,50 +11,16 @@ import allegro5.allegro_color;
 
 import helix.util;
 import helix.mainloop;
+import helix.style;
+import helix.signal;
+import helix.rect;
+import helix.vec;
 
 class GraphicsContext
 {
 	Rectangle area;
 }
 
-struct Rectangle
-{
-	double x;
-	double y;
-	double w;
-	double h;
-	
-	//TODO: choose returning or inplace replacement for intersection and merge.
-	void merge (double _x, double _y, double _w, double _h)
-	{
-		double x1 = min (_x, x);
-		double y1 = min (_y, y);
-		double x2 = max (_x + _w, x + w);
-		double y2 = max (_y + _h, y + h);
-		x = x1;
-		y = y1;
-		w = x2 - x1;
-		h = y2 - y1;
-	}
-	
-	//TODO: choose doubles or Rectangles as parameter for overlaps and Intersection
-	
-	bool overlaps (double _x, double _y, double _w, double _h)
-	{
-		bool xoverlap = (_x < x + w) && (_x + _w > _x);
-		bool yoverlap = (_y < y + h) && (_y + _h > _y);  
-		return xoverlap && yoverlap;
-	}
-	
-	Rectangle intersection(Rectangle other)
-	{
-		double x1 = max (x, other.x);
-		double y1 = max (y, other.y);
-		double x2 = min (x + w, other.x + other.w);
-		double y2 = min (y + h, other.y + other.h); 
-		return Rectangle(x1, y1, x2 - x1, y2 - y1);
-	}
-}
 
 /**
 A component occupies an area (x,y,w,h) and 
@@ -71,10 +37,21 @@ class Component
 	/* may be null */
 	private Component cparent = null;
 	
-	protected Component[] children;
-
+	//TODO: encapsulate
+	Component[] children;
 	MainLoop window = null;
 	string id;
+
+	protected Style style = null;
+	protected string text = null;
+
+	void setStyle(Style value) {
+		style = value;
+	}
+
+	void setText(string value) {
+		text = value;
+	}
 
 	/** 
 		may only be called by container.add()
@@ -96,36 +73,38 @@ class Component
 	abstract void update();
 	abstract void draw(GraphicsContext gc);
 	
-	private double cx = 0, cy = 0, cw = 8, ch = 8;
+	private Rectangle rect;
 	
 	/** set both position and size together */
 	public void setShape (double _x, double _y, double _w, double _h)
 	{
-		cx = _x;
-		cy = _y;
-		cw = _w;
-		ch = _h;
+		rect.x = _x;
+		rect.y = _y;
+		rect.w = _w;
+		rect.h = _h;
 	}
 
 	/** set both x and y together */
 	public void setPosition (double _x, double _y)
 	{
-		cx = _x;
-		cy = _y;
+		rect.x = _x;
+		rect.y = _y;
 	}	
 	
 	/** should return true if keyboard event is handled, false otherwise */
 	public bool onKey(int code, int c, int mod) { return false; }
 	
+	Signal onAction;
+
 	public void onMouseEnter() { }
 
 	public void onMouseLeave() { }
 	
-	public void onMouseMove(int x, int y) { }
+	public void onMouseMove(Point p) { }
 
-	public void onMouseDown(int x, int y) { }
+	public void onMouseDown(Point p) { }
 
-	public void onMouseUp(int x, int y) { }
+	public void onMouseUp(Point p) { }
 
 	public void gainFocus() { }
 	
@@ -138,19 +117,19 @@ class Component
 	public void loseFocus() { }
 	
 	//TODO: add to Rectangle	
-	public bool contains(int xx, int yy)
+	public bool contains(Point p)
 	{
-		return ((xx >= cx) && (xx < (cx + cw)) && (yy >= cy) && (yy < (cy + ch)));
+		return rect.contains(p);
 	}
 	
-	@property double x() { return cx; }
-	@property double y() { return cy; }
-	@property double w() { return cw; }
-	@property double h() { return ch; }
+	@property double x() { return rect.x; }
+	@property double y() { return rect.y; }
+	@property double w() { return rect.w; }
+	@property double h() { return rect.h; }
 
 	//TODO: store in rectangle struct
-	@property void x(double val) { cx = val; }
-	@property void y(double val) { cy = val; }
-	@property void w(double val) { cw = val; }
-	@property void h(double val) { ch = val; }
+	@property void x(double val) { rect.x = val; }
+	@property void y(double val) { rect.y = val; }
+	@property void w(double val) { rect.w = val; }
+	@property void h(double val) { rect.h = val; }
 }
