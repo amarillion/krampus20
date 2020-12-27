@@ -16,7 +16,8 @@ void main()
 		mainloop.resources.addFile("data/DejaVuSans.ttf");
 		mainloop.resources.addFile("data/images/start3.png");
 		mainloop.resources.addFile("data/style.json");
-		mainloop.resources.addFile("data/layout.json");
+		mainloop.resources.addFile("data/menu-layout.json");
+		mainloop.resources.addFile("data/game-layout.json");
 
 		mainloop.applyRootStyle("style");
 		auto engine = new Engine(mainloop);

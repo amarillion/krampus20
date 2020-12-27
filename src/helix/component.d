@@ -15,6 +15,7 @@ import helix.style;
 import helix.signal;
 import helix.rect;
 import helix.vec;
+import helix.layout;
 
 class GraphicsContext
 {
@@ -41,9 +42,11 @@ class Component
 	Component[] children;
 	MainLoop window = null;
 	string id;
-
+	Rectangle shape;
+	
 	protected Style style = null;
 	protected string text = null;
+	LayoutData layoutData;
 
 	void setStyle(Style value) {
 		style = value;
@@ -73,22 +76,21 @@ class Component
 	abstract void update();
 	abstract void draw(GraphicsContext gc);
 	
-	private Rectangle rect;
 	
 	/** set both position and size together */
-	public void setShape (double _x, double _y, double _w, double _h)
+	public void setShape (int _x, int _y, int _w, int _h)
 	{
-		rect.x = _x;
-		rect.y = _y;
-		rect.w = _w;
-		rect.h = _h;
+		shape.x = _x;
+		shape.y = _y;
+		shape.w = _w;
+		shape.h = _h;
 	}
 
 	/** set both x and y together */
-	public void setPosition (double _x, double _y)
+	public void setPosition (int _x, int _y)
 	{
-		rect.x = _x;
-		rect.y = _y;
+		shape.x = _x;
+		shape.y = _y;
 	}	
 	
 	/** should return true if keyboard event is handled, false otherwise */
@@ -119,17 +121,17 @@ class Component
 	//TODO: add to Rectangle	
 	public bool contains(Point p)
 	{
-		return rect.contains(p);
+		return shape.contains(p);
 	}
 	
-	@property double x() { return rect.x; }
-	@property double y() { return rect.y; }
-	@property double w() { return rect.w; }
-	@property double h() { return rect.h; }
+	@property int x() { return shape.x; }
+	@property int y() { return shape.y; }
+	@property int w() { return shape.w; }
+	@property int h() { return shape.h; }
 
 	//TODO: store in rectangle struct
-	@property void x(double val) { rect.x = val; }
-	@property void y(double val) { rect.y = val; }
-	@property void w(double val) { rect.w = val; }
-	@property void h(double val) { rect.h = val; }
+	@property void x(int val) { shape.x = val; }
+	@property void y(int val) { shape.y = val; }
+	@property void w(int val) { shape.w = val; }
+	@property void h(int val) { shape.h = val; }
 }

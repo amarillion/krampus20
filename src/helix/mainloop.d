@@ -26,6 +26,8 @@ import helix.component;
 import helix.resources;
 import helix.style;
 import helix.vec;
+import helix.rect;
+import helix.strutil;
 
 /**
 	MainLoop is responsible for:
@@ -59,7 +61,8 @@ class MainLoop
 		engine.x = 0;
 		engine.y = 0;
 		engine.window = this;
-		// engine.applyLayoutRule(); //TODO
+
+		calculateLayout();
 	}
 	
 	ALLEGRO_EVENT_QUEUE* queue;
@@ -68,12 +71,13 @@ class MainLoop
 	
 	void init()
 	{
-		ALLEGRO_CONFIG* cfg = al_load_config_file("turnover.ini");
+		// TODO
+		// ALLEGRO_CONFIG* cfg = al_load_config_file("turnover.ini");
 		
 		//TODO: make configurable
 		al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
 		
-		display = al_create_display(800, 480);
+		display = al_create_display(1024, 640);
 				
 		queue = al_create_event_queue();
 
@@ -134,8 +138,8 @@ class MainLoop
 					case ALLEGRO_EVENT_DISPLAY_RESIZE:
 					{
 						writeln ("Window resize");
-						engine.setShape(0, 0, al_get_display_width(display), al_get_display_height(display));
-						// engine.applyLayoutRule(); //TODO
+						al_acknowledge_resize(event.display.source);
+						calculateLayout();
 						break;
 					}
 					case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -222,7 +226,20 @@ class MainLoop
 		}
 	}
 
-	
+	void calculateLayout() {
+
+		void calculateRecursive(Component comp, Rectangle parentRect, int depth = 0) {
+			comp.shape = comp.layoutData.calculate(parentRect);
+			// writeln(" ".rep(depth), comp.shape);
+			foreach(child; comp.children) {
+				calculateRecursive(child, comp.shape, depth + 1);
+			}
+		}
+
+		Rectangle displayRect = Rectangle(0, 0, display.al_get_display_width, display.al_get_display_height);
+		calculateRecursive (engine, displayRect);
+	}
+
 	private void done()
 	{
 		 al_destroy_timer(timer);

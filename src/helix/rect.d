@@ -3,45 +3,36 @@ module helix.rect;
 import helix.util;
 import helix.vec;
 
-struct Rectangle
+struct rect(T)
 {
-	double x;
-	double y;
-	double w;
-	double h;
-	
-	//TODO: choose returning or inplace replacement for intersection and merge.
-	void merge (double _x, double _y, double _w, double _h)
-	{
-		double x1 = min (_x, x);
-		double y1 = min (_y, y);
-		double x2 = max (_x + _w, x + w);
-		double y2 = max (_y + _h, y + h);
-		x = x1;
-		y = y1;
-		w = x2 - x1;
-		h = y2 - y1;
-	}
+	T x;
+	T y;
+	T w;
+	T h;
+
+	@property T x2() const { return x + w; }
+	@property T y2() const { return y + h; }
 	
 	//TODO: choose doubles or Rectangles as parameter for overlaps and Intersection
-	
-	bool overlaps (double _x, double _y, double _w, double _h)
+	bool overlaps (T _x, T _y, T _w, T _h) const
 	{
-		bool xoverlap = (_x < x + w) && (_x + _w > _x);
-		bool yoverlap = (_y < y + h) && (_y + _h > _y);  
+		const xoverlap = (_x < x + w) && (_x + _w > x);
+		const yoverlap = (_y < y + h) && (_y + _h > y);  
 		return xoverlap && yoverlap;
 	}
 	
-	Rectangle intersection(Rectangle other)
+	rect!T intersection(const Rectangle!T other) const
 	{
-		double x1 = max (x, other.x);
-		double y1 = max (y, other.y);
-		double x2 = min (x + w, other.x + other.w);
-		double y2 = min (y + h, other.y + other.h); 
-		return Rectangle(x1, y1, x2 - x1, y2 - y1);
+		T x1 = max (x, other.x);
+		T y1 = max (y, other.y);
+		T x2 = min (x + w, other.x + other.w);
+		T y2 = min (y + h, other.y + other.h); 
+		return rect!(T)(x1, y1, x2 - x1, y2 - y1);
 	}
 
-	bool contains(Point p) {
+	bool contains(const vec!(2, T) p) const {
 		return (p.x >= x && p.x < x + w && p.y >= y && p.y < y + h);
 	}
 }
+
+alias Rectangle = rect!(int);

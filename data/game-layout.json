@@ -1,0 +1,66 @@
+[
+	{
+		"type": "desktop",
+		"layout": {
+			"rule": "stretch"
+		}
+	}, {
+		"type": "panel",
+		"id": "pnl_planet_view",
+		"text": "planet view",
+		"layout": {
+			"rule": "stretch",
+			"right": 100,
+			"bottom": 200
+		}
+	}, {
+		"type": "panel",
+		"id": "pnl_cell_view",
+		"text": "Cell view",
+		"layout": {
+			"rule": "stretch-right",
+			"width": 100,
+			"bottom": 200
+		}
+	}, {
+		"type": "panel",
+		"id": "pnl_species_info",
+		"text": "Species info",
+		"layout": {
+			"rule": "stretch-bottom",
+			"height": 200,
+			"bottom": 20
+		}
+	}, {
+		"type": "panel",
+		"id": "pnl_planet_info",
+		"text": "Planet info",
+		"layout": {
+			"rule": "bottom-right",
+			"width": 100,
+			"height": 200
+		}
+	}, {
+		"id": "btn_species_introduce",
+		"type": "button",
+		"text": "Introduce species",
+		"layout": {
+			"rule": "bottom-left",
+			"left": 10,
+			"bottom": 10,
+			"w": 200,
+			"h": 50
+		}
+	}, {
+		"id": "btn_species_info",
+		"type": "button",
+		"text": "Info...",
+		"layout": {
+			"rule": "bottom-left",
+			"left": 220,
+			"bottom": 10,
+			"w": 200,
+			"h": 50
+		}
+	}
+]

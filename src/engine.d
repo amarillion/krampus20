@@ -6,6 +6,7 @@ import helix.style;
 import helix.resources;
 import helix.mainloop;
 import helix.vec;
+import helix.rect;
 
 import std.stdio;
 import std.conv;
@@ -108,12 +109,9 @@ class Engine : Component
 				default: div = new StyledComponent(); break;
 			}
 
-			JSONValue layout = eltData["layout"].object;
-			const top = layout["top"].integer;
-			const left = layout["left"].integer;
-			const width = layout["w"].integer;
-			const height = layout["h"].integer;
-			div.setShape(top, left, width, height);
+			assert("layout" in eltData);
+			div.layoutData.fromJSON(eltData["layout"].object);
+
 			if ("text" in eltData) {
 				div.text = eltData["text"].str;
 			}
@@ -124,6 +122,7 @@ class Engine : Component
 			}
 			addChild(div);
 		}
+
 	}
 
 	Component getElementById(string id) {
@@ -132,8 +131,11 @@ class Engine : Component
 	
 	this(MainLoop window) {
 		this.window = window;
-		buildDialog(window.resources.getJSON("layout"));
+		/* MENU */
+		buildDialog(window.resources.getJSON("menu-layout"));
 		getElementById("btn_start_game").onAction.add({ writeln("Hello World"); });
+		/* GAME SCREEN */
+		// buildDialog(window.resources.getJSON("game-layout"));
 	}
 
 	void addChild(Component c) {

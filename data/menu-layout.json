@@ -2,29 +2,24 @@
 	{
 		"type": "desktop",
 		"layout": {
-			"top": 0,
-			"left": 0,
-			"w": 800,
-			"h": 600
+			"rule": "stretch"
 		}
 	}, {
 		"type": "image",
 		"src": "start3",
 		"layout": {
-			"top": 0,
-			"left": 0,
-			"w": 800,
-			"h": 600
+			"rule": "stretch"
 		}
 	}, {
 		"id": "btn_start_game",
 		"type": "button",
 		"text": "Start Game",
 		"layout": {
+			"rule": "top-left",
 			"top": 50,
 			"left": 50,
-			"w": 200,
-			"h": 50
+			"width": 200,
+			"height": 50
 		}
 	}
 ]
