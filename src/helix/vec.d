@@ -1,6 +1,7 @@
 module helix.vec;
 
 import std.conv;
+import helix.util;
 
 struct vec(int N, V) {
 	V[N] val;
@@ -39,29 +40,44 @@ struct vec(int N, V) {
 		}
 	}
 
-	void lowestCorner(U)(vec!(N, U) p) {
-		foreach (i; 0..N) {
-			if (p.val[i] < val[i]) { val[i] = p.val[i]; }
-		}
-	}
-
-	void highestCorner(U)(vec!(N, U) p) {
-		foreach (i; 0..N) {
-			if (p.val[i] > val[i]) { val[i] = p.val[i]; }
-		}
-	}
-
-	/** addition */
-	vec!(N, V) opBinary(string op)(vec!(N, V) rhs) const if (op == "+") {
+	vec!(N, V) eachMin(const vec!(N, V) p) const {
 		vec!(N, V) result;
-		result.val[] = val[] + rhs.val[];
+		foreach (i; 0..N) {
+			result.val[i] = min(p.val[i], val[i]);
+		}
 		return result;
 	}
 
-	/** substraction */
-	vec!(N, V) opBinary(string op)(vec!(N, V) rhs) const if (op == "-") {
+	vec!(N, V) eachMax(const vec!(N, V) p) const {
 		vec!(N, V) result;
-		result.val[] = val[] - rhs.val[];
+		foreach (i; 0..N) {
+			result.val[i] = max(p.val[i], val[i]);
+		}
+		return result;
+	}
+
+	bool allLt(U)(const vec!(N, U) p) const {
+		foreach (i; 0..N) {
+			if (!(val[i] < p.val[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool allGte(U)(const vec!(N, U) p) const {
+		foreach (i; 0..N) {
+			if (!(val[i] >= p.val[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/** substraction */
+	vec!(N, V) opBinary(string op)(vec!(N, V) rhs) const if (op == "-" || op == "+" || op == "*" || op == "/") {
+		vec!(N, V) result;
+		result.val[] = mixin("val[]" ~ op ~ "rhs.val[]");
 		return result;
 	}
 
@@ -105,3 +121,22 @@ alias vec2i = vec!(2, int);
 alias Point = vec!(2, int);
 alias vec3i = vec!(3, int);
 alias vec4i = vec!(4, int);
+
+unittest {
+	auto a = vec2i(1, 0);
+	auto b = vec2i(2, 3);
+	
+	assert(b.allGte(a));
+	assert(a.allLt(b));
+	assert(!a.allGte(b));
+	assert(!b.allLt(a));
+
+	const c = vec2i(0, 4);
+	const d = vec2i(2, 4);
+
+	assert(d.allGte(c));
+	assert(!c.allLt(d));
+
+	assert (a.eachMax(c) == vec2i(1, 4));
+	assert (b.eachMin(c) == vec2i(0, 3));
+}

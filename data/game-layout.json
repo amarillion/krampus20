@@ -5,9 +5,16 @@
 			"rule": "stretch"
 		}
 	}, {
-		"type": "panel",
-		"id": "pnl_planet_view",
-		"text": "planet view",
+		"type": "tilemap",
+		"id": "tmap_planet_layer",
+		"layout": {
+			"rule": "stretch",
+			"right": 100,
+			"bottom": 200
+		}
+	}, {
+		"type": "tilemap",
+		"id": "tmap_organism_layer",
 		"layout": {
 			"rule": "stretch",
 			"right": 100,

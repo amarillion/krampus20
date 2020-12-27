@@ -1,21 +1,28 @@
 module helix.grid;
 
-import common.vec;
+import helix.vec;
 import std.conv;
 
-// TODO: generalize for N dimensions...
-class Grid(T) {
+class Grid(int N, T) {
 	T[] data;
-	Point size;
+	vec!(N, int) size;
 	
 	@property int width() const { return size.x; }
 	@property int height() const { return size.y; }
 
-	this(ulong width, ulong height, T initialValue = T.init) {
-		this(Point(cast(int)width, cast(int)height), initialValue);
+	static if (N == 2) {
+		this(int width, int height, T initialValue = T.init) {
+			this(vec!(N, int)(width, height), initialValue);
+		}
+	}
+	else static if (N == 3) {
+		@property int depth() const { return size.z; }
+		this(int width, int height, int depth, T initialValue = T.init) {
+			this(vec!(N, int)(width, height, depth), initialValue);
+		}
 	}
 
-	this(Point size, T initialValue = T.init) {
+	this(vec!(N, int) size, T initialValue = T.init) {
 		this.size = size;
 		data = [];
 		data.length = size.x * size.y;
@@ -26,24 +33,32 @@ class Grid(T) {
 		}
 	}
 
-	bool inRange(Point p) const {
-		return (p.x >= 0 && p.x < size.x && p.y >= 0 && p.y < size.y);
+	bool inRange(vec!(N, int) p) const {
+		auto zero = vec!(N, int)(0);
+		return p.allGte(zero) && p.allLt(size);
 	}
 
-	ulong toIndex(Point p) const {
-		return p.x + (size.x * p.y);
+	ulong toIndex(vec!(N, int) p) const {
+		ulong result = p.val[$ - 1];
+		foreach (i; 1 .. N) {
+			result *= size.val[$ - i - 1];
+			result += p.val[$ - i - 1];
+		}
+		return result;
 	}
 
-	void set(Point p, T val) {
+	void set(vec!(N, int) p, T val) {
 		assert(inRange(p));
 		data[toIndex(p)] = val;
 	}
 
-	T get(Point p) const {
+	T get(vec!(N, int) p) const {
 		assert(inRange(p));
 		return data[toIndex(p)];
 	}
 
+/*
+	//TODO
 	string format(string cellSep = ", ", string lineSep = "\n") {
 		char[] result;
 		int i = 0;
@@ -69,5 +84,18 @@ class Grid(T) {
 	override string toString() {
 		return format();
 	}
+*/
+}
+
+
+unittest {
+
+	auto grid = new Grid!(3, bool)(32, 16, 4);
+
+	assert (grid.toIndex(vec3i(0, 0, 0)) == 0);
+	assert (grid.toIndex(vec3i(1, 0, 0)) == 1);
+	assert (grid.toIndex(vec3i(0, 1, 0)) == 32);
+	assert (grid.toIndex(vec3i(0, 0, 1)) == 32 * 16);
+	assert (grid.toIndex(vec3i(7, 7, 3)) == 7 + (32 * 7) + (16 * 32 * 3));
 
 }

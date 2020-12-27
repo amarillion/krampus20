@@ -7,6 +7,8 @@ import helix.resources;
 import helix.mainloop;
 import helix.vec;
 import helix.rect;
+import helix.tilemap;
+import helix.tilemapview;
 
 import std.stdio;
 import std.conv;
@@ -20,38 +22,6 @@ import allegro5.allegro_ttf;
 import std.json;
 
 class StyledComponent : Component {
-
-	override void draw(GraphicsContext gc) {
-		assert(style);
-		
-		// render shadow
-		// TODO
-
-		// render background
-		al_draw_filled_rectangle(x, y, x + w, y + h, style.getColor("background"));
-		
-		// render border
-		const borderWidth = style.getNumber("border-width");
-		ALLEGRO_COLOR borderColor = style.getColor("border");
-		al_draw_line(x, y, x + w, y, style.getColor("border-top", borderColor), borderWidth);
-		al_draw_line(x + w, y, x + w, y + h, style.getColor("border-right", borderColor), borderWidth);
-		al_draw_line(x + w, y + h, x, y + h, style.getColor("border-bottom", borderColor), borderWidth);
-		al_draw_line(x, y + h, x, y, style.getColor("border-left", borderColor), borderWidth);
-		
-		// render label
-		//TODO: use stringz...
-		ALLEGRO_COLOR color = style.getColor("color");
-		ALLEGRO_FONT *font = style.getFont();
-		int th = al_get_font_line_height(font);
-		int tdes = al_get_font_descent(font);
-		al_draw_text(font, color, x + w / 2, y + (h - th) / 2 - tdes, ALLEGRO_ALIGN_CENTER, cast(const char*) (text ~ '\0'));
-
-		// render icon
-		// TODO
-
-		// render outline...
-		// TODO
-	}
 
 	override void update() {}
 }
@@ -93,7 +63,7 @@ class Engine : Component
 		foreach (eltData; data.array) {
 			// create child components
 		
-			StyledComponent div = null;
+			Component div = null;
 			string type = eltData["type"].str;
 			switch(type) {
 				case "button": {
@@ -104,6 +74,11 @@ class Engine : Component
 					ImageComponent img = new ImageComponent();
 					img.img = window.resources.getBitmap(eltData["src"].str);
 					div = img;
+					break;
+				}
+				case "tilemap": {
+					auto tmv = new TileMapView();
+					div = tmv;
 					break;
 				}
 				default: div = new StyledComponent(); break;
@@ -132,10 +107,23 @@ class Engine : Component
 	this(MainLoop window) {
 		this.window = window;
 		/* MENU */
-		buildDialog(window.resources.getJSON("menu-layout"));
-		getElementById("btn_start_game").onAction.add({ writeln("Hello World"); });
+		// buildDialog(window.resources.getJSON("menu-layout"));
+		// getElementById("btn_start_game").onAction.add({ writeln("Hello World"); });
 		/* GAME SCREEN */
-		// buildDialog(window.resources.getJSON("game-layout"));
+		buildDialog(window.resources.getJSON("game-layout"));
+		
+		{
+			auto tilemapElt = cast(TileMapView)getElementById("tmap_planet_layer");
+			JSONValue val = window.resources.getJSON("planetscape");
+			tilemapElt.tilemap.fromTiledJSON(val);
+			tilemapElt.tilemap.tilelist.bmp = window.resources.getBitmap("biotope");
+		}
+		{
+			auto tilemapElt = cast(TileMapView)getElementById("tmap_organism_layer");
+			JSONValue val = window.resources.getJSON("speciesmap");
+			tilemapElt.tilemap.fromTiledJSON(val);
+			tilemapElt.tilemap.tilelist.bmp = window.resources.getBitmap("species");
+		}
 	}
 
 	void addChild(Component c) {
