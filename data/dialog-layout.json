@@ -18,17 +18,18 @@
 		},
 		"style": {
 			"background": "white" 
-		}
-	}, {
-		"type": "button",
-		"id": "btn_ok",
-		"text": "Ok",
-		"layout": {
-			"rule": "bottom-right",
-			"right": 10,
-			"bottom": 10,
-			"width": 80,
-			"height": 30
-		}
+		},
+		"children": [{
+			"type": "button",
+			"id": "btn_ok",
+			"text": "Ok",
+			"layout": {
+				"rule": "bottom-right",
+				"right": 10,
+				"bottom": 10,
+				"width": 80,
+				"height": 30
+			}
+		}]
 	}
 ]

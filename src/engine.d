@@ -111,7 +111,14 @@ class State : Component {
 			if ("text" in eltData) {
 				div.text = eltData["text"].str;
 			}
-			div.style = style;
+
+			if ("style" in eltData) {
+				div.style = new Style(window.resources, eltData["style"], style);
+			}
+			else {
+				div.style = style;
+			}
+
 			if ("id" in eltData) {
 				div.id = eltData["id"].str;
 				componentRegistry[div.id] = div;

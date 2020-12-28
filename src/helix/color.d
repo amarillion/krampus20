@@ -29,7 +29,8 @@ ALLEGRO_COLOR parseColor(string s) {
 	ALLEGRO_COLOR[string] byName = [
 		"black": Color.BLACK,
 		"blue": Color.BLUE,
-		"red": Color.RED
+		"red": Color.RED,
+		"white": Color.WHITE
 	];
 
 	if (s in byName) {
