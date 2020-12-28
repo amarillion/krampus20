@@ -44,19 +44,18 @@ import helix.util.string;
 	'MainLoop' could be renamed to 'Window'.
 */
 
-enum defaultRootStyleData = parseJSON(`
-{
+enum defaultRootStyleData = parseJSON(`{
 	"font": "builtin_font", 
 	"font-size": 17, 
 	"color": "white", 
-	"background": "black" 
+	"background": "transparent" 
 }`);
 		
 class MainLoop
 {
 	ResourceManager resources;
 	private Style defaultStyle;
-	private Style rootStyle;
+	private Style[string] styleBySelector;
 		
 	ALLEGRO_EVENT_QUEUE* queue;
 	ALLEGRO_DISPLAY* display;
@@ -92,18 +91,33 @@ class MainLoop
 		al_start_timer(timer);
 
 		resources = new ResourceManager();
-		defaultStyle = new Style(resources, defaultRootStyleData); 
-		rootStyle = new Style(resources, "{}", defaultStyle);
+		auto hardcodedDefaultStyle = new Style(resources, defaultRootStyleData); 
+		defaultStyle = new Style(resources, "{}", hardcodedDefaultStyle);
 
 		rootComponent = new RootComponent(this);
 	}
 
-	void applyRootStyle(string resourceKey) {
-		rootStyle.styleData = resources.getJSON(resourceKey);
+
+	void applyStyling(string resourceKey) {
+		auto styleMap = resources.getJSON(resourceKey);
+
+		if ("default" in styleMap) {
+			defaultStyle.styleData = styleMap["default"];
+		}
+
+		foreach (k, v; styleMap.object) {
+			if (k == "default") continue;
+			styleBySelector[k] = new Style(resources, v, defaultStyle);
+		}
 	}
 
-	Style createStyle(string styleData) {
-		return new Style(resources, styleData, rootStyle);
+	Style getStyle(string selector) {
+		if (selector in styleBySelector) {
+			return styleBySelector[selector];
+		}
+		else {
+			return defaultStyle;
+		}
 	}
 
 	void run()

@@ -55,8 +55,8 @@
 			"rule": "bottom-left",
 			"left": 10,
 			"bottom": 10,
-			"w": 200,
-			"h": 50
+			"width": 200,
+			"height": 50
 		}
 	}, {
 		"id": "btn_species_info",
@@ -66,8 +66,8 @@
 			"rule": "bottom-left",
 			"left": 220,
 			"bottom": 10,
-			"w": 200,
-			"h": 50
+			"width": 200,
+			"height": 50
 		}
 	}
 ]

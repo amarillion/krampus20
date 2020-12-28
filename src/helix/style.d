@@ -33,7 +33,7 @@ class Style {
 		this.parent = parent;
 	}
 
-	ALLEGRO_COLOR getColor(string key, ALLEGRO_COLOR fallback = Color.BLACK) {
+	ALLEGRO_COLOR getColor(string key, string fallbackKey = "") {
 		assert(key in [
 			"color": 1, // foreground color / text color
 			"background":1, 
@@ -47,9 +47,16 @@ class Style {
 			string val = styleData[key].str;
 			return parseColor(val);
 		}
-		else {
-			return fallback;
+		else if (fallbackKey != "" && fallbackKey in styleData) {
+			string val = styleData[fallbackKey].str;
+			return parseColor(val);
 		}
+		else {
+			if (parent) {
+				return parent.getColor(key, fallbackKey);
+			}
+		}
+		return Color.BLACK;
 	}
 
 	double getNumber(string key) {

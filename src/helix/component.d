@@ -16,6 +16,7 @@ import helix.signal;
 import helix.util.rect;
 import helix.util.vec;
 import helix.layout;
+import helix.color;
 
 class GraphicsContext
 {
@@ -70,28 +71,33 @@ class Component
 		// TODO
 
 		// render background
-		al_draw_filled_rectangle(x, y, x + w, y + h, style.getColor("background"));
+		ALLEGRO_COLOR background = style.getColor("background");
+		if (!background.isTransparent()) {
+			al_draw_filled_rectangle(x, y, x + w, y + h, background);
+		}
 		
 		// render border
 		const borderWidth = style.getNumber("border-width");
-		ALLEGRO_COLOR borderColor = style.getColor("border");
-		al_draw_line(x, y, x + w, y, style.getColor("border-top", borderColor), borderWidth);
-		al_draw_line(x + w, y, x + w, y + h, style.getColor("border-right", borderColor), borderWidth);
-		al_draw_line(x + w, y + h, x, y + h, style.getColor("border-bottom", borderColor), borderWidth);
-		al_draw_line(x, y + h, x, y, style.getColor("border-left", borderColor), borderWidth);
-		
+		if (borderWidth > 0) {
+			al_draw_line(x, y, x + w, y, style.getColor("border-top", "border"), borderWidth);
+			al_draw_line(x + w, y, x + w, y + h, style.getColor("border-right", "border"), borderWidth);
+			al_draw_line(x + w, y + h, x, y + h, style.getColor("border-bottom", "border"), borderWidth);
+			al_draw_line(x, y + h, x, y, style.getColor("border-left", "border"), borderWidth);
+		}
+
 		// render label
-		//TODO: use stringz...
-		ALLEGRO_COLOR color = style.getColor("color");
-		ALLEGRO_FONT *font = style.getFont();
-		int th = al_get_font_line_height(font);
-		int tdes = al_get_font_descent(font);
-		al_draw_text(font, color, x + w / 2, y + (h - th) / 2 - tdes, ALLEGRO_ALIGN_CENTER, cast(const char*) (text ~ '\0'));
+		if (text != "") {
+			//TODO: use stringz...
+			ALLEGRO_COLOR color = style.getColor("color");
+			ALLEGRO_FONT *font = style.getFont();
+			int th = al_get_font_line_height(font);
+			al_draw_text(font, color, x + w / 2, y + (h - th) / 2, ALLEGRO_ALIGN_CENTER, cast(const char*) (text ~ '\0'));
+		}
 
 		// render icon
 		// TODO
 
-		// render outline...
+		// render focus outline...
 		// TODO
 
 		// and draw children.

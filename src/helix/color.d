@@ -20,8 +20,12 @@ enum Color : ALLEGRO_COLOR {
 	GREY       = ALLEGRO_COLOR (0.5, 0.5, 0.5, 1),
 	CYAN       = ALLEGRO_COLOR (0, 1, 1, 1),
 	MAGENTA    = ALLEGRO_COLOR (1, 0, 1, 1),
+	TRANSPARENT = ALLEGRO_COLOR (0, 0, 0, 0),
 }
 
+bool isTransparent(in ALLEGRO_COLOR color) {
+	return color.a == 0;
+}
 
 ALLEGRO_COLOR parseColor(string s) {
 	// TODO: auto-generate from enum?
@@ -30,7 +34,8 @@ ALLEGRO_COLOR parseColor(string s) {
 		"black": Color.BLACK,
 		"blue": Color.BLUE,
 		"red": Color.RED,
-		"white": Color.WHITE
+		"white": Color.WHITE,
+		"transparent": Color.TRANSPARENT,
 	];
 
 	if (s in byName) {
@@ -72,4 +77,8 @@ unittest {
 	assert (colorEq(parseColor("black"),      ALLEGRO_COLOR(0, 0, 0, 1)));
 	assert (colorEq(parseColor("#20FF4080"),  ALLEGRO_COLOR(0.125, 1, 0.25, 0.5)));
 	assert (colorEq(parseColor("#20FF40"),    ALLEGRO_COLOR(0.125, 1, 0.25, 1)));
+
+	assert (!isTransparent(Color.BLACK));
+	assert (!isTransparent(Color.WHITE));
+	assert (isTransparent(Color.TRANSPARENT));
 }

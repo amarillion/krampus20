@@ -72,12 +72,10 @@ class State : Component {
 	private Component[string] componentRegistry;
 
 	void buildDialog(JSONValue data) {
-		auto styleData = `{ "background": "#888888", "border": "#444444", "border-left": "#BBBBBB", "border-top": "#BBBBBB", "border-width": 2.0, "color": "#FFFFFF" }`;
-		Style style = window.createStyle(styleData);
-		buildDialogRecursive(this, style, data);
+		buildDialogRecursive(this, data);
 	}
 
-	void buildDialogRecursive(Component parent, Style style, JSONValue data) {
+	void buildDialogRecursive(Component parent, JSONValue data) {
 
 		assert(data.type == JSONType.ARRAY);
 
@@ -111,7 +109,8 @@ class State : Component {
 			if ("text" in eltData) {
 				div.text = eltData["text"].str;
 			}
-
+			
+			Style style = window.getStyle(type);
 			if ("style" in eltData) {
 				div.style = new Style(window.resources, eltData["style"], style);
 			}
@@ -126,7 +125,7 @@ class State : Component {
 
 			parent.addChild(div);
 			if ("children" in eltData) {
-				buildDialogRecursive(div, style, eltData["children"]);
+				buildDialogRecursive(div, eltData["children"]);
 			}
 		}
 	}
@@ -184,13 +183,13 @@ class Dialog : State {
 
 }
 
-class MenuState : State {
+class TitleState : State {
 
 	this(MainLoop window) {
 		super(window);
 		
 		/* MENU */
-		buildDialog(window.resources.getJSON("menu-layout"));
+		buildDialog(window.resources.getJSON("title-layout"));
 		
 		getElementById("btn_start_game").onAction.add({ 
 			window.switchState("GameState");

@@ -1,3 +1,25 @@
-{ 
-	"font": "DejaVuSans"
-}		
+{
+
+	"default": { 
+		"font": "DejaVuSans"
+	},
+
+	"button": {
+		"background": "#BBBBBB", 
+		"border": "#888888", 
+		"border-left": "#DDDDDD", 
+		"border-top": "#DDDDDD", 
+		"border-width": 2.0, 
+		"color": "black"
+	},
+
+	"panel": {
+		"background": "#BBBBBB", 
+		"border": "#888888",
+		"border-left": "#DDDDDD", 
+		"border-top": "#DDDDDD", 
+		"border-width": 2.0, 
+		"color": "black"
+	}
+
+}
