@@ -1,7 +1,8 @@
 {
 
 	"default": { 
-		"font": "DejaVuSans"
+		"font": "DejaVuSans",
+		"color": "black"
 	},
 
 	"button": {

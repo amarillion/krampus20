@@ -236,7 +236,7 @@ class MainLoop
 
 		void calculateRecursive(Component comp, Rectangle parentRect, int depth = 0) {
 			comp.shape = comp.layoutData.calculate(parentRect);
-			// writeln(" ".rep(depth), comp.shape);
+			// writeln(" ".rep(depth), comp.classinfo, " ", comp.shape);
 			foreach(child; comp.children) {
 				calculateRecursive(child, comp.shape, depth + 1);
 			}

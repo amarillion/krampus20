@@ -9,6 +9,7 @@ import helix.util.vec;
 import helix.util.rect;
 import helix.tilemap;
 import helix.tilemapview;
+import helix.widgets;
 
 import std.stdio;
 import std.conv;
@@ -21,46 +22,6 @@ import allegro5.allegro_font;
 import allegro5.allegro_ttf;
 
 import std.json;
-
-class StyledComponent : Component {
-
-	this(MainLoop window) {
-		super(window);
-	}
-
-	override void update() {}
-}
-
-class ImageComponent : StyledComponent {
-
-	ALLEGRO_BITMAP *img = null;
-
-	this(MainLoop window) {
-		super(window);
-	}
-
-	override void draw(GraphicsContext gc) {
-		assert(img);
-		// stretch mode...
-		int iw = img.al_get_bitmap_width;
-		int ih = img.al_get_bitmap_height;
-		// TODO: why doesn't it stretch the right way?
-		al_draw_scaled_bitmap(img, 0, 0, iw, ih, x, y, w, h, 0);
-	}
-
-	override void update() {}
-}
-
-class Button : StyledComponent {
-
-	this(MainLoop window) {
-		super(window);
-	}
-
-	override void onMouseDown(Point p) {
-		onAction.dispatch();
-	}
-}
 
 class State : Component {
 
@@ -98,6 +59,11 @@ class State : Component {
 				case "tilemap": {
 					auto tmv = new TileMapView(window);
 					div = tmv;
+					break;
+				}
+				case "pre": {
+					auto pre = new PreformattedText(window);
+					div = pre;
 					break;
 				}
 				default: div = new StyledComponent(window); break;
@@ -172,9 +138,14 @@ class GameState : State {
 
 class Dialog : State {
 
-	this(MainLoop window) {
+	this(MainLoop window, Component slotted = null) {
 		super(window);
+		
 		buildDialog(window.resources.getJSON("dialog-layout"));
+
+		if (slotted) {
+			getElementById("div_slot").addChild(slotted);
+		}
 
 		getElementById("btn_ok").onAction.add({ 
 			window.popScene(); 
@@ -196,7 +167,26 @@ class TitleState : State {
 		});
 
 		getElementById("btn_credits").onAction.add({ 
-			Dialog dlg = new Dialog(window);
+			PreformattedText slotted = new PreformattedText(window);
+			slotted.text =
+`<h1>Exo Keeper</h1>
+<p>
+Exo Keeper is a game about surviving and thriving on an exo-planet.
+<p>
+Exo Keeper was made in just 72hours for the <a href="https://ldjam.com/events/ludum-dare/46/">Ludum Dare 46</a> Game Jam. The theme of LD46 was:
+<blockquote>
+<b>Keep it alive</b>
+</blockquote>
+<p>Authors:</p>
+<dl>
+<dd><a href="https://twitter.com/mpvaniersel">Amarillion</a> (Code)
+<dd><a href="https://github.com/gekaremi">Gekaremi</a> (Design)
+<dd><a href="https://www.instagram.com/l_p_kongroo">Tatiana Kondratieva</a> (Art)
+<dd><a href="http://www.dodonoghue.com/">Dónall O'Donoghue</a> (Music)
+</dl>
+`;
+			slotted.style = window.getStyle("pre");
+			Dialog dlg = new Dialog(window, slotted);
 			window.pushScene(dlg); 
 		});
 
