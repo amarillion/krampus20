@@ -77,7 +77,7 @@ class MainLoop
 		//TODO: make configurable
 		al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
 		
-		display = al_create_display(1024, 640);
+		display = al_create_display(1280, 720);
 				
 		queue = al_create_event_queue();
 
@@ -137,14 +137,12 @@ class MainLoop
 				{
 					case ALLEGRO_EVENT_DISPLAY_RESIZE:
 					{
-						writeln ("Window resize");
 						al_acknowledge_resize(event.display.source);
 						calculateLayout();
 						break;
 					}
 					case ALLEGRO_EVENT_DISPLAY_CLOSE:
 					{
-						writeln ("Display close");
 						exit = true;
 						break;
 					}
@@ -227,6 +225,7 @@ class MainLoop
 	}
 
 	void calculateLayout() {
+		if (engine is null) return;
 
 		void calculateRecursive(Component comp, Rectangle parentRect, int depth = 0) {
 			comp.shape = comp.layoutData.calculate(parentRect);

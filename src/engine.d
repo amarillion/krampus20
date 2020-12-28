@@ -13,6 +13,7 @@ import helix.tilemapview;
 import std.stdio;
 import std.conv;
 import std.math;
+import std.exception;
 
 import allegro5.allegro;
 import allegro5.allegro_primitives;
@@ -49,8 +50,9 @@ class Button : StyledComponent {
 	}
 }
 
-class Engine : Component
-{
+class State : Component {
+
+	//TODO: I want to move this registry to window...
 	private Component[string] componentRegistry;
 
 	void buildDialog(JSONValue data) {
@@ -97,18 +99,35 @@ class Engine : Component
 			}
 			addChild(div);
 		}
-
 	}
 
 	Component getElementById(string id) {
 		return componentRegistry[id];
 	}
-	
-	this(MainLoop window) {
+
+	void addChild(Component c) {
+		children ~= c;
+	}
+
+	override void draw(GraphicsContext gc) {
+		foreach (child; children) {
+			child.draw(gc);
+		}
+	}
+
+	override void update() {
+	}
+
+}
+
+class GameState : State {
+
+	Engine engine; //TODO - temporary
+
+	this(MainLoop window, Engine engine) {
 		this.window = window;
-		/* MENU */
-		// buildDialog(window.resources.getJSON("menu-layout"));
-		// getElementById("btn_start_game").onAction.add({ writeln("Hello World"); });
+		this.engine = engine;
+
 		/* GAME SCREEN */
 		buildDialog(window.resources.getJSON("game-layout"));
 		
@@ -124,19 +143,68 @@ class Engine : Component
 			tilemapElt.tilemap.fromTiledJSON(val);
 			tilemapElt.tilemap.tilelist.bmp = window.resources.getBitmap("species");
 		}
+
 	}
 
-	void addChild(Component c) {
-		children ~= c;
+}
+
+class MenuState : State {
+
+	Engine engine;
+
+	this(MainLoop window, Engine engine) {
+		this.window = window;
+		this.engine = engine;
+
+				/* MENU */
+		buildDialog(window.resources.getJSON("menu-layout"));
+		getElementById("btn_start_game").onAction.add({ 
+			engine.switchState("GameState");
+		});
+
+	}
+
+}
+
+
+class Engine : Component
+{	
+	State[string] states;
+	State currentState;
+
+	this(MainLoop window) {
+		this.window = window;
+
+		states["GameState"] = new GameState(window, this);
+		states["MenuState"] = new MenuState(window, this);
+
+		switchState("MenuState");
+	}
+
+	// TODO: move to window...
+	void switchState(string state) {
+		enforce(state in states);
+		currentState = states[state];
+		children = [ currentState ];
+		window.calculateLayout();
+	}
+
+	// TODO: move to window...
+	void openDialog(Component dialog) {
+		children ~= dialog;
+		window.calculateLayout();
+	}
+
+	override void update() {
+		foreach (child; children) {
+			child.update();
+		}
 	}
 
 	override void draw(GraphicsContext gc) {
 		foreach (child; children) {
 			child.draw(gc);
 		}
-	}
-
-	override void update() {
 	}
 
 }
