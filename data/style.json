@@ -21,6 +21,10 @@
 		"border-top": "#DDDDDD", 
 		"border-width": 2.0, 
 		"color": "black"
+	},
+
+	"pre": {
+		"font-size": 14
 	}
 
 }

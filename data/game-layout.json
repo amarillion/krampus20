@@ -1,34 +1,48 @@
 [
 	{
 		"type": "desktop",
+		"style": {
+			"background": "#000040"
+		},
 		"layout": {
 			"rule": "stretch"
 		}
 	}, {
-		"type": "tilemap",
-		"id": "tmap_planet_layer",
+		"type": "div", 
 		"layout": {
 			"rule": "stretch",
-			"right": 100,
+			"right": 350,
 			"bottom": 200
-		}
-	}, {
-		"type": "tilemap",
-		"id": "tmap_organism_layer",
-		"layout": {
-			"rule": "stretch",
-			"right": 100,
-			"bottom": 200
-		}
+		},
+		"children": [{
+			"type": "tilemap",
+			"id": "tmap_planet_layer",
+			"layout": {
+				"rule": "stretch"
+			}
+		}, {
+			"type": "tilemap",
+			"id": "tmap_organism_layer",
+			"layout": {
+				"rule": "stretch"
+			}
+		}]
 	}, {
 		"type": "panel",
 		"id": "pnl_cell_view",
-		"text": "Cell view",
 		"layout": {
 			"rule": "stretch-right",
-			"width": 100,
+			"width": 350,
 			"bottom": 200
-		}
+		},
+		"children": [{
+			"type": "pre",
+			"id": "pre_cell_info",
+			"layout": {
+				"rule": "stretch",
+				"top": 8, "left": 8, "right": 8, "bottom": 8
+			}
+		}]
 	}, {
 		"type": "panel",
 		"id": "pnl_species_info",
@@ -36,14 +50,13 @@
 		"layout": {
 			"rule": "stretch-bottom",
 			"height": 200,
-			"bottom": 20
+			"right": 350
 		}
 	}, {
 		"type": "panel",
-		"text": "Planet info",
 		"layout": {
 			"rule": "bottom-right",
-			"width": 100,
+			"width": 350,
 			"height": 200
 		},
 		"children": [{

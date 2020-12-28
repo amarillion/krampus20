@@ -111,31 +111,6 @@ class State : Component {
 
 }
 
-class GameState : State {
-
-	this(MainLoop window) {
-		super(window);
-
-		/* GAME SCREEN */
-		buildDialog(window.resources.getJSON("game-layout"));
-		
-		{
-			auto tilemapElt = cast(TileMapView)getElementById("tmap_planet_layer");
-			JSONValue val = window.resources.getJSON("planetscape");
-			tilemapElt.tilemap.fromTiledJSON(val);
-			tilemapElt.tilemap.tilelist.bmp = window.resources.getBitmap("biotope");
-		}
-		{
-			auto tilemapElt = cast(TileMapView)getElementById("tmap_organism_layer");
-			JSONValue val = window.resources.getJSON("speciesmap");
-			tilemapElt.tilemap.fromTiledJSON(val);
-			tilemapElt.tilemap.tilelist.bmp = window.resources.getBitmap("species");
-		}
-
-	}
-
-}
-
 class Dialog : State {
 
 	this(MainLoop window, Component slotted = null) {

@@ -3,6 +3,7 @@ module app;
 import std.stdio;
 import helix.mainloop;
 import engine;
+import gamestate;
 import allegro5.allegro;
 
 void main()
