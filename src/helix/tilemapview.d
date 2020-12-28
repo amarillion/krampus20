@@ -5,10 +5,15 @@ import helix.util.grid;
 import helix.tilemap;
 import helix.util.coordrange;
 import helix.util.vec;
+import helix.mainloop;
 
 import allegro5.allegro;
 
 class TileMapView : Component {
+
+	this(MainLoop window) {
+		super(window);
+	}
 
 	TileMap tilemap;
 

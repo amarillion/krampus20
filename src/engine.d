@@ -24,12 +24,20 @@ import std.json;
 
 class StyledComponent : Component {
 
+	this(MainLoop window) {
+		super(window);
+	}
+
 	override void update() {}
 }
 
 class ImageComponent : StyledComponent {
 
 	ALLEGRO_BITMAP *img = null;
+
+	this(MainLoop window) {
+		super(window);
+	}
 
 	override void draw(GraphicsContext gc) {
 		assert(img);
@@ -45,6 +53,10 @@ class ImageComponent : StyledComponent {
 
 class Button : StyledComponent {
 
+	this(MainLoop window) {
+		super(window);
+	}
+
 	override void onMouseDown(Point p) {
 		onAction.dispatch();
 	}
@@ -52,13 +64,20 @@ class Button : StyledComponent {
 
 class State : Component {
 
+	this(MainLoop window) {
+		super(window);
+	}
+
 	//TODO: I want to move this registry to window...
 	private Component[string] componentRegistry;
 
 	void buildDialog(JSONValue data) {
-		
 		auto styleData = `{ "background": "#888888", "border": "#444444", "border-left": "#BBBBBB", "border-top": "#BBBBBB", "border-width": 2.0, "color": "#FFFFFF" }`;
 		Style style = window.createStyle(styleData);
+		buildDialogRecursive(this, style, data);
+	}
+
+	void buildDialogRecursive(Component parent, Style style, JSONValue data) {
 
 		assert(data.type == JSONType.ARRAY);
 
@@ -69,21 +88,21 @@ class State : Component {
 			string type = eltData["type"].str;
 			switch(type) {
 				case "button": {
-					div = new Button();
+					div = new Button(window);
 					break;
 				}
 				case "image": {
-					ImageComponent img = new ImageComponent();
+					ImageComponent img = new ImageComponent(window);
 					img.img = window.resources.getBitmap(eltData["src"].str);
 					div = img;
 					break;
 				}
 				case "tilemap": {
-					auto tmv = new TileMapView();
+					auto tmv = new TileMapView(window);
 					div = tmv;
 					break;
 				}
-				default: div = new StyledComponent(); break;
+				default: div = new StyledComponent(window); break;
 			}
 
 			assert("layout" in eltData);
@@ -97,16 +116,16 @@ class State : Component {
 				div.id = eltData["id"].str;
 				componentRegistry[div.id] = div;
 			}
-			addChild(div);
+
+			parent.addChild(div);
+			if ("children" in eltData) {
+				buildDialogRecursive(div, style, eltData["children"]);
+			}
 		}
 	}
 
 	Component getElementById(string id) {
 		return componentRegistry[id];
-	}
-
-	void addChild(Component c) {
-		children ~= c;
 	}
 
 	override void draw(GraphicsContext gc) {
@@ -122,11 +141,8 @@ class State : Component {
 
 class GameState : State {
 
-	Engine engine; //TODO - temporary
-
-	this(MainLoop window, Engine engine) {
-		this.window = window;
-		this.engine = engine;
+	this(MainLoop window) {
+		super(window);
 
 		/* GAME SCREEN */
 		buildDialog(window.resources.getJSON("game-layout"));
@@ -148,63 +164,36 @@ class GameState : State {
 
 }
 
-class MenuState : State {
+class Dialog : State {
 
-	Engine engine;
+	this(MainLoop window) {
+		super(window);
+		buildDialog(window.resources.getJSON("dialog-layout"));
 
-	this(MainLoop window, Engine engine) {
-		this.window = window;
-		this.engine = engine;
-
-				/* MENU */
-		buildDialog(window.resources.getJSON("menu-layout"));
-		getElementById("btn_start_game").onAction.add({ 
-			engine.switchState("GameState");
+		getElementById("btn_ok").onAction.add({ 
+			window.popScene(); 
 		});
-
 	}
 
 }
 
-
-class Engine : Component
-{	
-	State[string] states;
-	State currentState;
+class MenuState : State {
 
 	this(MainLoop window) {
-		this.window = window;
+		super(window);
+		
+		/* MENU */
+		buildDialog(window.resources.getJSON("menu-layout"));
+		
+		getElementById("btn_start_game").onAction.add({ 
+			window.switchState("GameState");
+		});
 
-		states["GameState"] = new GameState(window, this);
-		states["MenuState"] = new MenuState(window, this);
+		getElementById("btn_credits").onAction.add({ 
+			Dialog dlg = new Dialog(window);
+			window.pushScene(dlg); 
+		});
 
-		switchState("MenuState");
-	}
-
-	// TODO: move to window...
-	void switchState(string state) {
-		enforce(state in states);
-		currentState = states[state];
-		children = [ currentState ];
-		window.calculateLayout();
-	}
-
-	// TODO: move to window...
-	void openDialog(Component dialog) {
-		children ~= dialog;
-		window.calculateLayout();
-	}
-
-	override void update() {
-		foreach (child; children) {
-			child.update();
-		}
-	}
-
-	override void draw(GraphicsContext gc) {
-		foreach (child; children) {
-			child.draw(gc);
-		}
 	}
 
 }

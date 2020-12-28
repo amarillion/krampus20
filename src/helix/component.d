@@ -33,19 +33,21 @@ A component may receive mouse events or keyboard events
 from its parent.
 */
 class Component
-{	
-	/* may be null */
-	private Component cparent = null;
-	
+{		
 	//TODO: encapsulate
 	Component[] children;
-	MainLoop window = null;
 	string id;
 	Rectangle shape;
 	
 	protected Style style = null;
 	protected string text = null;
 	LayoutData layoutData;
+
+	protected MainLoop window = null;
+	
+	this(MainLoop window) {
+		this.window = window;
+	}
 
 	void setStyle(Style value) {
 		style = value;
@@ -55,23 +57,10 @@ class Component
 		text = value;
 	}
 
-	/** 
-		may only be called by container.add()
-		may only be called once: it's not allowed to reassign to a different parent.
-	*/
-	private void _setParent (Component value)
-	{
-		assert (cparent is null); // may not reassign parent.
-		cparent = value;
-	}	
-	
-	/** returns the parent component, 
-		or null if this component hasn't be added to anything yet. */	
-	@property public Component parent() { return cparent; }
+	void addChild(Component c) {
+		children ~= c;
+	}
 		
-	/* local font. May be null, in which case the parent font is used */
-	private ALLEGRO_FONT *cfont;
-	
 	abstract void update();
 	
 	void draw(GraphicsContext gc) {
@@ -104,6 +93,13 @@ class Component
 
 		// render outline...
 		// TODO
+
+		// and draw children.
+		// TODO - should this be done by MainLoop/Window?
+		foreach (child; children) {
+			child.draw(gc);
+		}
+
 	}
 	
 	

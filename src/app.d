@@ -20,12 +20,14 @@ void main()
 		mainloop.resources.addFile("data/style.json");
 		mainloop.resources.addFile("data/menu-layout.json");
 		mainloop.resources.addFile("data/game-layout.json");
+		mainloop.resources.addFile("data/dialog-layout.json");
 		mainloop.resources.addFile("data/planetscape.json");
 		mainloop.resources.addFile("data/speciesmap.json");
 
 		mainloop.applyRootStyle("style");
-		auto engine = new Engine(mainloop);
-		mainloop.setRootComponent(engine);
+		mainloop.addState("MenuState", new MenuState(mainloop));
+		mainloop.addState("GameState", new GameState(mainloop));
+		mainloop.switchState("MenuState");
 		mainloop.run();
 		return 0;
 	});

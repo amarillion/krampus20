@@ -14,6 +14,7 @@ import std.stdio;
 import std.string;
 import std.json;
 import std.range;
+import std.exception;
 
 import allegro5.allegro;
 import allegro5.allegro_primitives;
@@ -47,24 +48,10 @@ enum defaultRootStyleData = parseJSON(`{ "font": "builtin_font", "font-size": 17
 		
 class MainLoop
 {
-	private Component engine;
 	ResourceManager resources;
 	private Style defaultStyle;
 	private Style rootStyle;
-	
-	void setRootComponent(Component value)
-	{
-		assert(display, "Programming error: display must be initialized before calling setRootComponent()");
-		this.engine = value;
-		engine.w = al_get_display_width(display);
-		engine.h = al_get_display_height(display);
-		engine.x = 0;
-		engine.y = 0;
-		engine.window = this;
-
-		calculateLayout();
-	}
-	
+		
 	ALLEGRO_EVENT_QUEUE* queue;
 	ALLEGRO_DISPLAY* display;
 	ALLEGRO_TIMER *timer;
@@ -101,6 +88,8 @@ class MainLoop
 		resources = new ResourceManager();
 		defaultStyle = new Style(resources, defaultRootStyleData); 
 		rootStyle = new Style(resources, "{}", defaultStyle);
+
+		rootComponent = new RootComponent(this);
 	}
 
 	void applyRootStyle(string resourceKey) {
@@ -113,7 +102,7 @@ class MainLoop
 
 	void run()
 	{
-		assert (engine !is null, "Must call setRootComponent() before run()");
+		assert (!rootComponent.children.empty, "Must add & switch to a state");
 		
 		bool exit = false;
 		bool need_redraw = true;
@@ -126,7 +115,7 @@ class MainLoop
 				if (need_redraw && al_is_event_queue_empty(queue))
 				{
 					GraphicsContext gc = new GraphicsContext();
-					engine.draw(gc);
+					rootComponent.draw(gc);
 
 					al_flip_display();
 					need_redraw = false;
@@ -148,12 +137,11 @@ class MainLoop
 					}
 					case ALLEGRO_EVENT_KEY_CHAR:
 					{
-						engine.onKey(event.keyboard.keycode, event.keyboard.unichar, event.keyboard.modifiers);
+						rootComponent.onKey(event.keyboard.keycode, event.keyboard.unichar, event.keyboard.modifiers);
 						switch(event.keyboard.keycode)
 						{
 							case ALLEGRO_KEY_ESCAPE:
 							{
-								writeln ("Escape pressed");
 								exit = true;
 								break;
 							}
@@ -167,7 +155,7 @@ class MainLoop
 						dispatchMouseEvent(event);
 						break;
 					case ALLEGRO_EVENT_TIMER: 
-						engine.update();
+						rootComponent.update();
 						need_redraw = true;
 						break;
 					default:
@@ -183,7 +171,7 @@ class MainLoop
 		
 		Point cursor = Point(event.mouse.x, event.mouse.y);
 		
-		Component comp = engine;
+		Component comp = rootComponent;
 		bool goDeeper = true;
 		while (goDeeper) {
 			bool match = false;
@@ -225,7 +213,6 @@ class MainLoop
 	}
 
 	void calculateLayout() {
-		if (engine is null) return;
 
 		void calculateRecursive(Component comp, Rectangle parentRect, int depth = 0) {
 			comp.shape = comp.layoutData.calculate(parentRect);
@@ -236,7 +223,7 @@ class MainLoop
 		}
 
 		Rectangle displayRect = Rectangle(0, 0, display.al_get_display_width, display.al_get_display_height);
-		calculateRecursive (engine, displayRect);
+		calculateRecursive (rootComponent, displayRect);
 	}
 
 	private void done()
@@ -244,6 +231,77 @@ class MainLoop
 		 al_destroy_timer(timer);
 		 al_destroy_display(display);
 		 al_destroy_event_queue(queue);
+	}
+
+	/*
+	void setRootComponent(Component value)
+	{
+		assert(display, "Programming error: display must be initialized before calling setRootComponent()");
+		this.engine = value;
+		engine.w = al_get_display_width(display);
+		engine.h = al_get_display_height(display);
+		engine.x = 0;
+		engine.y = 0;
+		engine.window = this;
+
+		calculateLayout();
+	}
+	*/
+
+	/**
+		Switches the complete scene to a new Scene
+	*/
+	void switchState(string name) {
+		enforce(name in states);
+		rootComponent.clearChildren();
+		rootComponent.addChild(states[name]);
+		calculateLayout();
+	}
+
+	void addState(string name, Component state) {
+		states[name] = state;
+	}
+
+	/** add a scene at the root level. 
+		Useful for dialogs (modal and non-modal)  */
+	void pushScene(Component scene, bool modal = true) {
+		rootComponent.addChild(scene);
+		calculateLayout();
+	}
+
+	void popScene() {
+		rootComponent.removeLastChild();
+		calculateLayout();
+	}
+
+	Component[string] states;
+	RootComponent rootComponent;
+
+	class RootComponent : Component {
+
+		this(MainLoop window) {
+			super(window);
+		}
+
+		override void update() {
+			foreach (child; children) {
+				child.update();
+			}
+		}
+
+		override void draw(GraphicsContext gc) {
+			foreach (child; children) {
+				child.draw(gc);
+			}
+		}
+
+		void clearChildren() {
+			children = [];
+		}
+
+		void removeLastChild() {
+			children = children[0..$-1];
+		}
 	}
 	
 }

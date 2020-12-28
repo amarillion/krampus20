@@ -55,7 +55,8 @@ struct LayoutData {
 			"stretch-right": [ LayoutRule.END,     LayoutRule.STRETCH ],
 			"stretch-top":   [ LayoutRule.STRETCH, LayoutRule.BEGIN   ],
 			"stretch-bottom":[ LayoutRule.STRETCH, LayoutRule.END     ],
-			//TODO: center rules...
+			"center":        [ LayoutRule.CENTER,  LayoutRule.CENTER  ],
+			//TODO: more variants of center rule...
 		];
 
 		enforce(rule in ruleMap, format("Unknown layout rule %s", rule));
