@@ -25,9 +25,9 @@ import allegro5.allegro_color;
 import helix.component;
 import helix.resources;
 import helix.style;
-import helix.vec;
-import helix.rect;
-import helix.strutil;
+import helix.util.vec;
+import helix.util.rect;
+import helix.util.string;
 
 /**
 	MainLoop is responsible for:

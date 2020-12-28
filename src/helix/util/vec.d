@@ -1,7 +1,6 @@
-module helix.vec;
-
+module helix.util.vec;
 import std.conv;
-import helix.util;
+import helix.util.math;
 
 struct vec(int N, V) {
 	V[N] val;

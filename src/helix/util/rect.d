@@ -1,7 +1,7 @@
-module helix.rect;
+module helix.util.rect;
 
-import helix.util;
-import helix.vec;
+import helix.util.math;
+import helix.util.vec;
 
 struct rect(T)
 {

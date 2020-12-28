@@ -2,9 +2,9 @@ module helix.tilemap;
 
 import std.json;
 import std.format;
-import helix.grid;
-import helix.vec;
-import helix.coordrange;
+import helix.util.grid;
+import helix.util.vec;
+import helix.util.coordrange;
 import allegro5.allegro;
 import std.conv;
 

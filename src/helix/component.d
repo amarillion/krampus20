@@ -9,12 +9,12 @@ import allegro5.allegro_font;
 import allegro5.allegro_ttf;
 import allegro5.allegro_color;
 
-import helix.util;
+import helix.util.math;
 import helix.mainloop;
 import helix.style;
 import helix.signal;
-import helix.rect;
-import helix.vec;
+import helix.util.rect;
+import helix.util.vec;
 import helix.layout;
 
 class GraphicsContext

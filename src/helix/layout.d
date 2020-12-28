@@ -1,7 +1,7 @@
 module helix.layout;
 
 import std.json;
-import helix.rect;
+import helix.util.rect;
 import std.exception;
 import std.format;
 import std.stdio;

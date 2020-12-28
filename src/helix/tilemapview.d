@@ -1,10 +1,10 @@
 module helix.tilemapview;
 
 import helix.component;
-import helix.grid;
+import helix.util.grid;
 import helix.tilemap;
-import helix.coordrange;
-import helix.vec;
+import helix.util.coordrange;
+import helix.util.vec;
 
 import allegro5.allegro;
 

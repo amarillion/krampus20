@@ -1,4 +1,4 @@
-module helix.util;
+module helix.util.math;
 
 /** lowest of the two, for any type that has opCmp */
 T min(T) (T a, T b)

@@ -5,8 +5,8 @@ import helix.component;
 import helix.style;
 import helix.resources;
 import helix.mainloop;
-import helix.vec;
-import helix.rect;
+import helix.util.vec;
+import helix.util.rect;
 import helix.tilemap;
 import helix.tilemapview;
 

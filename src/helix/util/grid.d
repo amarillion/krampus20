@@ -1,6 +1,6 @@
-module helix.grid;
+module helix.util.grid;
 
-import helix.vec;
+import helix.util.vec;
 import std.conv;
 
 class Grid(int N, T) {

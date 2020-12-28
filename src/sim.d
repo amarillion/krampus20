@@ -1,10 +1,10 @@
 module sim;
 
-import helix.grid;
+import helix.util.grid;
 import planet;
 import species;
 import cell;
-import helix.vec;
+import helix.util.vec;
 import helix.dialog;
 
 struct Trigger {

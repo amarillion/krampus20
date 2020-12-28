@@ -1,4 +1,4 @@
-module helix.strutil;
+module helix.util.string;
 
 string rep(string val, int num) {
 	char[] result;

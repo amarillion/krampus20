@@ -1,6 +1,6 @@
-module helix.coordrange;
+module helix.util.coordrange;
 
-import helix.vec;
+import helix.util.vec;
 
 /**
 	Range over all coordinates in a grid (or higher dimensional equivalent)
