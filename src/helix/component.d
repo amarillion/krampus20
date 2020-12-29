@@ -15,7 +15,10 @@ import helix.util.rect;
 import helix.util.vec;
 import helix.layout;
 import helix.color;
+
 import std.string;
+import std.algorithm;
+import std.range;
 
 class GraphicsContext
 {
@@ -42,7 +45,7 @@ class Component
 	string text = null;
 
 	//TODO: put collection of styles together more sensibly...
-	protected Style[] styles = []; // 0: normal, 1: selected...
+	protected Style[] styles = []; // 0: normal, 1: selected, 2: disabled...
 
 	LayoutData layoutData;
 
@@ -56,10 +59,11 @@ class Component
 	bool invalid = false; // used for input validation
 	bool readonly = false; // used for edit controls
 	bool canFocus = false;
+	bool killed = false;
 
 	this(MainLoop window) {
 		this.window = window;
-		styles.length = 2; //TODO: currently can only store 2 styles...
+		styles.length = 3; //TODO: currently can only store 3 styles...
 	}
 
 	void setStyle(Style value, int mode = 0) {
@@ -74,10 +78,22 @@ class Component
 		children ~= c;
 	}
 		
-	abstract void update();
-	
+	void update() {
+		if (killed) return;
+		foreach(child; children) {
+			child.update();
+		}
+		children = children.filter!(c => !c.killed).array;
+	}
+
+	void kill() {
+		killed = true;
+	}
+
 	void draw(GraphicsContext gc) {
-		Style style = selected ? styles[1] : styles[0];
+		if (killed || hidden) return;
+		
+		Style style = disabled ? styles[2] : (selected ? styles[1] : styles[0]);
 		assert(style);
 		
 		// render shadow

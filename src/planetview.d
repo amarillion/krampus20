@@ -22,8 +22,6 @@ class PlanetView : Component {
 	TileMap speciesMap;
 	Model!Point selectedTile;
 
-	override void update() {}
-
 	override void draw(GraphicsContext gc) {
 		draw_tilemap(planetMap, shape);
 		draw_tilemap(speciesMap, shape);

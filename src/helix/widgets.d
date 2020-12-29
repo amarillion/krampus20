@@ -9,16 +9,7 @@ import allegro5.allegro_font;
 import std.array;
 import std.string : toStringz;
 
-class StyledComponent : Component {
-
-	this(MainLoop window) {
-		super(window);
-	}
-
-	override void update() {}
-}
-
-class ImageComponent : StyledComponent {
+class ImageComponent : Component {
 
 	ALLEGRO_BITMAP *img = null;
 
@@ -35,8 +26,6 @@ class ImageComponent : StyledComponent {
 		int ih = img.al_get_bitmap_height;
 		al_draw_scaled_bitmap(img, 0, 0, iw, ih, x, y, w, h, 0);
 	}
-
-	override void update() {}
 }
 
 class Button : Component {
@@ -46,10 +35,10 @@ class Button : Component {
 	}
 
 	override void onMouseDown(Point p) {
-		onAction.dispatch();
+		if (!disabled) {
+			onAction.dispatch();
+		}
 	}
-
-	override void update() {}
 }
 
 class PreformattedText : Component {
@@ -72,6 +61,4 @@ class PreformattedText : Component {
 			y += th;
 		}
 	}
-
-	override void update() {}
 }

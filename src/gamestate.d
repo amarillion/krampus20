@@ -19,6 +19,7 @@ import std.algorithm;
 import startSpecies;
 import std.stdio; // TODO: debug only
 import helix.signal;
+import helix.timer;
 import dialog;
 
 class RadioGroup(T) {
@@ -91,6 +92,12 @@ class GameState : State {
 				currentCell.addSpecies(selectedSpecies, 10);
 				
 				// TODO...
+				speciesGroup.buttons[selectedSpecies].disabled = true;
+				
+				// TODO
+				addChild (new Timer(window, 400, {
+					speciesGroup.buttons[selectedSpecies].disabled = false;
+				}));
 				// speciesElement.disableSpecies(selectedSpecies, sim.tick);
 
 				// very crude hack. We should trigger on a particular tick instead
@@ -117,6 +124,7 @@ class GameState : State {
 			xco += 40;
 			btn.setStyle(window.getStyle("button"));
 			btn.setStyle(window.getStyle("button", "selected"), 1);
+			btn.setStyle(window.getStyle("button", "disabled"), 2);
 			parentElt.addChild(btn);
 			speciesGroup.addButton(btn, i);
 		}
@@ -136,9 +144,12 @@ class GameState : State {
 		}
 	}
 
-	int tickDelay = 0;
+	
 	override void update() {
+		super.update();
+
 		// in original game, delay was 500 msec
+		static int tickDelay = 0;
 		if (tickDelay++ == 30) {
 			tickAndLog();
 			tickDelay = 0;

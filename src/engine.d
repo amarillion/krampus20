@@ -63,7 +63,7 @@ class State : Component {
 					div = pre;
 					break;
 				}
-				default: div = new StyledComponent(window); break;
+				default: div = new Component(window); break;
 			}
 
 			assert("layout" in eltData);
@@ -103,9 +103,6 @@ class State : Component {
 		foreach (child; children) {
 			child.draw(gc);
 		}
-	}
-
-	override void update() {
 	}
 }
 

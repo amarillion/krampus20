@@ -409,12 +409,6 @@ class MainLoop
 			super(window);
 		}
 
-		override void update() {
-			foreach (child; children) {
-				child.update();
-			}
-		}
-
 		override void draw(GraphicsContext gc) {
 			foreach (child; children) {
 				child.draw(gc);

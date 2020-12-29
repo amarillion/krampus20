@@ -21,6 +21,12 @@
 		"border-bottom": "#DDDDDD", 
 	},
 
+	"button[disabled]": {
+		"color": "#888888",
+		"background": "#444444",
+		"border-width": 0.0
+	},
+
 	"panel": {
 		"background": "#BBBBBB", 
 		"border": "#888888",
