@@ -7,7 +7,7 @@ import helix.util.vec;
 import allegro5.allegro;
 import allegro5.allegro_font;
 import std.array;
-import std.stdio; // TODO for testing
+import std.string : toStringz;
 
 class StyledComponent : Component {
 
@@ -68,7 +68,7 @@ class PreformattedText : Component {
 		const th = al_get_font_line_height(font);
 		
 		foreach(line; text.split("\n")) {
-			al_draw_text(font, color, this.shape.x, y,  ALLEGRO_ALIGN_LEFT, cast(const char*) (line ~ '\0'));
+			al_draw_text(font, color, this.shape.x, y,  ALLEGRO_ALIGN_LEFT, toStringz(line));
 			y += th;
 		}
 

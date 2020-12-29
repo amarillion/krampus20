@@ -1,5 +1,7 @@
 module helix.signal;
 
+import helix.util.math;
+
 struct Signal {
 
 	void delegate()[] listeners;
@@ -15,4 +17,48 @@ struct Signal {
 	}
 
 	// TODO - removing listeners
+}
+
+class Model(T) {
+
+	Signal onChange;
+	private T _val;
+
+	void set (T val) {
+		if (val != _val) {
+			_val = val;
+			onChange.dispatch();
+		}
+	}
+ 
+	T get() {
+		return _val;
+	}
+}
+
+
+struct RangeModel(T) {
+
+	Signal onChange;
+	private T _val;
+	private T min;
+	private T max;
+
+	this(T initial, T min, T max) {
+		this.min = min;
+		this.max = max;
+		_val = initial;
+	}
+	
+	void set (T val) {
+		T newVal = bound(min, val, max);
+		if (newVal != _val) {
+			_val = newVal;
+			onChange.dispatch();
+		}		
+	}
+ 
+	T get() {
+		return _val;
+	}
 }

@@ -15,6 +15,7 @@ import helix.util.rect;
 import helix.util.vec;
 import helix.layout;
 import helix.color;
+import std.string;
 
 class GraphicsContext
 {
@@ -97,7 +98,7 @@ class Component
 			ALLEGRO_COLOR color = style.getColor("color");
 			ALLEGRO_FONT *font = style.getFont();
 			int th = al_get_font_line_height(font);
-			al_draw_text(font, color, x + w / 2, y + (h - th) / 2, ALLEGRO_ALIGN_CENTER, cast(const char*) (text ~ '\0'));
+			al_draw_text(font, color, x + w / 2, y + (h - th) / 2, ALLEGRO_ALIGN_CENTER, toStringz(text));
 		}
 
 		// render focus outline...

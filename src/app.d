@@ -15,7 +15,7 @@ void main()
 		initStartSpecies();
 
 		al_init();
-		auto mainloop = new MainLoop();
+		auto mainloop = new MainLoop("krampus20");
 		mainloop.init();
 		
 		mainloop.resources.addFile("data/DejaVuSans.ttf");
@@ -44,11 +44,17 @@ void main()
 		mainloop.resources.addFile("data/images/species/plant0.png");
 		mainloop.resources.addFile("data/images/species/plant1.png");
 
+		mainloop.resources.addMusicFile("data/music/ExoMusicIntro.ogg");
+		mainloop.resources.addMusicFile("data/music/ExoMusicLoop.ogg");
+
 		mainloop.applyStyling("style");
 		mainloop.addState("TitleState", new TitleState(mainloop));
 		mainloop.addState("GameState", new GameState(mainloop));
 		mainloop.switchState("TitleState");
+
+		mainloop.audio.playMusic(mainloop.resources.getMusic("ExoMusicLoop"), 1.0);
 		mainloop.run();
+
 		return 0;
 	});
 

@@ -2,10 +2,13 @@ module helix.resources;
 
 import allegro5.allegro_font;
 import allegro5.allegro;
+import allegro5.allegro_acodec;
+import allegro5.allegro_audio;
 import std.path;
 import std.json;
 import std.stdio;
 import std.format : format;
+import std.string : toStringz;
 
 /*
 struct ResourceHandle(T)
@@ -90,7 +93,7 @@ class ResourceManager
 		{
 			if (!(size in fonts))
 			{
-				auto font = al_load_font(cast(const char*) (filename ~ '\0'), size, 0);
+				auto font = al_load_font(toStringz(filename), size, 0);
 				assert (font != null);
 				fonts[size] = font;
 			}
@@ -116,6 +119,8 @@ class ResourceManager
 	private FontWrapper[string] fonts;
 	private ALLEGRO_BITMAP*[string] bitmaps;
 	private JSONValue[string] jsons;
+	private ALLEGRO_AUDIO_STREAM*[string] musics;
+	private ALLEGRO_SAMPLE*[string] samples;
 
 	private JSONValue loadJson(string filename) {
 		File file = File(filename, "rt");
@@ -130,22 +135,38 @@ class ResourceManager
 
 	public void addFile(string filename)
 	{
-		string ext = extension(filename); // ext includes .
+		string ext = extension(filename); // ext includes '.'
 		string base = baseName(stripExtension(filename));
 		
 		if (ext == ".ttf") {
 			fonts[base] = new FontLoader(filename);			
 		}
 		else if (ext == ".png") {
-			ALLEGRO_BITMAP* bmp = al_load_bitmap (cast(const char *)(filename ~ '\0'));
+			ALLEGRO_BITMAP* bmp = al_load_bitmap (toStringz(filename));
 			assert(bmp != null, format("Something went wrong while loading %s", filename));
 			bitmaps[base] = bmp;
 		}
 		else if (ext == ".json") {
 			jsons[base] = loadJson(filename);
 		}
+		else if (ext == ".ogg") {
+			ALLEGRO_SAMPLE *sample_data = al_load_sample(toStringz(filename));
+			assert (sample_data, format ("error loading OGG %s", filename));
+			//TODO: write to log but don't quit. Sound is not essential.
+			samples[base] = sample_data;
+		}
 	}
 	
+	public void addMusicFile(string filename) {
+		// string ext = extension(filename); // ext includes '.'
+		string base = baseName(stripExtension(filename));
+
+		auto temp = al_load_audio_stream (toStringz(filename), 4, 2048); //TODO: correct values for al_load_audio_stream
+		assert (temp, format ("error loading Music %s", filename));
+		al_set_audio_stream_playmode(temp, ALLEGRO_PLAYMODE.ALLEGRO_PLAYMODE_LOOP);
+		musics[base] = temp;
+	}
+
 	public ALLEGRO_FONT *getFont(string name, int size = 12)
 	{
 		assert (name in fonts, format("There is no font named [%s]", name)); 
@@ -161,6 +182,16 @@ class ResourceManager
 	public JSONValue getJSON(string name) {
 		assert (name in jsons, format("There is no JSON named [%s]", name)); 
 		return jsons[name];
+	}
+
+	public ALLEGRO_SAMPLE *getSample (string name) {
+		assert (name in samples, format("There is no sample named [%s]", name)); 
+		return samples[name];
+	}
+	
+	public ALLEGRO_AUDIO_STREAM *getMusic (string name) {
+		assert (name in musics, format("There is no music named [%s]", name)); 
+		return musics[name];
 	}
 
 }

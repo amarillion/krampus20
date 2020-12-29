@@ -22,6 +22,7 @@ import allegro5.allegro_image;
 import allegro5.allegro_font;
 import allegro5.allegro_ttf;
 import allegro5.allegro_color;
+import allegro5.allegro_acodec;
 
 import helix.component;
 import helix.resources;
@@ -29,6 +30,7 @@ import helix.style;
 import helix.util.vec;
 import helix.util.rect;
 import helix.util.string;
+import helix.audio;
 
 /**
 	MainLoop is responsible for:
@@ -54,31 +56,88 @@ enum defaultRootStyleData = parseJSON(`{
 class MainLoop
 {
 	ResourceManager resources;
+	AudioManager audio;
+
 	private Style defaultStyle;
 	private Style[string] styleBySelector;
 		
-	ALLEGRO_EVENT_QUEUE* queue;
 	ALLEGRO_DISPLAY* display;
-	ALLEGRO_TIMER *timer;
+	ALLEGRO_CONFIG *config;
+	private ALLEGRO_EVENT_QUEUE* queue;
+	private ALLEGRO_TIMER *timer;
+
+/*
+
+	// set_volume_per_voice (1); //TODO
+	if (isSoundInstalled())
+	{
+		if (!al_install_audio())
+		{
+			// could not get sound to work
+			setSoundInstalled(false);
+//			allegro_message ("Could not initialize sound. Sound is turned off.\n%s\n", allegro_error); //TODO
+			allegro_message ("Could not initialize sound. Sound is turned off.");
+		}
+		else
+		{
+			bool success = al_reserve_samples(16);
+			if (!success)
+			{
+				allegro_message ("Could not reserve samples");
+			}
+		}
+		initSound();
+	}
+
+*/
 	
+	string appname;
+	this(string appname = "anonymous_twist_app") {
+		this.appname = appname;
+	}
+
 	void init()
 	{
-		// TODO
-		// ALLEGRO_CONFIG* cfg = al_load_config_file("turnover.ini");
+		al_set_app_name(toStringz(appname));
+		al_set_org_name(toStringz("helixsoft.nl"));
+
+		ALLEGRO_PATH *localAppData = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
+
+		bool result = al_make_directory(al_path_cstr(localAppData, ALLEGRO_NATIVE_PATH_SEP));
+		if (!result) {
+			writeln("WARNING: Failed to create application data directory ", al_get_errno());
+		}
+
+		ALLEGRO_PATH *configPath = al_clone_path(localAppData);
+		al_set_path_filename(configPath, toStringz("twist.ini"));
+
+		config = al_load_config_file (al_path_cstr(configPath, ALLEGRO_NATIVE_PATH_SEP));
+
+		if (config == null) {
+			config = al_create_config();
+		}
+
+		// getFromConfig(config);
+		// getFromArgs (argc, argv);
+
+		// parseOpts(options);
+
+		enforce (al_install_keyboard(), "install keyboard failed");
+		enforce (al_install_mouse(), "install mouse failed");
+		enforce (al_init_image_addon(), "init image addon failed");
+		enforce (al_init_acodec_addon(), "Could not initialze acoded addon");
+		al_init_font_addon(); // never fails, no return value
+		enforce (al_init_ttf_addon(), "Could not initialze ttf addon");
+		enforce (al_init_primitives_addon(), "Could not initialize primitives addon");
 		
+		audio = new AudioManager();
+		audio.initSound();
+		audio.getSoundFromConfig(config);
+
 		//TODO: make configurable
 		al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
-		
 		display = al_create_display(1280, 720);
-				
 		queue = al_create_event_queue();
-
-		al_install_keyboard();
-		al_install_mouse();
-		al_init_image_addon();
-		al_init_font_addon();
-		al_init_ttf_addon();
-		al_init_primitives_addon();
 
 		al_register_event_source(queue, al_get_display_event_source(display));
 		al_register_event_source(queue, al_get_keyboard_event_source());
@@ -248,9 +307,10 @@ class MainLoop
 
 	private void done()
 	{
-		 al_destroy_timer(timer);
-		 al_destroy_display(display);
-		 al_destroy_event_queue(queue);
+		audio.doneSound();
+		al_destroy_timer(timer);
+		al_destroy_display(display);
+		al_destroy_event_queue(queue);
 	}
 
 	/*
