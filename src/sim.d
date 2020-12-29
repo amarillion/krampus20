@@ -6,8 +6,9 @@ import species;
 import cell;
 import helix.util.vec;
 import helix.util.coordrange;
-import helix.dialog;
+import dialog;
 import std.stdio; //TODO - debug only
+import helix.mainloop;
 
 struct Trigger {
 	string id;
@@ -173,17 +174,16 @@ class Sim {
 		planet.temperature = planet.temperatureSum / n;
 		planet.albedo = planet.albedoSum / n;
 
-		checkAchievements();
 	}
 
-	void checkAchievements() {
+	void checkAchievements(MainLoop window) {
 		foreach (v; TRIGGERS) {
 			// don't trigger twice...
 			if (v.id in this.achievements) continue;
 
 			if (v.condition(this)) {
 				achievements[v.id] = true;
-				openDialog(v.toMessage(this));
+				openDialog(window, v.toMessage(this));
 			}
 		}
 	}

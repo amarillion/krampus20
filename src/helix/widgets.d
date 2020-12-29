@@ -60,8 +60,8 @@ class PreformattedText : Component {
 
 	override void draw(GraphicsContext gc) {
 		// given component width...
-		ALLEGRO_FONT *font = style.getFont();
-		ALLEGRO_COLOR color = style.getColor("color");
+		ALLEGRO_FONT *font = styles[0].getFont();
+		ALLEGRO_COLOR color = styles[0].getColor("color");
 			
 		// split text by newlines...
 		int y = this.shape.y;
@@ -71,7 +71,6 @@ class PreformattedText : Component {
 			al_draw_text(font, color, this.shape.x, y,  ALLEGRO_ALIGN_LEFT, toStringz(line));
 			y += th;
 		}
-
 	}
 
 	override void update() {}

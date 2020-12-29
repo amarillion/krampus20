@@ -170,6 +170,15 @@ class MainLoop
 			if (k == "default") continue;
 			styleBySelector[k] = new Style(resources, v, defaultStyle);
 		}
+
+		// link up modifier styles to type styles...
+		foreach (k, v; styleBySelector) {
+			string[] parts = k.split('[');
+			if (parts.length > 1 && parts[0] in styleBySelector) {
+				writefln("Hooking up %s to %s", k, parts[0]);
+				v.parent = styleBySelector[parts[0]];
+			}
+		}
 	}
 
 	Style getStyle(string selector) {
@@ -179,6 +188,14 @@ class MainLoop
 		else {
 			return defaultStyle;
 		}
+	}
+
+	Style getStyle(string selector, string modifier) {
+		string modifiedSelector = format("%s[%s]", selector, modifier); 
+		if (modifiedSelector in styleBySelector) {
+			return styleBySelector[modifiedSelector];
+		}
+		else return getStyle(selector);
 	}
 
 	void run()

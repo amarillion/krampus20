@@ -19,7 +19,7 @@ struct Signal {
 	// TODO - removing listeners
 }
 
-class Model(T) {
+struct Model(T) {
 
 	Signal onChange;
 	private T _val;

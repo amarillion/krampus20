@@ -18,6 +18,28 @@ import std.array;
 import std.algorithm;
 import startSpecies;
 import std.stdio; // TODO: debug only
+import helix.signal;
+import dialog;
+
+class RadioGroup(T) {
+
+	Model!T value;
+	Component[T] buttons;
+
+	void addButton(Component c, T _value) {
+		buttons[_value] = c;
+		c.onAction.add({
+			value.set( _value);
+			updateButtons();
+		});
+	}
+
+	void updateButtons() {
+		foreach(v, button; buttons) {
+			button.selected = (v == value.get());	
+		}
+	}
+}
 
 class GameState : State {
 
@@ -27,6 +49,7 @@ class GameState : State {
 	TileMap planetMap;
 	TileMap speciesMap;
 	Cell currentCell;
+	RadioGroup!ulong speciesGroup;
 
 	this(MainLoop window) {
 		super(window);
@@ -52,6 +75,14 @@ class GameState : State {
 		planetElement = getElementById("pre_planet_info");
 		logElement = getElementById("pre_cell_info");
 		
+		auto btn1 = getElementById("btn_species_info");
+		btn1.onAction.add({ 
+			openDialog(window, START_SPECIES[speciesGroup.value.get()].backstory); 
+		});
+
+		auto btn2 = getElementById("btn_species_introduce");
+		// btn1.onAction.add({});
+
 		initSpeciesButtons();
 		initSim(planetMap);
 	}
@@ -60,13 +91,17 @@ class GameState : State {
 		Component parentElt = getElementById("pnl_species_buttons");
 		int xco = 0;
 		int yco = 0;
-		foreach(sp; START_SPECIES) {
+		speciesGroup = new RadioGroup!ulong();
+		
+		foreach(i, sp; START_SPECIES) {
 			Button btn = new Button(window);
 			btn.layoutData = LayoutData(xco, yco, 0, 0, 36, 36, LayoutRule.BEGIN, LayoutRule.BEGIN);
 			btn.icon = window.resources.getBitmap(sp.iconUrl);
 			xco += 40;
-			btn.style = window.getStyle("button");
+			btn.setStyle(window.getStyle("button"));
+			btn.setStyle(window.getStyle("button", "selected"), 1);
 			parentElt.addChild(btn);
+			speciesGroup.addButton(btn, i);
 		}
 	}
 
@@ -99,6 +134,8 @@ class GameState : State {
 		logElement.text = to!string(currentCell);
 		planetElement.text = format("Tick: %s\n%s", sim.tickCounter, sim.planet);
 		updateSpeciesMap();
+		sim.checkAchievements(window);
+
 	}
 
 	void updateSpeciesMap() {

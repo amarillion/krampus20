@@ -39,19 +39,31 @@ class Component
 	string id;
 	Rectangle shape;
 	ALLEGRO_BITMAP *icon;
-	
-	protected Style style = null;
-	protected string text = null;
+	string text = null;
+
+	//TODO: put collection of styles together more sensibly...
+	protected Style[] styles = []; // 0: normal, 1: selected...
+
 	LayoutData layoutData;
 
 	protected MainLoop window = null;
 	
+	// FLAGS:
+	bool selected = false; // indicates toggled, checked, pressed or selected state 
+	bool hidden = false;
+	bool focused = false; // used for keyboard focus. Display with outline.
+	bool disabled = false;
+	bool invalid = false; // used for input validation
+	bool readonly = false; // used for edit controls
+	bool canFocus = false;
+
 	this(MainLoop window) {
 		this.window = window;
+		styles.length = 2; //TODO: currently can only store 2 styles...
 	}
 
-	void setStyle(Style value) {
-		style = value;
+	void setStyle(Style value, int mode = 0) {
+		styles[mode] = value;
 	}
 
 	void setText(string value) {
@@ -65,6 +77,7 @@ class Component
 	abstract void update();
 	
 	void draw(GraphicsContext gc) {
+		Style style = selected ? styles[1] : styles[0];
 		assert(style);
 		
 		// render shadow

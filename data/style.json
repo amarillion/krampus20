@@ -14,6 +14,13 @@
 		"color": "black"
 	},
 
+	"button[selected]": {
+		"background": "#999999", 
+		"border": "#888888", 
+		"border-right": "#DDDDDD", 
+		"border-bottom": "#DDDDDD", 
+	},
+
 	"panel": {
 		"background": "#BBBBBB", 
 		"border": "#888888",

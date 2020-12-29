@@ -23,6 +23,8 @@ import allegro5.allegro_ttf;
 
 import std.json;
 
+import dialog;
+
 class State : Component {
 
 	this(MainLoop window) {
@@ -77,11 +79,12 @@ class State : Component {
 			}
 			
 			Style style = window.getStyle(type);
+			Style selectedStyle = window.getStyle(type, "selected");
 			if ("style" in eltData) {
-				div.style = new Style(window.resources, eltData["style"], style);
+				div.setStyle(new Style(window.resources, eltData["style"], style));
 			}
 			else {
-				div.style = style;
+				div.setStyle(style);
 			}
 
 			if ("id" in eltData) {
@@ -108,25 +111,6 @@ class State : Component {
 
 	override void update() {
 	}
-
-}
-
-class Dialog : State {
-
-	this(MainLoop window, Component slotted = null) {
-		super(window);
-		
-		buildDialog(window.resources.getJSON("dialog-layout"));
-
-		if (slotted) {
-			getElementById("div_slot").addChild(slotted);
-		}
-
-		getElementById("btn_ok").onAction.add({ 
-			window.popScene(); 
-		});
-	}
-
 }
 
 class TitleState : State {
@@ -142,8 +126,7 @@ class TitleState : State {
 		});
 
 		getElementById("btn_credits").onAction.add({ 
-			PreformattedText slotted = new PreformattedText(window);
-			slotted.text =
+			const text = 
 `<h1>Exo Keeper</h1>
 <p>
 Exo Keeper is a game about surviving and thriving on an exo-planet.
@@ -160,9 +143,7 @@ Exo Keeper was made in just 72hours for the <a href="https://ldjam.com/events/lu
 <dd><a href="http://www.dodonoghue.com/">Dónall O'Donoghue</a> (Music)
 </dl>
 `;
-			slotted.style = window.getStyle("pre");
-			Dialog dlg = new Dialog(window, slotted);
-			window.pushScene(dlg); 
+			openDialog(window, text);
 		});
 
 	}
