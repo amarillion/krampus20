@@ -114,7 +114,7 @@ class Cell {
 	}
 
 	string speciesToString() {
-		return _species.map!(i => `${i.speciesId}: ${i.biomass.toFixed(1)}`).join("\n  ");
+		return _species.map!(i => format("%s: %.1f", i.speciesId, i.biomass)).join("\n  ");
 	}
 
 	// string representation of cell...

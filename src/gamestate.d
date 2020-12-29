@@ -3,12 +3,12 @@ module gamestate;
 import engine;
 import helix.mainloop;
 import helix.widgets;
-import helix.tilemapview;
 import helix.tilemap;
 import helix.util.vec;
 import helix.util.coordrange;
 import helix.layout;
 import helix.component;
+import planetview;
 import std.json;
 import sim;
 import cell;
@@ -50,6 +50,7 @@ class GameState : State {
 	TileMap speciesMap;
 	Cell currentCell;
 	RadioGroup!ulong speciesGroup;
+	PlanetView planetView;
 
 	this(MainLoop window) {
 		super(window);
@@ -63,15 +64,16 @@ class GameState : State {
 		speciesMap.fromTiledJSON(window.resources.getJSON("speciesmap"));
 		speciesMap.tilelist.bmp = window.resources.getBitmap("species");
 
-		{
-			auto tilemapElt = cast(TileMapView)getElementById("tmap_planet_layer");
-			tilemapElt.tilemap = planetMap;
-		}
-		{
-			auto tilemapElt = cast(TileMapView)getElementById("tmap_organism_layer");
-			tilemapElt.tilemap = speciesMap;
-		}
-
+		auto planetViewParentElt = getElementById("div_planet_view");
+		
+		planetView = new PlanetView(window);
+		planetView.planetMap = planetMap;
+		planetView.speciesMap = speciesMap;
+		planetView.selectedTile.onChange.add({
+			currentCell = sim.grid.get(planetView.selectedTile.get());
+		});
+		planetViewParentElt.addChild(planetView);
+	
 		planetElement = getElementById("pre_planet_info");
 		logElement = getElementById("pre_cell_info");
 		
@@ -81,7 +83,22 @@ class GameState : State {
 		});
 
 		auto btn2 = getElementById("btn_species_introduce");
-		// btn1.onAction.add({});
+		btn2.onAction.add({
+			writefln("Introducing species %s at %s", speciesGroup.value.get(), planetView.selectedTile.get());
+			
+			if (currentCell) {
+				ulong selectedSpecies = speciesGroup.value.get();
+				currentCell.addSpecies(selectedSpecies, 10);
+				
+				// TODO...
+				// speciesElement.disableSpecies(selectedSpecies, sim.tick);
+
+				// very crude hack. We should trigger on a particular tick instead
+				// setTimeout(() => this.speciesElement.enableSpecies(selectedSpecies), 20000);
+			}
+
+			// sim.introduceSpecies(); //TODO
+		});
 
 		initSpeciesButtons();
 		initSim(planetMap);
@@ -153,7 +170,7 @@ class GameState : State {
 				auto sp = cell.species[i];
 				if (sp.biomass < 5.0) continue;
 				const tileIdx = START_SPECIES[sp.speciesId].tileIdx;
-				speciesMap.grid.set(pos + deltas[i], tileIdx + 1);
+				speciesMap.grid.set(pos + deltas[i], tileIdx);
 			}
 		}
 	}

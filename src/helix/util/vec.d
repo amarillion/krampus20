@@ -73,31 +73,17 @@ struct vec(int N, V) {
 		return true;
 	}
 
-	/** substraction */
+	/** combine two vectors */
 	vec!(N, V) opBinary(string op)(vec!(N, V) rhs) const if (op == "-" || op == "+" || op == "*" || op == "/") {
 		vec!(N, V) result;
 		result.val[] = mixin("val[]" ~ op ~ "rhs.val[]");
 		return result;
 	}
 
-	/** add a scalar */
-	vec!(N, V) opBinary(string op)(V rhs) const if (op == "+") {
+	/** combine vector and scalar */
+	vec!(N, V) opBinary(string op)(V rhs) const if (op == "-" || op == "+" || op == "*" || op == "/") {
 		vec!(N, V) result;
-		result.val[] = val[] + rhs;
-		return result;
-	}
-
-	/** scale up */
-	vec!(N, V) opBinary(string op)(V rhs) const if (op == "*") {
-		vec!(N, V) result;
-		result.val[] = val[] * rhs;
-		return result;
-	}
-
-	/** substract a scalar */
-	vec!(N, V) opBinary(string op)(V rhs) const if (op == "-") {
-		vec!(N, V) result;
-		result.val[] = val[] - rhs;
+		result.val[] = mixin("val[]" ~ op ~ "rhs");
 		return result;
 	}
 

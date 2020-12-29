@@ -10,24 +10,12 @@
 		}
 	}, {
 		"type": "div", 
+		"id": "div_planet_view",
 		"layout": {
 			"rule": "stretch",
 			"right": 350,
 			"bottom": 200
-		},
-		"children": [{
-			"type": "tilemap",
-			"id": "tmap_planet_layer",
-			"layout": {
-				"rule": "stretch"
-			}
-		}, {
-			"type": "tilemap",
-			"id": "tmap_organism_layer",
-			"layout": {
-				"rule": "stretch"
-			}
-		}]
+		}
 	}, {
 		"type": "panel",
 		"id": "pnl_cell_view",

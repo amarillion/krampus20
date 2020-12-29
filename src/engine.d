@@ -8,13 +8,13 @@ import helix.mainloop;
 import helix.util.vec;
 import helix.util.rect;
 import helix.tilemap;
-import helix.tilemapview;
 import helix.widgets;
 
 import std.stdio;
 import std.conv;
 import std.math;
 import std.exception;
+import std.format;
 
 import allegro5.allegro;
 import allegro5.allegro_primitives;
@@ -58,11 +58,6 @@ class State : Component {
 					div = img;
 					break;
 				}
-				case "tilemap": {
-					auto tmv = new TileMapView(window);
-					div = tmv;
-					break;
-				}
 				case "pre": {
 					auto pre = new PreformattedText(window);
 					div = pre;
@@ -100,6 +95,7 @@ class State : Component {
 	}
 
 	Component getElementById(string id) {
+		enforce(id in componentRegistry, format("Component '%s' not found", id));
 		return componentRegistry[id];
 	}
 
