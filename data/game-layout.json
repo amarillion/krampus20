@@ -2,7 +2,8 @@
 	{
 		"type": "desktop",
 		"style": {
-			"background": "#000040"
+			"background": "#041849",
+			"color": "#8285a9"
 		},
 		"layout": {
 			"rule": "stretch"
@@ -44,14 +45,61 @@
 			}
 		}]
 	}, {
-		"type": "panel",
-		"id": "pnl_species_info",
+		"type": "div",
 		"text": "Species info",
 		"layout": {
 			"rule": "stretch-bottom",
 			"height": 200,
 			"right": 350
-		}
+		},
+		"children": [
+			{
+				"type": "div",
+				"id": "pnl_species_buttons",
+				"layout": {
+					"rule": "stretch-top",
+					"top": 4,
+					"height": 36,
+					"left": 10,
+					"right": 10
+				}
+			}, {
+				"type": "panel",
+				"id": "pnl_species_info",
+				"style": { 
+					"background": "white"
+				},
+				"layout": {
+					"rule": "stretch",
+					"top": 46,
+					"bottom": 36,
+					"left": 10,
+					"right": 10
+				}
+			}, {
+				"id": "btn_species_introduce",
+				"type": "button",
+				"text": "Introduce species",
+				"layout": {
+					"rule": "bottom-left",
+					"left": 10,
+					"bottom": 6,
+					"width": 200,
+					"height": 24
+				}
+			}, {
+				"id": "btn_species_info",
+				"type": "button",
+				"text": "Info...",
+				"layout": {
+					"rule": "bottom-left",
+					"left": 220,
+					"bottom": 6,
+					"width": 200,
+					"height": 24
+				}
+			}
+		]
 	}, {
 		"type": "panel",
 		"layout": {
@@ -67,27 +115,5 @@
 				"top": 8, "left": 8, "right": 8, "bottom": 8
 			}
 		}]
-	}, {
-		"id": "btn_species_introduce",
-		"type": "button",
-		"text": "Introduce species",
-		"layout": {
-			"rule": "bottom-left",
-			"left": 10,
-			"bottom": 10,
-			"width": 200,
-			"height": 50
-		}
-	}, {
-		"id": "btn_species_info",
-		"type": "button",
-		"text": "Info...",
-		"layout": {
-			"rule": "bottom-left",
-			"left": 220,
-			"bottom": 10,
-			"width": 200,
-			"height": 50
-		}
 	}
 ]

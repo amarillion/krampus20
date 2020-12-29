@@ -9,7 +9,10 @@ import std.range;
 import species;
 import std.format;
 
-struct Cell {
+//TODO: switch back to struct.
+//We switched to class, because struct semantics do not work well with forEach, getAdjacent etc...
+//referring to an element within the data structure
+class Cell {
 
 	int x, y;
 
@@ -53,7 +56,7 @@ struct Cell {
 		heat = START_HEAT;
 		
 		// constant amount of stellar energy per tick
-		stellarEnergy = cos(this.latitude / 180 * 3.141) * MAX_STELLAR_HEAT_IN;
+		stellarEnergy = cos(this.latitude / 180.0 * 3.141) * MAX_STELLAR_HEAT_IN;
 		assert (this.stellarEnergy >= 0);
 
 		_species = [];
@@ -115,23 +118,25 @@ struct Cell {
 	}
 
 	// string representation of cell...
-	string toString() {
-		return `[${this.x}, ${this.y}] Biotope: ${this.biotope}` ~
-		`
-Heat: ${this.heat.toExponential(2)} GJ/km^2
-Temperature: ${this.temperature.toFixed(0)} K
-Heat gain from sun: ${this.stellarEnergy.toExponential(2)} GJ/km^2/tick
-Heat loss to space: ${this.heatLoss.toExponential(2)} GJ/km^2/tick
-Albedo: ${this.albedo.toFixed(2)}
-${this.albedoDebugStr}
-Latitude: ${this.latitude.toFixed(0)} deg
+	override string toString() {
+		return format(`[%d, %d] Biotope: %s
+Heat: %.2e GJ/km²
+Temperature: %.0f K
+Heat gain from sun: %.2e GJ/km²/tick
+Heat loss to space: %.2e GJ/km²/tick
+Albedo: %.2f
+%s
+Latitude: %d deg
 
-CO2: ${this.co2.toFixed(1)}
-H2O: ${this.h2o.toFixed(1)}
-O2: ${this.o2.toFixed(1)}
-Organic: ${this.deadBiomass.toFixed(1)}
+CO2: %.1f
+H2O: %.1f
+O2: %.1f
+Organic: %.1f
 
-Species: ${this.speciesToString()}`;
+Species: %s`, 
+	x, y, biotope, 
+	heat, temperature, stellarEnergy, heatLoss, albedo, albedoDebugStr, 
+	latitude, co2, h2o, o2, deadBiomass, speciesToString());
 	}
 
 	/** part of Phase I */
@@ -139,7 +144,7 @@ Species: ${this.speciesToString()}`;
 		// each species should grow and die based on local fitness.
 
 		foreach (sp; _species) {
-			const info = getStartSpecies()[sp.speciesId]; // TODO: caching
+			const info = START_SPECIES[sp.speciesId]; // TODO: caching
 
 			double fitness = 1.0;
 			assert (this.biotope in info.biotopeTolerances);
@@ -334,7 +339,7 @@ Species: ${this.speciesToString()}`;
 		albedoDebugStr = format(`%g * %g [ice] * %g [dryIce]`, ALBEDO_BASE, iceEffect, dryIceEffect);
 
 		foreach (sp; _species) {
-			const info = getStartSpecies()[sp.speciesId]; // TODO: better caching
+			const info = START_SPECIES[sp.speciesId]; // TODO: better caching
 			const speciesEffect = mapAlbedoReduction(info.albedo, sp.biomass / 500);
 			this.albedo *= speciesEffect;
 			albedoDebugStr ~= format(` * %g [%s] `, speciesEffect, sp.speciesId);

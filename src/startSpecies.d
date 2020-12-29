@@ -1,6 +1,5 @@
 module startSpecies;
 
-
 enum ROLE {
 	REDUCER =  0, // metabolises dead biomass using oxygen
 	PRODUCER = 1, // grows from h2o and co2
@@ -50,13 +49,14 @@ struct SpeciesInfo {
 	float[int] biotopeTolerances;
 }
 
-SpeciesInfo[] getStartSpecies() {
-	// TODO better read from JSON perhaps?
-	return [
+SpeciesInfo[] START_SPECIES = null;
 
+void initStartSpecies() {
+	// TODO better read from JSON perhaps?
+	START_SPECIES = [
 		SpeciesInfo( // 0
 			"Plant 0",
-			"./assets/images/species/plant0.png",
+			"plant0",
 			"./assets/species_cover_art/platn_intro2.png",
 			12,
 			0x69F0AE,
@@ -72,7 +72,7 @@ SpeciesInfo[] getStartSpecies() {
 		), 
 		SpeciesInfo( // 1
 			"Plant 1",
-			"./assets/images/species/plant1.png",
+			"plant1",
 			"./assets/species_cover_art/platn_intro1.png",
 			4,
 			0x388E3C,
@@ -88,7 +88,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.5, 1: 0.1, 2: 0.5, 3: 1.0, 4: 0.5, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 2
 			"Herbivore 0",
-			"./assets/images/species/herbivore0.png",
+			"herbivore0",
 			"./assets/species_cover_art/herbivore_intro0.png",
 			11,
 			0xF8BBD0,
@@ -104,7 +104,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 1.0, 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.5, 5: 0.1, 6: 0.1, 7: 0.5 ]
 		), SpeciesInfo( // 3
 			"Fungus 1",
-			"./assets/images/species/fungi1.png",
+			"fungi1",
 			"./assets/species_cover_art/fungi_intro0.png",
 			13,
 			0x8D6E63,
@@ -120,7 +120,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.5, 1: 0.5, 2: 1.0, 3: 0.5, 4: 1.0, 5: 0.1, 6: 0.1, 7: 0.5 ]
 		), SpeciesInfo( // 4
 			"Microbe 1",
-			"./assets/images/species/microb1.png",
+			"microb1",
 			"./assets/species_cover_art/microb_intro1.png",
 			1,
 			0xFFFF00,
@@ -135,7 +135,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.1, 1: 1.0, 2: 0.5, 3: 0.5, 4: 0.5, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 5
 			"Microbe 2",
-			"./assets/images/species/microb2.png",
+			"microb2",
 			"./assets/species_cover_art/microb_intro5.png",
 			3,
 			0x8C9EFF,
@@ -151,7 +151,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.5, 1: 0.1, 2: 0.1, 3: 0.9, 4: 0.9, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 6
 			"Catcrobe 2",
-			"./assets/images/species/catcrobe2.png",
+			"catcrobe2",
 			"./assets/species_cover_art/catcrobe_intro2.png",
 			9,
 			0xBA68C8,
@@ -167,7 +167,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.5, 1: 0.1, 2: 0.1, 3: 0.5, 4: 0.9, 5: 0.9, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 7
 			"Plant 2",
-			"./assets/images/species/microb4.png",
+			"microb4",
 			"./assets/species_cover_art/microb_intro4.png",
 			6,
 			0x18FFFF,
@@ -183,7 +183,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.5, 1: 0.1, 2: 0.5, 3: 0.9, 4: 0.5, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 8
 			"Plant 3",
-			"./assets/images/species/microb5.png",
+			"microb5",
 			"./assets/species_cover_art/microb_intro2.png",
 			7,
 			0x76FF03,
@@ -198,7 +198,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.5, 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.1, 5: 0.9, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 9
 			"Microbe 3",
-			"./assets/images/species/microb3.png",
+			"microb3",
 			"./assets/species_cover_art/microb_intro7.png",
 			8,
 			0xBBDEFB,
@@ -214,7 +214,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.1, 1: 0.1, 2: 1.0, 3: 0.5, 4: 0.5, 5: 0.9, 6: 0.9, 7: 0.5 ]
 		), SpeciesInfo( // 10
 			"Donut 1",
-			"./assets/images/species/donut1.png",
+			"donut1",
 			"./assets/species_cover_art/donut_intro1.png",
 			5,
 			0xFF8F00,
@@ -230,7 +230,7 @@ SpeciesInfo[] getStartSpecies() {
 			[ 0: 0.2, 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.8, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 11
 			"Angry 1",
-			"./assets/images/species/angry1.png",
+			"angry1",
 			"./assets/species_cover_art/angry_intro1.png",
 			10,
 			0xFF3D00,

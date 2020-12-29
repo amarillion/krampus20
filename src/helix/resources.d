@@ -137,7 +137,9 @@ class ResourceManager
 			fonts[base] = new FontLoader(filename);			
 		}
 		else if (ext == ".png") {
-			bitmaps[base] = al_load_bitmap (cast(const char *)(filename ~ '\0'));
+			ALLEGRO_BITMAP* bmp = al_load_bitmap (cast(const char *)(filename ~ '\0'));
+			assert(bmp != null, format("Something went wrong while loading %s", filename));
+			bitmaps[base] = bmp;
 		}
 		else if (ext == ".json") {
 			jsons[base] = loadJson(filename);

@@ -50,16 +50,16 @@ class Planet {
 
 	// string representation of cell...
 	override string toString() {
-		return format!`Average Temperature: %g K
-Lowest Temperature: %g K
-Highest Temperature: %g K
+		return format!`Average Temperature: %.0f K
+Lowest Temperature: %.0f K
+Highest Temperature: %.0f K
 
-Average albedo: %g
+Average albedo: %.2f
 
-CO2: %g
-H2O: %g
-O2: %g
-Organic: %g
+CO2: %.1f
+H2O: %.1f
+O2: %.1f
+Organic: %.1f
 
 Species: %s`
 		(temperature, minTemperature, maxTemperature, albedo,

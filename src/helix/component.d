@@ -1,7 +1,5 @@
 module helix.component;
 
-import std.stdio;
-
 import allegro5.allegro;
 import allegro5.allegro_primitives;
 import allegro5.allegro_image;
@@ -39,6 +37,7 @@ class Component
 	Component[] children;
 	string id;
 	Rectangle shape;
+	ALLEGRO_BITMAP *icon;
 	
 	protected Style style = null;
 	protected string text = null;
@@ -85,6 +84,13 @@ class Component
 			al_draw_line(x, y + h, x, y, style.getColor("border-left", "border"), borderWidth);
 		}
 
+		// render icon
+		if (icon != null) {
+			int iw = al_get_bitmap_width(icon);
+			int ih = al_get_bitmap_height(icon);
+			al_draw_bitmap (icon, x + (w - iw) / 2, y + (h - ih) / 2, 0);
+		}
+
 		// render label
 		if (text != "") {
 			//TODO: use stringz...
@@ -93,9 +99,6 @@ class Component
 			int th = al_get_font_line_height(font);
 			al_draw_text(font, color, x + w / 2, y + (h - th) / 2, ALLEGRO_ALIGN_CENTER, cast(const char*) (text ~ '\0'));
 		}
-
-		// render icon
-		// TODO
 
 		// render focus outline...
 		// TODO

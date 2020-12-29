@@ -26,7 +26,7 @@ class Grid(int N, T) {
 		this.size = size;
 		data = [];
 		data.length = size.x * size.y;
-		if (initialValue != T.init) {
+		if (initialValue !is T.init) {
 			foreach(ref cell; data) {
 				cell = initialValue;
 			}
@@ -110,7 +110,7 @@ class Grid(int N, T) {
 		}
 
 		bool empty() const {
-			return pos < parent.data.length;
+			return remain <= 0;
 		}
 		
 	}
@@ -118,7 +118,13 @@ class Grid(int N, T) {
 	NodeRange eachNode() {
 		return NodeRange(this);
 	}
-
+/*
+	void eachNode(void delegate(T t) f) {
+		foreach(ref d; data) {
+			f(d);
+		}
+	}
+*/
 	NodeRange eachNodeCheckered() {
 		const PRIME = 523;
 		assert(data.length % PRIME != 0);

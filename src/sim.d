@@ -5,7 +5,9 @@ import planet;
 import species;
 import cell;
 import helix.util.vec;
+import helix.util.coordrange;
 import helix.dialog;
+import std.stdio; //TODO - debug only
 
 struct Trigger {
 	string id;
@@ -80,6 +82,9 @@ class Sim {
 	this(int w, int h) {
 		// TODO: return to larger grid
 		grid = new Grid!(2, Cell)(w, h);
+		foreach(p; PointRange(Point(w, h))) {
+			grid.set(p, new Cell(p.x, p.y));
+		}
 		planet = new Planet(); // planetary properties
 		init();
 	}
@@ -161,7 +166,7 @@ class Sim {
 
 	void updatePlanet() {
 		this.planet.reset();
-		foreach (c; grid.eachNode()) {
+		foreach(c; grid.eachNode()) {
 			c.updateStats(this.planet);
 		}
 		const n = grid.width * grid.height;

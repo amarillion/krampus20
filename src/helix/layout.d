@@ -16,12 +16,15 @@ enum LayoutRule {
 struct LayoutData {
 
 	// NB: default values are equivalent to filling the full parent rect.
-	int top;
 	int left;
-	int bottom;
+	int top;
+	
 	int right;
+	int bottom;
+	
 	int width;
 	int height;
+	
 	LayoutRule horizontalRule = LayoutRule.STRETCH;
 	LayoutRule verticalRule = LayoutRule.STRETCH;
 

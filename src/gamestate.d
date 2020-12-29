@@ -7,12 +7,17 @@ import helix.tilemapview;
 import helix.tilemap;
 import helix.util.vec;
 import helix.util.coordrange;
+import helix.layout;
 import helix.component;
 import std.json;
 import sim;
 import cell;
 import std.conv;
 import std.format;
+import std.array;
+import std.algorithm;
+import startSpecies;
+import std.stdio; // TODO: debug only
 
 class GameState : State {
 
@@ -46,8 +51,23 @@ class GameState : State {
 
 		planetElement = getElementById("pre_planet_info");
 		logElement = getElementById("pre_cell_info");
-
+		
+		initSpeciesButtons();
 		initSim(planetMap);
+	}
+
+	void initSpeciesButtons() {
+		Component parentElt = getElementById("pnl_species_buttons");
+		int xco = 0;
+		int yco = 0;
+		foreach(sp; START_SPECIES) {
+			Button btn = new Button(window);
+			btn.layoutData = LayoutData(xco, yco, 0, 0, 36, 36, LayoutRule.BEGIN, LayoutRule.BEGIN);
+			btn.icon = window.resources.getBitmap(sp.iconUrl);
+			xco += 40;
+			btn.style = window.getStyle("button");
+			parentElt.addChild(btn);
+		}
 	}
 
 	void initSim(TileMap map) {
@@ -78,32 +98,27 @@ class GameState : State {
 		// gridView.update(); // TODO
 		logElement.text = to!string(currentCell);
 		planetElement.text = format("Tick: %s\n%s", sim.tickCounter, sim.planet);
-		// updateSpeciesMap(); //TODO
+		updateSpeciesMap();
 	}
 
-/*
 	void updateSpeciesMap() {
 		
 		foreach (cell; sim.grid.eachNode()) {
-			const mx = (cell.x * 2) + 0.5;
-			const my = (cell.y * 2) + 0.5;
-			
-			let dx = 0.5;
-			let dy = 0.5;
 
-			for (let i = 0; i < 4; ++i) {
-				this.speciesMap.removeTileAt(mx + dx, my + dy);
-				[dx, dy] = [-dy, dx]; // rotate 90 degrees
+			vec3i pos = vec3i(cell.x, cell.y, 0) * 2;
+			vec3i[] deltas = CoordRange!vec3i(vec3i(2, 2, 1)).array;
+			foreach (delta; deltas) {
+				speciesMap.grid.set(pos + delta, -1);
 			}
 
 			// get top 4 species from cell...
-			for (const { speciesId, biomass } of cell.species.slice(0, 4)) {
-				if (biomass < 5.0) continue;
-				const tileIdx = START_SPECIES[speciesId].tileIdx;
-				this.speciesMap.putTileAt(tileIdx + 1, mx + dx, my + dy);
-				[dx, dy] = [-dy, dx]; // rotate 90 degrees
+			foreach (i; 0 .. min(cell.species.length, 4)) {
+				auto sp = cell.species[i];
+				if (sp.biomass < 5.0) continue;
+				const tileIdx = START_SPECIES[sp.speciesId].tileIdx;
+				speciesMap.grid.set(pos + deltas[i], tileIdx + 1);
 			}
 		}
 	}
-*/
+
 }
