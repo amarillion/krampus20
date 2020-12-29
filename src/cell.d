@@ -8,6 +8,7 @@ import std.algorithm;
 import std.range;
 import species;
 import std.format;
+import std.stdio; // TODO debugging
 
 //TODO: switch back to struct.
 //We switched to class, because struct semantics do not work well with forEach, getAdjacent etc...
@@ -143,7 +144,7 @@ Species: %s`,
 	void growAndDie() {
 		// each species should grow and die based on local fitness.
 
-		foreach (sp; _species) {
+		foreach (ref sp; _species) {
 			const info = START_SPECIES[sp.speciesId]; // TODO: caching
 
 			double fitness = 1.0;
@@ -165,8 +166,8 @@ Species: %s`,
 			// consumer, producer, reducer	
 			if (info.role == ROLE.PRODUCER) {
 				// lowest substrate determines growth rate.
-				const minS = min(this.co2, this.h2o);
-				const rate = fitness * this.temperature * this.stellarEnergy * PHOTOSYNTHESIS_BASE_RATE * minS; // growth per tick
+				const minS = min(co2, h2o);
+				const rate = fitness * temperature * stellarEnergy * PHOTOSYNTHESIS_BASE_RATE * minS; // growth per tick
 				
 				const amount = min(sp.biomass * rate, this.co2, this.h2o);
 				assert (amount >= 0);
@@ -180,10 +181,10 @@ Species: %s`,
 			}
 			else if (info.role == ROLE.CONSUMER) {
 				// for each other species
-				foreach (other; _species) {
+				foreach (ref other; _species) {
 					if (other.speciesId == sp.speciesId) continue; // don't interact with self
 
-					const interaction = info.interactionMap[other.speciesId];
+					const interaction = info.interactionMap.get(other.speciesId, INTERACTION.NEUTRAL);
 					if (interaction == INTERACTION.EAT) {
 						// sp(ecies) eats other (species)
 						// take some of the biomass from other, and adopt it as own biomass
@@ -201,8 +202,8 @@ Species: %s`,
 			}
 			else if  (info.role == ROLE.REDUCER) {
 				// reducers take some of the dead biomass, and adopt it as their own biomass
-				const rate = fitness * CONVERSION_BASE_RATE * this.deadBiomass;
-				const amount = min(sp.biomass * rate, this.deadBiomass);
+				const double rate = fitness * CONVERSION_BASE_RATE * this.deadBiomass;
+				const double amount = min(sp.biomass * rate, this.deadBiomass);
 
 				assert (amount >= 0);
 				deadBiomass -= amount;
@@ -215,10 +216,10 @@ Species: %s`,
 			if (info.role != ROLE.PRODUCER) {
 				// simulate respiration for consumers and reducers.
 				// lowest substrate determines growth rate.
-				const minS = min(sp.biomass, this.o2);
+				const double minS = min(sp.biomass, this.o2);
 				// not affected by fitness - all species consume oxygen at a given rate
-				const rate = RESPIRATION_BASE_RATE * minS;
-				const amount = min(sp.biomass, sp.biomass * rate, this.o2);
+				const double rate = RESPIRATION_BASE_RATE * minS;
+				const double amount = min(sp.biomass, sp.biomass * rate, this.o2);
 
 				assert (amount >= 0);
 				this.o2 -= amount;
@@ -237,8 +238,8 @@ Species: %s`,
 				// the lower the fitness, the higher the death rate
 				// divisor has a minimum just above 0, to avoid division by 0
 				// death rate has a maximum of 1.0 (instant death)
-				const rate = min(1.0, DEATH_RATE / max(fitness, 0.0001));
-				const amount = min(sp.biomass * rate, sp.biomass);
+				const double rate = min(1.0, DEATH_RATE / max(fitness, 0.0001));
+				const double amount = min(sp.biomass * rate, sp.biomass);
 
 				assert (amount >= 0);
 				this.deadBiomass += amount;

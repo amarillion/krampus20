@@ -129,12 +129,12 @@ class Sim {
 	}
 
 	void updatePhysicalProperties() {
-		foreach (ref c; grid.eachNode()) {
+		foreach (c; grid.eachNode()) {
 			c.updatePhysicalProperties();
 		}
 
 		// for each pair of cells, do diffusion
-		foreach (ref c; grid.eachNodeCheckered()) {
+		foreach (c; grid.eachNodeCheckered()) {
 			foreach (other; grid.getAdjacent(Point(c.x, c.y))) {
 				c.diffusionTo(grid.get(other));
 			}
