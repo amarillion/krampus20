@@ -104,6 +104,12 @@ class ResourceManager
 		{
 			filename = fileVal;
 		}
+
+		~this() {
+			foreach (font; fonts) {
+				al_destroy_font(font);
+			}
+		}
 	}
 	
 	class BuiltinFont : FontWrapper {
@@ -113,6 +119,13 @@ class ResourceManager
 				cache = al_create_builtin_font();
 			}
 			return cache;
+		}
+
+		~this() {
+			if (cache) {
+				al_destroy_font(cache);
+				cache = null;
+			}
 		}
 	}
 
@@ -194,4 +207,22 @@ class ResourceManager
 		return musics[name];
 	}
 
+	~this() {
+		foreach (v; musics) {
+			al_destroy_audio_stream(v);
+		}
+		musics = null;
+
+		foreach (v; samples) {
+			al_destroy_sample(v);
+		}
+		samples = null;
+
+		foreach (v; bitmaps) {
+			al_destroy_bitmap(v);
+		}
+		bitmaps = null;
+
+		fonts = null;
+	}
 }

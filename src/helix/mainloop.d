@@ -63,6 +63,8 @@ class MainLoop
 		
 	ALLEGRO_DISPLAY* display;
 	ALLEGRO_CONFIG *config;
+	private ALLEGRO_PATH *localAppData;
+	private ALLEGRO_PATH *configPath;
 	private ALLEGRO_EVENT_QUEUE* queue;
 	private ALLEGRO_TIMER *timer;
 
@@ -101,14 +103,14 @@ class MainLoop
 		al_set_app_name(toStringz(appname));
 		al_set_org_name(toStringz("helixsoft.nl"));
 
-		ALLEGRO_PATH *localAppData = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
+		localAppData = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
 
 		bool result = al_make_directory(al_path_cstr(localAppData, ALLEGRO_NATIVE_PATH_SEP));
 		if (!result) {
 			writeln("WARNING: Failed to create application data directory ", al_get_errno());
 		}
 
-		ALLEGRO_PATH *configPath = al_clone_path(localAppData);
+		configPath = al_clone_path(localAppData);
 		al_set_path_filename(configPath, toStringz("twist.ini"));
 
 		config = al_load_config_file (al_path_cstr(configPath, ALLEGRO_NATIVE_PATH_SEP));
@@ -242,7 +244,17 @@ class MainLoop
 			}
 		
 		}
-		
+
+	
+		// cleanup
+		if (configPath != null)
+		{
+			al_save_config_file(al_path_cstr(configPath, ALLEGRO_NATIVE_PATH_SEP), config);
+		}
+
+		// stop sound - important that this is done before the ALLEGRO_AUDIO_STREAM resources are destroyed
+		audio.doneSound();
+
 		done();
 	}
 
@@ -295,7 +307,7 @@ class MainLoop
 
 		void calculateRecursive(Component comp, Rectangle parentRect, int depth = 0) {
 			comp.shape = comp.layoutData.calculate(parentRect);
-			writeln(" ".rep(depth), comp.classinfo, " ", comp.shape);
+			// writeln(" ".rep(depth), comp.classinfo, " ", comp.shape);
 			foreach(child; comp.children) {
 				calculateRecursive(child, comp.shape, depth + 1);
 			}
@@ -308,9 +320,26 @@ class MainLoop
 	private void done()
 	{
 		audio.doneSound();
-		al_destroy_timer(timer);
-		al_destroy_display(display);
-		al_destroy_event_queue(queue);
+		if (queue) al_destroy_event_queue(queue); queue = null;
+		if (timer) al_destroy_timer(timer); timer = null;
+		if (display) al_destroy_display(display); display = null;
+	}
+
+	~this() {
+		// invoke engine destructor, destroy remaining components
+		destroy(rootComponent); rootComponent = null;
+		destroy(resources); resources = null;
+		
+		if (localAppData)
+			al_destroy_path(localAppData);
+
+		if (configPath)
+			al_destroy_path(configPath);
+
+		if (config) al_destroy_config(config);
+		
+		destroy(audio); audio = null;
+		al_uninstall_system();
 	}
 
 	/*

@@ -132,7 +132,14 @@ class AudioManager {
 	void doneSound()
 	{
 		stopMusic();
-		if (voice) al_destroy_voice(voice);
-		if (mixer) al_destroy_mixer(mixer);
 	}
+
+	~this() {
+		if (soundInstalled) {
+			stopMusic();
+			al_uninstall_audio();
+			soundInstalled = false;
+		}
+	}
+
 }
