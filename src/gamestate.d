@@ -85,26 +85,15 @@ class GameState : State {
 
 		auto btn2 = getElementById("btn_species_introduce");
 		btn2.onAction.add({
-			writefln("Introducing species %s at %s", speciesGroup.value.get(), planetView.selectedTile.get());
-			
 			if (currentCell) {
 				ulong selectedSpecies = speciesGroup.value.get();
 				currentCell.addSpecies(selectedSpecies, 10);
 				
-				// TODO...
 				speciesGroup.buttons[selectedSpecies].disabled = true;
-				
-				// TODO
 				addChild (new Timer(window, 400, {
 					speciesGroup.buttons[selectedSpecies].disabled = false;
 				}));
-				// speciesElement.disableSpecies(selectedSpecies, sim.tick);
-
-				// very crude hack. We should trigger on a particular tick instead
-				// setTimeout(() => this.speciesElement.enableSpecies(selectedSpecies), 20000);
 			}
-
-			// sim.introduceSpecies(); //TODO
 		});
 
 		initSpeciesButtons();
@@ -150,7 +139,7 @@ class GameState : State {
 
 		// in original game, delay was 500 msec
 		static int tickDelay = 0;
-		if (tickDelay++ == 30) {
+		if (tickDelay++ == 25) {
 			tickAndLog();
 			tickDelay = 0;
 		}

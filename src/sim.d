@@ -69,6 +69,40 @@ const TRIGGERS = [
 	)
 ];
 
+AdjacentRange!(2, Cell) getAdjacent(Grid!(2, Cell) grid, Point pos) {
+	return AdjacentRange!(2, Cell)(grid, pos);
+}
+
+struct AdjacentRange(int N, T) {
+	
+	Grid!(N, T) parent;
+	Point pos;
+	
+	int opApply(int delegate(const ref Point) operations) const {
+		const deltas = [
+			Point(0,-1), 
+			Point(1,0), 
+			Point(0,1), 
+			Point(-1,0)
+		];
+
+		int result = 0;
+
+		foreach (i, delta; deltas) {
+			Point neighbor = Point(
+				(pos.x + parent.width + delta.x) % parent.width, 
+				pos.y + delta.y
+			);
+			if (!parent.inRange(neighbor)) continue;
+			result = operations(neighbor);
+			if (result) {
+				break;
+			}
+		}
+		return result;
+	}
+}
+
 class Sim {
 
 	/** grid for cellular automata */

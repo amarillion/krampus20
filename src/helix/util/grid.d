@@ -130,44 +130,7 @@ class Grid(int N, T) {
 		assert(data.length % PRIME != 0);
 		return NodeRange(this, PRIME);
 	}
-
-	//TODO: this is a rather clumsy way to get all valid adjacent cells...
-	static if (N == 2) {
-		
-		AdjacentRange getAdjacent(Point p) {
-			return AdjacentRange(this, p);
-		}
-
-		struct AdjacentRange {
-			
-			Grid!(N, T) parent;
-			Point pos;
-			
-			int opApply(int delegate(const ref Point) operations) const {
-				const deltas = [
-					Point(0,-1), 
-					Point(1,0), 
-					Point(0,1), 
-					Point(-1,0)
-				];
-
-				int result = 0;
-
-				foreach (i, delta; deltas) {
-					Point neighbor = pos + delta;
-					if (!parent.inRange(neighbor)) continue;
-					result = operations(neighbor);
-					if (result) {
-						break;
-					}
-				}
-				return result;
-			}
-		}
-	}
-
 }
-
 
 unittest {
 

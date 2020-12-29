@@ -262,7 +262,7 @@ Species: %s`,
 	void migrateTo(Cell other) {
 		if (this._species.length == 0) return;
 
-		foreach (sp; _species) {
+		foreach (ref sp; _species) {
 			const amount = sp.biomass * 0.02;
 			
 			// do not migrate less than one unit - otherwise it will die immediately and will be a huge drain on early growth
@@ -339,7 +339,7 @@ Species: %s`,
 
 		albedoDebugStr = format(`%g * %g [ice] * %g [dryIce]`, ALBEDO_BASE, iceEffect, dryIceEffect);
 
-		foreach (sp; _species) {
+		foreach (ref sp; _species) {
 			const info = START_SPECIES[sp.speciesId]; // TODO: better caching
 			const speciesEffect = mapAlbedoReduction(info.albedo, sp.biomass / 500);
 			this.albedo *= speciesEffect;
@@ -371,7 +371,7 @@ Species: %s`,
 		if (this.temperature > planet.maxTemperature) { planet.maxTemperature = this.temperature; }
 		if (this.temperature < planet.minTemperature) { planet.minTemperature = this.temperature; }
 		
-		foreach (sp; _species) {
+		foreach (ref sp; _species) {
 			if (!(sp.speciesId in planet.species)) {
 				planet.species[sp.speciesId] = 0;
 			}
