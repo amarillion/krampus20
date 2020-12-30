@@ -8,7 +8,7 @@ enum PHOTOSYNTHESIS_BASE_RATE = 1.5e-8; // rate per mol substrate, per mol organ
 enum REDUCTION_BASE_RATE = 0.5e-4; // rate per mol substrate, per mol organism
 enum CONSUMPTION_BASE_RATE = 2.0e-4; // rate per mol substrate, per mol organism
 enum RESPIRATION_BASE_RATE = 1.0e-4; // rate per mol substrate, per mol organism
-enum MIGRATION_BASE_RATE = 2.0e-3;
+enum MIGRATION_BASE_RATE = 1.0e-2;
 enum DEATH_RATE = 1.0e-3; // percentage death per turn. will be modified by fitness factor
 
 enum START_CO2 = 1000.0; // starting amount of CO2 per km^2, in GMol
