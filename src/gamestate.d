@@ -29,7 +29,7 @@ class RadioGroup(T) {
 
 	Model!T value;
 	Component[T] buttons;
-
+	
 	void addButton(Component c, T _value) {
 		buttons[_value] = c;
 		c.onAction.add({
@@ -42,6 +42,11 @@ class RadioGroup(T) {
 		foreach(v, button; buttons) {
 			button.selected = (v == value.get());	
 		}
+	}
+
+	void select(T _value) {
+		value.set(_value);
+		updateButtons();
 	}
 }
 
@@ -103,7 +108,7 @@ class GameState : State {
 	TileMap planetMap;
 	TileMap speciesMap;
 	Cell currentCell;
-	RadioGroup!ulong speciesGroup;
+	RadioGroup!int speciesGroup;
 	PlanetView planetView;
 
 	final void initMap() {
@@ -164,7 +169,9 @@ class GameState : State {
 			Component slotted = new Component(window);
 			slotted.setStyle(window.getStyle("default")); //TODO: should not have to do this every time...
 
-			auto info = START_SPECIES[speciesGroup.value.get()];
+			const selectedSpecies = speciesGroup.value.get();
+			assert(selectedSpecies >= 0);
+			auto info = START_SPECIES[selectedSpecies];
 			ImageComponent img = new ImageComponent(window);
 			img.layoutData = LayoutData(0, 0, 0, 0, 512, 384, LayoutRule.BEGIN, LayoutRule.CENTER);
 			img.img = window.resources.getBitmap(info.coverArt);
@@ -204,13 +211,16 @@ class GameState : State {
 		auto btn2 = getElementById("btn_species_introduce");
 		btn2.onAction.add({
 			if (currentCell) {
-				ulong selectedSpecies = speciesGroup.value.get();
-				currentCell.addSpecies(selectedSpecies, 10);
-				
-				speciesGroup.buttons[selectedSpecies].disabled = true;
-				addChild (new Timer(window, 400, {
-					speciesGroup.buttons[selectedSpecies].disabled = false;
-				}));
+				int selectedSpecies = speciesGroup.value.get();
+				if (selectedSpecies >= 0) {
+					currentCell.addSpecies(selectedSpecies, 10);
+					
+					speciesGroup.buttons[selectedSpecies].disabled = true;
+					speciesGroup.select(-1); // nothing selected.
+					addChild (new Timer(window, 400, {
+						speciesGroup.buttons[selectedSpecies].disabled = false;
+					}));
+				}
 			}
 		});
 
@@ -222,7 +232,7 @@ class GameState : State {
 		Component parentElt = getElementById("pnl_species_buttons");
 		int xco = 0;
 		int yco = 0;
-		speciesGroup = new RadioGroup!ulong();
+		speciesGroup = new RadioGroup!int();
 		
 		foreach(i, sp; START_SPECIES) {
 			Button btn = new Button(window);
@@ -233,11 +243,16 @@ class GameState : State {
 			btn.setStyle(window.getStyle("button", "selected"), 1);
 			btn.setStyle(window.getStyle("button", "disabled"), 2);
 			parentElt.addChild(btn);
-			speciesGroup.addButton(btn, i);
+			speciesGroup.addButton(btn, to!int(i));
 		}
 
 		speciesGroup.value.onChange.add({
-			auto info = START_SPECIES[speciesGroup.value.get()];
+			int selectedSpecies = speciesGroup.value.get();
+			if (selectedSpecies < 0) {
+				speciesInfoElement.setSpans([]);
+				return;
+			}
+			auto info = START_SPECIES[selectedSpecies];
 			auto rtb = new RichTextBuilder()
 				.text(format("Temperature range: %.0f °K - %.0f °K\nAlbedo: %.2f", 
 					info.temperatureRange[0], info.temperatureRange[1], info.albedo)).br()
@@ -259,6 +274,8 @@ class GameState : State {
 			speciesInfoElement.setSpans(rtb.build());
 
 		});
+
+		speciesGroup.value.set(-1); // nothing selected
 	}
 
 	void initSim(TileMap map) {
