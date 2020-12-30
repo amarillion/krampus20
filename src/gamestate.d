@@ -217,7 +217,7 @@ class GameState : State {
 					
 					speciesGroup.buttons[selectedSpecies].disabled = true;
 					speciesGroup.select(-1); // nothing selected.
-					addChild (new Timer(window, 400, {
+					addChild (new Timer(window, 200, {
 						speciesGroup.buttons[selectedSpecies].disabled = false;
 					}));
 				}
@@ -298,7 +298,7 @@ class GameState : State {
 
 		// in original game, delay was 500 msec
 		static int tickDelay = 0;
-		if (tickDelay++ == 25) {
+		if (tickDelay++ == 5) {
 			tickAndLog();
 			tickDelay = 0;
 		}

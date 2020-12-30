@@ -78,7 +78,7 @@ Will do well in the cooler early phase of the game.`,
 			ROLE.PRODUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			null,
 			0.95, // 1.0 = light & early game 0.0 == dark & late game
-			[ 240, 270 ], // min, max temperature in Kelvin
+			[ 235, 270 ], // min, max temperature in Kelvin
 			
 `Legends say that this plant microbe came from a great scientist. Sounds too funny to be true.
 
@@ -93,7 +93,7 @@ Will do well in the cooler early phase of terraformation.`,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			[ 0: INTERACTION.EAT, 1: INTERACTION.EAT, 7: INTERACTION.EAT, 8: INTERACTION.EAT ],
 			0.9, // 1.0 = light & early game 0.0 == dark & late game
-			[ 235, 265 ], // min, max temperature in Kelvin
+			[ 230, 265 ], // min, max temperature in Kelvin
 			
 `A sweet but dangerous creature. Arghhh yarr! Watch yourself, be careful!
 
@@ -108,7 +108,7 @@ One of the hardiest herbivores that will survive in low temperatures.`,
 			ROLE.REDUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			null,
 			0.95, // 1.0 = light & early game 0.0 == dark & late game
-			[ 245, 270 ], // min, max temperature in Kelvin
+			[ 230, 270 ], // min, max temperature in Kelvin
 			
 `Recycle useful substances and return them to the circle of life. Sometimes it feels like a radio wave.
 
@@ -182,7 +182,7 @@ This is a photosynthesizing organism, a plant species that can survive in modera
 			ROLE.PRODUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			null,
 			0.5, // 1.0 = light & early game 0.0 == dark & late game
-			[ 270, 310 ], // min, max temperature in Kelvin
+			[ 275, 320 ], // min, max temperature in Kelvin
 			
 `Rise and Shine, Micro Pumpkin!  Nutritious, but does not help to increase the temperature greatly.
 
@@ -197,7 +197,7 @@ Let this plant species cooperate with other microbes to boost its effect.`,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			[ 0: INTERACTION.EAT, 1: INTERACTION.EAT, 7: INTERACTION.EAT, 8: INTERACTION.EAT ],
 			0.3, // 1.0 = light & early game 0.0 == dark & late game
-			[ 270, 310 ], // min, max temperature in Kelvin
+			[ 270, 315 ], // min, max temperature in Kelvin
 			
 `As we all know, bats are cool and dangerous. Therefore, even single-celled bats can eat whatever they want.
 
@@ -212,7 +212,7 @@ This creature is a herbivore for temperate climes.`,
 			ROLE.REDUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			null,
 			0.2, // 1.0 = light & early game 0.0 == dark & late game
-			[ 270, 310 ], // min, max temperature in Kelvin
+			[ 270, 320 ], // min, max temperature in Kelvin
 			
 `Circle of life! Or a death donut? This mushroom combines immiscible.
 
@@ -227,7 +227,7 @@ A decomposer in temperate climates.`,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			[ 2: INTERACTION.EAT, 3: INTERACTION.EAT, 4: INTERACTION.EAT, 5: INTERACTION.EAT, 6: INTERACTION.EAT, 9: INTERACTION.EAT, 10: INTERACTION.EAT ],
 			0.1, // 1.0 = light & early game 0.0 == dark & late game
-			[ 280, 320 ], // min, max temperature in Kelvin
+			[ 280, 325 ], // min, max temperature in Kelvin
 			
 	`DO NOT JOKE WITH THIS MICRO RED TERMINATOR!!!`,
 			[ 0: 0.1, 1: 0.1, 2: 0.2, 3: 1.0, 4: 0.8, 5: 0.9, 6: 0.9, 7: 0.1 ]

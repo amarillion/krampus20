@@ -147,7 +147,7 @@ class MainLoop
 		
 		al_show_mouse_cursor(display);
 		
-  		timer = al_create_timer(0.02);
+  		timer = al_create_timer(0.1);
 		al_register_event_source(queue, al_get_timer_event_source(timer));
 		al_start_timer(timer);
 

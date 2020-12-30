@@ -105,7 +105,7 @@ class Cell {
 		if (_species.empty) return;
 
 		auto last = _species[$-1];
-		if (last.biomass.get() < 1.0) {
+		if (last.biomass.get() < SPECIES_MINIMUM) {
 			removeLowestSpecies();
 		}
 	}
@@ -290,8 +290,8 @@ Species: %s`,
 		foreach (ref sp; _species) {
 			const amount = sp.biomass.get() * MIGRATION_BASE_RATE;
 			
-			// do not migrate less than one unit - otherwise it will die immediately and will be a huge drain on early growth
-			if (amount < 1.0) {
+			// do not migrate too little - otherwise it will be culled immediately and will be a huge drain on early growth
+			if (amount < SPECIES_MINIMUM * 2) {
 				continue;
 			}
 
@@ -356,13 +356,17 @@ Species: %s`,
 		// start albedo
 		// albedo decreased by absence of dry ice or ice
 		// (this will increase albedo at the poles for a long time)
-		const dryIceEffect = this.temperature < CO2_BOILING_POINT ? mapAlbedoRise(0.9, this.co2 / 1000) : 0.9;
-		const iceEffect = this.temperature < H2O_MELTING_POINT ? mapAlbedoRise(0.9, this.h2o / 1000) : 0.9;
+		const dryIceEffect = this.temperature < CO2_BOILING_POINT 
+			? mapAlbedoRise(0.9, (CO2_BOILING_POINT - this.temperature) * this.co2 / 20_000) 
+			: 0.9;
+		const iceEffect = this.temperature < H2O_MELTING_POINT 
+			? mapAlbedoRise(0.9, (H2O_MELTING_POINT - this.temperature) * this.h2o / 20_000) 
+			: 0.9;
 		
 		const ALBEDO_BASE = 0.75;
 		this.albedo = ALBEDO_BASE * iceEffect * dryIceEffect;
 
-		albedoDebugStr = format(`%g * %g [ice] * %g [dryIce]`, ALBEDO_BASE, iceEffect, dryIceEffect);
+		albedoDebugStr = format(`%.2f * %.2f [ice] * %.2f [dryIce]`, ALBEDO_BASE, iceEffect, dryIceEffect);
 
 		foreach (ref sp; _species) {
 			const info = START_SPECIES[sp.speciesId];
