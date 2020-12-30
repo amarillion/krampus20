@@ -12,6 +12,10 @@ import allegro5.allegro_font;
 
 import std.exception;
 import std.string;
+import std.conv : to;
+
+import helix.color; //TODO: debug
+import allegro5.allegro_primitives; // TODO: debug
 
 void multilineTextLayout(string text, ALLEGRO_FONT *font, int max_width, int openingIndent,
 	void delegate(string line, int x, int y) cb) {
@@ -28,7 +32,7 @@ class Context {
 		cursor = Point(0);
 		this.window = window;
 		this.maxWidth = maxWidth;
-		this.lineHeight = 20; //TODO: lineHeight should be determined by spans...
+		this.lineHeight = 0; //lineHeight is determined by spans...
 	}
 
 	void nextLine() {
@@ -56,9 +60,10 @@ class TextSpan : Span {
 		label.text = text;
 		label.initialIndent = context.cursor.x;
 		label.setStyle(context.window.getStyle(styleName));
-		int height;
-		label.calculateLayout(context.maxWidth, height, context.cursor);
-		label.layoutData = LayoutData(0, context.cursor.y, 0, 0, 0, height, LayoutRule.STRETCH, LayoutRule.BEGIN);
+		int totalHeight;
+		int originalY = context.cursor.y;
+		label.calculateLayout(context.maxWidth, context.lineHeight, totalHeight, context.cursor);
+		label.layoutData = LayoutData(0, originalY, 0, 0, 0, totalHeight, LayoutRule.STRETCH, LayoutRule.BEGIN);
 		return [ label ];
 	}
 }
@@ -114,7 +119,8 @@ class Indent : Span {
 	
 	* all with a single style
 	* may span multiple lines
-	* may include hard line breaks ('\n')
+	* optionally breaks at / ignores hard line breaks ('\n')
+	* TODO: handling of tabs...
 	* will insert soft line breaks
 	* first line may have hanging indent
 */
@@ -125,31 +131,63 @@ class Label : Component {
 	}
 
 	int initialIndent;
+	bool ignoreHardBreaks = false;
+	
+	struct Line {
+		int xofst;
+		int w;
+		immutable char* line;
+	}
+	Line[] lines;
 
-	void calculateLayout(int maxWidth, out int height, ref Point cursor) {		
-		assert(!styles.empty);
+	void calculateLayout(int maxWidth, out int lineHeight, out int totalHeight, ref Point cursor) {		
+		assert(styles.length != 0, "must set style before calculateLayout()");
+		assert(text != "", "must set text before calculateLayout()");
 		Style style = styles[0];
 		ALLEGRO_FONT *font = style.getFont();
 		
 		int w = al_get_text_width(font, toStringz(text));
 		
-		//TODO - calculate multiline...
-		const lineNum = 1;
-		const lineHeight = al_get_font_line_height(font);
-		height = lineNum * lineHeight;
-		cursor = Point(cursor.x + w, cursor.y);
+		lines = [];
+		int xofst = initialIndent;
+		foreach (l; text.split("\n")) {
+			// TODO: Merge whitespace, remove tabs
+			// TODO - soft line breaks...
+			immutable char *lz = toStringz(l);
+			const ww = al_get_text_width(font, lz);
+			lines ~= Line(xofst, ww, lz);
+			xofst = 0;
+		}
+
+		const lineNum = to!int(lines.length);
+		lineHeight = al_get_font_line_height(font);
+		totalHeight = lineNum * lineHeight;
+
+		// update cursor
+		cursor = Point(cursor.x + w, cursor.y + (lineNum - 1) * lineHeight);
 	}
 
 	override void draw(GraphicsContext gc) {
+		al_draw_rectangle(shape.x, shape.y, shape.x + shape.w, shape.y + shape.h, Color.RED, 1.0);
+
 		Style style = styles[0];
-		
 		// TODO render multiple lines...
 		if (text != "") {
-			//TODO: use stringz...
+			assert (!lines.empty, "Must invoke calculateLayout() before draw()");
+
 			ALLEGRO_COLOR color = style.getColor("color");
 			ALLEGRO_FONT *font = style.getFont();
-			// int th = al_get_font_line_height(font);
-			al_draw_text(font, color, x + initialIndent, y, ALLEGRO_ALIGN_LEFT, toStringz(text));
+
+			int yco = y;
+			int xco = x;
+			int lh = al_get_font_line_height(font);
+			foreach(l; lines) {
+				al_draw_text(font, color, xco + l.xofst, yco, ALLEGRO_ALIGN_LEFT, l.line);
+				xco = x;
+				yco += lh;
+			}
+			
+			
 		}
 	}
 }

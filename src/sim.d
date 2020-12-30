@@ -9,63 +9,69 @@ import helix.util.coordrange;
 import dialog;
 import std.stdio; //TODO - debug only
 import helix.mainloop;
+import helix.richtext;
+import std.format : format;
 
 struct Trigger {
 	string id;
 	bool delegate(Sim) condition;
-	string delegate(Sim) toMessage;
+	Span[] delegate(Sim) toMessage;
 }
 
 const TRIGGERS = [
 	Trigger(
 		"start",
 		(sim) => sim.tickCounter > 0,
-		(sim) => `<h1>Welcome to Exo Keeper</h1>
-		<p>After a voyage of hundreds of lightyears, you have now arrived. Before you lies the barren surface of Kepler-7311b
-		Your goal is to make the surface suitable for human inhabitation. 
-		But the planet is far too cold. At a breezy ${sim.planet.temperature.toFixed(0)} K (Or ${(sim.planet.temperature - 273).toFixed(0)} C) it's impossible to 
-		step outside without a jacket. Plus, there is no oxygen atmosphere.
-		<p>
-		To terraform the planet, we must introduce some microbe species to the surface.
-		<p>
-		Study and choose one of the 12 species below. Click on any location in the map, pick a species, and click 'Introduce species'.
-		Note that after introducing a species, it takes 20 seconds of game-time before another new batch of that species is ready again.
-		<p>
-		To look around the planet surface, use the arrow keys and Q/E to zoom in/out`,
+		(sim) => new RichTextBuilder()
+			.h1(`Welcome to Exo Keeper`)
+			.text(format!`After a voyage of hundreds of lightyears, you have now arrived. Before you lies the barren surface of Kepler-7311b
+Your goal is to make the surface suitable for human inhabitation. 
+But the planet is far too cold. At a breezy %.0f K %.0f C) it's impossible to 
+step outside without a jacket. Plus, there is no oxygen atmosphere.`(sim.planet.temperature, sim.planet.temperature - 273))
+			.p()
+			.text(`To terraform the planet, we must introduce some microbe species to the surface.`)
+			.p()
+			.text(`Study and choose one of the 12 species below. Click on any location in the map, pick a species, and click 'Introduce species'.
+Note that after introducing a species, it takes 20 seconds of game-time before another new batch of that species is ready again.`)
+			.build()
 	),
 	Trigger(
 		"dead_biomass_increased",
 		(sim) => sim.planet.deadBiomass > 1.2e5,
-		(sim) => `<h1>Dead biomass build-up</h1>
-		<p>Life on the surface is harsh, and microbes are dying, leaving their dead bodies behind.
-		They won't decompose, unless you introduce the microbes that do so. Make sure you introduce some decomposers!`
+		(sim) => new RichTextBuilder().h1(`Dead biomass build-up`).text(
+`Life on the surface is harsh, and microbes are dying, leaving their dead bodies behind.
+They won't decompose, unless you introduce the microbes that do so. Make sure you introduce some decomposers!`)
+			.build()
 	),
 	Trigger(
 		"albedo_lowered",
 		(sim) => (sim.tickCounter > 10 && sim.planet.albedo < 0.65),
-		(sim) => `<h1>Albedo is lowering</h1>
-		<p>Great job! The albedo of the planet is currently ${sim.planet.albedo.toFixed(2)} and lowering.
-		With a lower albedo, more of the energy from the star Kepler-7311 is being absorbed, warming the surface.
-		By introducing more species, you can decrease the albedo of the planet even further`
+		(sim) => new RichTextBuilder().h1(`Albedo is lowering`).text(format!`
+Great job! The albedo of the planet is currently %.2f and lowering.
+With a lower albedo, more of the energy from the star Kepler-7311 is being absorbed, warming the surface.
+By introducing more species, you can decrease the albedo of the planet even further`(sim.planet.albedo))
+			.build()
 	),
 	Trigger(
 		"first_ice_melting",
 		(sim) => sim.planet.maxTemperature > 273,
-		(sim) => `<h1>First ice is melting</h1>
-		<p>At the warm equator, the temperature has reached ${sim.planet.maxTemperature.toFixed(0)} K (Or ${(sim.planet.maxTemperature - 273).toFixed(0)} C)
-		This means that ice starts melting and the planet is getting even more suitable for life.
-		Can you reach an average temperature of 298 K?`
+		(sim) => new RichTextBuilder().h1(`First ice is melting`).text(
+format!`At the warm equator, the temperature has reached %.0f K (Or ${(sim.planet.maxTemperature - 273).toFixed(0)} C)
+This means that ice starts melting and the planet is getting even more suitable for life.
+Can you reach an average temperature of 298 K?`(sim.planet.maxTemperature))
+			.build()
 	),
 	Trigger(
 		"room_temperature_reached",
 		(sim) => sim.planet.temperature > 298,
-		(sim) => `<h1>Temperate climate</h1>
-		<p>The average temperature of your planet now stands at ${sim.planet.temperature.toFixed(0)} K (Or ${(sim.planet.temperature - 273).toFixed(0)} C)
-		The ice has melted, there is oxygen in the atmosphere, the surface is teeming with life.
-		Well done, you have taken this game as far as it goes!
-		<p>
-		Thank you for playing.
-		Did you like it? Let us know at @Gekaremi, @Donall or @mpvaniersel on twitter!`
+		(sim) => new RichTextBuilder().h1(`Temperate climate`).text(format!
+`The average temperature of your planet now stands at $.0f K %.0f C)
+The ice has melted, there is oxygen in the atmosphere, the surface is teeming with life.
+Well done, you have taken this game as far as it goes!`(sim.planet.temperature, sim.planet.temperature - 273))
+			.p()
+			.text(`Thank you for playing.
+	Did you like it? Let us know at @Gekaremi, @Donall or @mpvaniersel on twitter!`)
+			.build()
 	)
 ];
 
