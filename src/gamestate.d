@@ -99,6 +99,7 @@ class GameState : State {
 	Sim sim;
 	RichText logElement;
 	Component planetElement;
+	RichText speciesInfoElement;
 	TileMap planetMap;
 	TileMap speciesMap;
 	Cell currentCell;
@@ -155,7 +156,9 @@ class GameState : State {
 		planetElement = getElementById("pre_planet_info");
 		logElement = cast(RichText)getElementById("rt_cell_info");
 		assert(logElement);
-
+		speciesInfoElement = cast(RichText)getElementById("rt_species_info");
+		assert(speciesInfoElement);
+		
 		auto btn1 = getElementById("btn_species_info");
 		btn1.onAction.add({ 
 			Component slotted = new Component(window);
@@ -171,9 +174,11 @@ class GameState : State {
 			rt1.layoutData = LayoutData(528, 0, 0, 0, 0, 0, LayoutRule.STRETCH, LayoutRule.STRETCH);
 			
 			auto rtb = new RichTextBuilder().h1("Species info")
+				.text(format!"Name: %s"(info.name)).br()
 				.text(info.backstory)
 				.p()
-				.text(format("Albedo: %.2f", info.albedo)).br()
+				.text(format("Temperature tolerance between %.0f °K and %.0f °K\nAlbedo contribution: %.2f (lower is better)", 
+					info.temperatureRange[0], info.temperatureRange[1], info.albedo)).br()
 				.text("Likes:").br();
 
 			foreach (k, v; info.biotopeTolerances) {
@@ -188,7 +193,6 @@ class GameState : State {
 				}
 			}
 
-				// TODO: likes and dislikes
 			rt1.setSpans(rtb.build());
 			
 			slotted.addChild(img);
@@ -231,6 +235,30 @@ class GameState : State {
 			parentElt.addChild(btn);
 			speciesGroup.addButton(btn, i);
 		}
+
+		speciesGroup.value.onChange.add({
+			auto info = START_SPECIES[speciesGroup.value.get()];
+			auto rtb = new RichTextBuilder()
+				.text(format("Temperature range: %.0f °K - %.0f °K\nAlbedo: %.2f", 
+					info.temperatureRange[0], info.temperatureRange[1], info.albedo)).br()
+				.text("Likes: ");
+
+			foreach (k, v; info.biotopeTolerances) {
+				if (v > 0.5) {
+					rtb.biotope(window, k);
+				}
+			}
+			rtb.text(" Dislikes: ");
+			foreach (k, v; info.biotopeTolerances) {
+				if (v < 0.5) {
+					rtb.biotope(window, k);
+				}
+			}
+
+				// TODO: likes and dislikes
+			speciesInfoElement.setSpans(rtb.build());
+
+		});
 	}
 
 	void initSim(TileMap map) {
@@ -289,11 +317,11 @@ class GameState : State {
 				
 				double change = sp.biomass.changeRatio();
 				int tile2 = -1;
-				if (change < 0.99) {
-					tile2 = change < 0.98 ? 19: 18;
+				if (change < 0.98) {
+					tile2 = change < 0.96 ? 19: 18;
 				}
-				else if (change > 1.01) {
-					tile2 = change > 1.02 ? 17: 16;
+				else if (change > 1.02) {
+					tile2 = change > 1.04 ? 17: 16;
 				}
 				speciesMap.layers[1].set(pos + deltas[i], tile2);
 			}

@@ -56,8 +56,8 @@
 					"right": 10
 				}
 			}, {
-				"type": "panel",
-				"id": "pnl_species_info",
+				"type": "richtext",
+				"id": "rt_species_info",
 				"style": { 
 					"background": "white"
 				},
