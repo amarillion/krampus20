@@ -57,23 +57,22 @@ void initStartSpecies() {
 		SpeciesInfo( // 0
 			"Plant 0",
 			"plant0",
-			"./assets/species_cover_art/platn_intro2.png",
+			"platn_intro2",
 			12,
 			0x69F0AE,
 			ROLE.PRODUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			null,
 			0.9, // 1.0 = light & early game 0.0 == dark & late game
 			[ 220, 260 ], // min, max temperature in Kelvin
-	`An ancient and strong unicellular plant, but perhaps not the most effective.
-	<br>
-	Will do well in the cooler early phase of the game.
-	`,
+`An ancient and strong unicellular plant, but perhaps not the most effective.
+
+Will do well in the cooler early phase of the game.`,
 			[ 0: 0.1, 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.5, 5: 1.0, 6: 0.5, 7: 0.5 ]
 		), 
 		SpeciesInfo( // 1
 			"Plant 1",
 			"plant1",
-			"./assets/species_cover_art/platn_intro1.png",
+			"platn_intro1",
 			4,
 			0x388E3C,
 			ROLE.PRODUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -81,15 +80,14 @@ void initStartSpecies() {
 			0.8, // 1.0 = light & early game 0.0 == dark & late game
 			[ 230, 270 ], // min, max temperature in Kelvin
 			
-	`Legends say that this plant microbe came from a great scientist. Sounds too funny to be true.
-	<br>
-	Will do well in the cooler early phase of terraformation.
-	`,
+`Legends say that this plant microbe came from a great scientist. Sounds too funny to be true.
+
+Will do well in the cooler early phase of terraformation.`,
 			[ 0: 0.5, 1: 0.1, 2: 0.5, 3: 1.0, 4: 0.5, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 2
 			"Herbivore 0",
 			"herbivore0",
-			"./assets/species_cover_art/herbivore_intro0.png",
+			"herbivore_intro0",
 			11,
 			0xF8BBD0,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -97,15 +95,14 @@ void initStartSpecies() {
 			0.9, // 1.0 = light & early game 0.0 == dark & late game
 			[ 235, 265 ], // min, max temperature in Kelvin
 			
-	`A sweet but dangerous creature. Arghhh yarr! Watch yourself, be careful!
-	<br>
-	One of the hardiest herbivores that will survive in low temperatures. 
-	`,
+`A sweet but dangerous creature. Arghhh yarr! Watch yourself, be careful!
+
+One of the hardiest herbivores that will survive in low temperatures.`,
 			[ 0: 1.0, 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.5, 5: 0.1, 6: 0.1, 7: 0.5 ]
 		), SpeciesInfo( // 3
 			"Fungus 1",
 			"fungi1",
-			"./assets/species_cover_art/fungi_intro0.png",
+			"fungi_intro0",
 			13,
 			0x8D6E63,
 			ROLE.REDUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -113,30 +110,28 @@ void initStartSpecies() {
 			0.8, // 1.0 = light & early game 0.0 == dark & late game
 			[ 240, 270 ], // min, max temperature in Kelvin
 			
-	`Recycle useful substances and return them to the circle of life. Sometimes it feels like a radio wave.
-	<br>
-	You"ll need to introduce a decomposer like this one, otherwise dead organic material will pile up, and stifle the ecosystem.
-	`,
+`Recycle useful substances and return them to the circle of life. Sometimes it feels like a radio wave.
+
+You"ll need to introduce a decomposer like this one, otherwise dead organic material will pile up, and stifle the ecosystem.`,
 			[ 0: 0.5, 1: 0.5, 2: 1.0, 3: 0.5, 4: 1.0, 5: 0.1, 6: 0.1, 7: 0.5 ]
 		), SpeciesInfo( // 4
 			"Microbe 1",
 			"microb1",
-			"./assets/species_cover_art/microb_intro1.png",
+			"microb_intro1",
 			1,
 			0xFFFF00,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			[ 0: INTERACTION.EAT, 1: INTERACTION.EAT, 7: INTERACTION.EAT, 8: INTERACTION.EAT ],
 			0.7, // 1.0 = light & early game 0.0 == dark & late game
 			[ 245, 290 ], // min, max temperature in Kelvin
-			`The cow says Muuuu. This yellow creature does not say anything, it is a microbe. But sometimes...
-	<br>
-	This creature is a herbivore that can survive in moderately cold climates.
-	`,
+`The cow says Muuuu. This yellow creature does not say anything, it is a microbe. But sometimes...
+
+This creature is a herbivore that can survive in moderately cold climates.`,
 			[ 0: 0.1, 1: 1.0, 2: 0.5, 3: 0.5, 4: 0.5, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 5
 			"Microbe 2",
 			"microb2",
-			"./assets/species_cover_art/microb_intro5.png",
+			"microb_intro5",
 			3,
 			0x8C9EFF,
 			ROLE.REDUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -144,15 +139,14 @@ void initStartSpecies() {
 			0.6, // 1.0 = light & early game 0.0 == dark & late game
 			[ 250, 290 ], // min, max temperature in Kelvin
 			`
-	Inspired by space and ready for complexity, the purple mushroom! 
-	<br>
-	A useful decomposer in a moderately cold climate.
-	`,
+Inspired by space and ready for complexity, the purple mushroom! 
+
+A useful decomposer in a moderately cold climate.`,
 			[ 0: 0.5, 1: 0.1, 2: 0.1, 3: 0.9, 4: 0.9, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 6
 			"Catcrobe 2",
 			"catcrobe2",
-			"./assets/species_cover_art/catcrobe_intro2.png",
+			"catcrobe_intro2",
 			9,
 			0xBA68C8,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -160,15 +154,14 @@ void initStartSpecies() {
 			0.6, // 1.0 = light & early game 0.0 == dark & late game
 			[ 255, 300 ], // min, max temperature in Kelvin
 			`
-	This is a cat? Is it a microbe? This is a catcrobe! Micro meow!
-	<br>
-	This microbe will attack and eat other microbes.
-	`,
+This is a cat? Is it a microbe? This is a catcrobe! Micro meow!
+
+This microbe will attack and eat other microbes.`,
 			[ 0: 0.5, 1: 0.1, 2: 0.1, 3: 0.5, 4: 0.9, 5: 0.9, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 7
 			"Plant 2",
 			"microb4",
-			"./assets/species_cover_art/microb_intro4.png",
+			"microb_intro4",
 			6,
 			0x18FFFF,
 			ROLE.PRODUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -176,15 +169,14 @@ void initStartSpecies() {
 			0.6, // 1.0 = light & early game 0.0 == dark & late game
 			[ 260, 290 ], // min, max temperature in Kelvin
 			
-	`The spiral concentrates the energy of the star and turns it into food for itself. And others.
-	<br>
-	This is a photosynthesizing organism, a plant species that can survive in moderately cold climates.
-	`,
+`The spiral concentrates the energy of the star and turns it into food for itself. And others.
+
+This is a photosynthesizing organism, a plant species that can survive in moderately cold climates.`,
 			[ 0: 0.5, 1: 0.1, 2: 0.5, 3: 0.9, 4: 0.5, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 8
 			"Plant 3",
 			"microb5",
-			"./assets/species_cover_art/microb_intro2.png",
+			"microb_intro2",
 			7,
 			0x76FF03,
 			ROLE.PRODUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -192,14 +184,14 @@ void initStartSpecies() {
 			0.5, // 1.0 = light & early game 0.0 == dark & late game
 			[ 270, 310 ], // min, max temperature in Kelvin
 			
-	`Rise and Shine, Micro Pumpkin!  Nutritious, but does not help to increase the temperature greatly.
-	<br>
-	Let this plant species cooperate with other microbes to boost its effect.`,
+`Rise and Shine, Micro Pumpkin!  Nutritious, but does not help to increase the temperature greatly.
+
+Let this plant species cooperate with other microbes to boost its effect.`,
 			[ 0: 0.5, 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.1, 5: 0.9, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 9
 			"Microbe 3",
 			"microb3",
-			"./assets/species_cover_art/microb_intro7.png",
+			"microb_intro7",
 			8,
 			0xBBDEFB,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -207,15 +199,14 @@ void initStartSpecies() {
 			0.3, // 1.0 = light & early game 0.0 == dark & late game
 			[ 270, 310 ], // min, max temperature in Kelvin
 			
-	`As we all know, bats are cool and dangerous. Therefore, even single-celled bats can eat whatever they want.
-	<br>
-	This creature is a herbivore for temperate climes.
-	`,
+`As we all know, bats are cool and dangerous. Therefore, even single-celled bats can eat whatever they want.
+
+This creature is a herbivore for temperate climes.`,
 			[ 0: 0.1, 1: 0.1, 2: 1.0, 3: 0.5, 4: 0.5, 5: 0.9, 6: 0.9, 7: 0.5 ]
 		), SpeciesInfo( // 10
 			"Donut 1",
 			"donut1",
-			"./assets/species_cover_art/donut_intro1.png",
+			"donut_intro1",
 			5,
 			0xFF8F00,
 			ROLE.REDUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
@@ -223,15 +214,14 @@ void initStartSpecies() {
 			0.2, // 1.0 = light & early game 0.0 == dark & late game
 			[ 270, 310 ], // min, max temperature in Kelvin
 			
-	`Circle of life! Or a death donut? This mushroom combines immiscible.
-	<br>
-	A decomposer in temperate climates.
-	`,
+`Circle of life! Or a death donut? This mushroom combines immiscible.
+
+A decomposer in temperate climates.`,
 			[ 0: 0.2, 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.8, 5: 0.5, 6: 0.5, 7: 0.5 ]
 		), SpeciesInfo( // 11
 			"Angry 1",
 			"angry1",
-			"./assets/species_cover_art/angry_intro1.png",
+			"angry_intro1",
 			10,
 			0xFF3D00,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER

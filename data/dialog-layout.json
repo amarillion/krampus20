@@ -24,10 +24,10 @@
 			"id": "div_slot", 
 			"layout": {
 				"rule": "stretch",
-				"top": 8,
-				"left": 8,
-				"right": 8,
-				"bottom": 48
+				"top": 16,
+				"left": 16,
+				"right": 16,
+				"bottom": 56
 			}
 		}, {
 			"type": "button",

@@ -13,6 +13,7 @@ import allegro5.allegro_font;
 import std.exception;
 import std.string;
 import std.conv : to;
+import helix.util.math;
 
 import helix.color; //TODO: debug
 import allegro5.allegro_primitives; // TODO: debug
@@ -21,6 +22,8 @@ void multilineTextLayout(string text, ALLEGRO_FONT *font, int max_width, int ope
 	void delegate(string line, int x, int y) cb) {
 
 }
+
+enum defaultLineHeight = 16; //TODO: customizable
 
 class Context {
 	MainLoop window;
@@ -32,11 +35,12 @@ class Context {
 		cursor = Point(0);
 		this.window = window;
 		this.maxWidth = maxWidth;
-		this.lineHeight = 0; //lineHeight is determined by spans...
+		this.lineHeight = defaultLineHeight;
 	}
 
 	void nextLine() {
 		cursor = Point(0, cursor.y + lineHeight);
+		lineHeight = defaultLineHeight;
 	}
 
 	int remain() {
@@ -62,7 +66,9 @@ class TextSpan : Span {
 		label.setStyle(context.window.getStyle(styleName));
 		int totalHeight;
 		int originalY = context.cursor.y;
-		label.calculateLayout(context.maxWidth, context.lineHeight, totalHeight, context.cursor);
+		int lineHeight;
+		label.calculateLayout(context.maxWidth, lineHeight, totalHeight, context.cursor);
+		context.lineHeight = max(context.lineHeight, lineHeight);
 		label.layoutData = LayoutData(0, originalY, 0, 0, 0, totalHeight, LayoutRule.STRETCH, LayoutRule.BEGIN);
 		return [ label ];
 	}
@@ -82,8 +88,10 @@ class InlineImage : Span {
 		const w = al_get_bitmap_width(bitmap);
 		const h = al_get_bitmap_height(bitmap);
 		img.layoutData = LayoutData(context.cursor.x, context.cursor.y, 0, 0, w, h, LayoutRule.BEGIN, LayoutRule.BEGIN);
+		
 		//TODO: move to new line if there is no space left for image...
 		context.cursor.x = context.cursor.x + w; //TODO add margin?
+		context.lineHeight = max(context.lineHeight, h);
 		return [ img ];
 	}
 }

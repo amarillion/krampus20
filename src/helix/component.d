@@ -94,7 +94,7 @@ class Component
 		if (killed || hidden) return;
 		
 		Style style = disabled ? styles[2] : (selected ? styles[1] : styles[0]);
-		assert(style);
+		assert(style, "You must set a style for the current state");
 		
 		// render shadow
 		// TODO

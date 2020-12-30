@@ -20,6 +20,7 @@ import startSpecies;
 import std.stdio; // TODO: debug only
 import helix.signal;
 import helix.timer;
+import helix.richtext;
 import dialog;
 
 class RadioGroup(T) {
@@ -80,7 +81,53 @@ class GameState : State {
 		
 		auto btn1 = getElementById("btn_species_info");
 		btn1.onAction.add({ 
-			openDialog(window, START_SPECIES[speciesGroup.value.get()].backstory); 
+			Component slotted = new Component(window);
+			slotted.setStyle(window.getStyle("default")); //TODO: should not have to do this every time...
+
+			auto info = START_SPECIES[speciesGroup.value.get()];
+			ImageComponent img = new ImageComponent(window);
+			img.layoutData = LayoutData(0, 0, 0, 0, 512, 384, LayoutRule.BEGIN, LayoutRule.CENTER);
+			img.img = window.resources.getBitmap(info.coverArt);
+
+			RichText rt1 = new RichText(window);
+			rt1.setStyle(window.getStyle("default"));
+			rt1.layoutData = LayoutData(528, 0, 0, 0, 0, 0, LayoutRule.STRETCH, LayoutRule.STRETCH);
+			
+			auto rtb = new RichTextBuilder().h1("Species info")
+				.text(info.backstory)
+				.p()
+				.text(format("Albedo: %.2f", info.albedo)).br()
+				.text("Likes:").br();
+
+			const biotopes = [
+				0: "sorry_sulfuric2",
+				1: "mountain3",
+				2: "sulfur4",
+				3: "lava1",
+				4: "canyon1",
+				5: "lowland0",
+				6: "salt4",
+				7: "canyon2",
+			];
+			foreach (k, v; info.biotopeTolerances) {
+				if (v > 0.5) {
+					rtb.img(window.resources.getBitmap(biotopes[k]));
+				}
+			}
+			rtb.p().text("Dislikes:").br();
+			foreach (k, v; info.biotopeTolerances) {
+				if (v < 0.5) {
+					rtb.img(window.resources.getBitmap(biotopes[k]));
+				}
+			}
+
+				// TODO: likes and dislikes
+			rt1.setSpans(rtb.build());
+			
+			slotted.addChild(img);
+			slotted.addChild(rt1);
+			Dialog dlg = new Dialog(window, slotted);
+			window.pushScene(dlg);
 		});
 
 		auto btn2 = getElementById("btn_species_introduce");

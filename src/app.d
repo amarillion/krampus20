@@ -44,6 +44,31 @@ void main()
 		mainloop.resources.addFile("data/images/species/plant0.png");
 		mainloop.resources.addFile("data/images/species/plant1.png");
 
+		mainloop.resources.addFile("data/species_cover_art/angry_intro1.png");
+		mainloop.resources.addFile("data/species_cover_art/catcrobe_intro1.png");
+		mainloop.resources.addFile("data/species_cover_art/catcrobe_intro2.png");
+		mainloop.resources.addFile("data/species_cover_art/donut_intro1.png");
+		mainloop.resources.addFile("data/species_cover_art/fungi_intro0.png");
+		mainloop.resources.addFile("data/species_cover_art/herbivore_intro0.png");
+		mainloop.resources.addFile("data/species_cover_art/microb_intro1.png");
+		mainloop.resources.addFile("data/species_cover_art/microb_intro2.png");
+		mainloop.resources.addFile("data/species_cover_art/microb_intro4.png");
+		mainloop.resources.addFile("data/species_cover_art/microb_intro5.png");
+		mainloop.resources.addFile("data/species_cover_art/microb_intro7.png");
+		mainloop.resources.addFile("data/species_cover_art/platn_intro1.png");
+		mainloop.resources.addFile("data/species_cover_art/platn_intro2.png");
+
+		mainloop.resources.addFile("data/images/biotope/canyon1.png");
+		mainloop.resources.addFile("data/images/biotope/mountain3.png");
+		mainloop.resources.addFile("data/images/biotope/sorry_sulfuric2.png");
+		mainloop.resources.addFile("data/images/biotope/sorry_salt0.png");
+		mainloop.resources.addFile("data/images/biotope/lava1.png");
+		mainloop.resources.addFile("data/images/biotope/salt4.png");
+		mainloop.resources.addFile("data/images/biotope/lowland0.png");
+		mainloop.resources.addFile("data/images/biotope/sulfur4.png");
+		mainloop.resources.addFile("data/images/biotope/canyon2.png");
+		mainloop.resources.addFile("data/images/biotope/sorry_sulfuric1.png");
+
 		mainloop.resources.addMusicFile("data/music/ExoMusicIntro.ogg");
 		mainloop.resources.addMusicFile("data/music/ExoMusicLoop.ogg");
 
