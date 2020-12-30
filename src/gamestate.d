@@ -63,6 +63,7 @@ RichTextBuilder species(RichTextBuilder b, MainLoop window, int sp) {
 
 	RichTextBuilder cellInfo(RichTextBuilder b, MainLoop window, Cell c) {
 		b
+		.h1("Selected area")
 		.biotope(window, c.biotope)
 		.text(format!`[%d, %d]`(c.x, c.y))
 		.br()
@@ -81,8 +82,11 @@ O₂: %.1f
 Organic: %.1f`(
 	c.heat, c.temperature, c.stellarEnergy, c.heatLoss, c.albedo, c.albedoDebugStr, 
 	c.latitude, c.co2, c.h2o, c.o2, c.deadBiomass)).p();
-		foreach(ref sp; c._species) {
-			b.species(window, to!int(sp.speciesId)).text(format(": %.1f", sp.biomass)).br();
+		foreach(ref sp; c._species) { b
+			.species(window, to!int(sp.speciesId))
+			.text(format!": %.1f "(sp.biomass.get()));
+			if (sp.status != "") { b.b(sp.status); }
+			b.br();
 		}
 		return b;
 	}
@@ -203,16 +207,16 @@ class GameState : State {
 	}
 
 	void initSim(TileMap map) {
-		sim = new Sim(map.grid.width, map.grid.height);
+		sim = new Sim(map.width, map.height);
 		currentCell = sim.grid.get(Point(0));
 		this.initBiotopes(map);
 	}
 
 	void initBiotopes(TileMap map) {
 		// copy biotopes from layer to cells
-		foreach(pos; CoordRange!vec3i(map.grid.size)) {
-			int biotope = map.grid.get(pos);
-			sim.grid.get(Point(pos.x, pos.y)).biotope = biotope;
+		foreach(pos; PointRange(map.layer[0].size)) {
+			int biotope = map.layer[0].get(pos);
+			sim.grid.get(pos).biotope = biotope;
 		}
 	}
 
@@ -242,18 +246,35 @@ class GameState : State {
 		
 		foreach (cell; sim.grid.eachNode()) {
 
-			vec3i pos = vec3i(cell.x, cell.y, 0) * 2;
-			vec3i[] deltas = CoordRange!vec3i(vec3i(2, 2, 1)).array;
+			Point pos = Point(cell.x, cell.y) * 2;
+			Point[] deltas = PointRange(Point(2)).array;
 			foreach (delta; deltas) {
-				speciesMap.grid.set(pos + delta, -1);
+				speciesMap.layer[0].set(pos + delta, -1);
+				speciesMap.layer[1].set(pos + delta, -1);
 			}
 
 			// get top 4 species from cell...
 			foreach (i; 0 .. min(cell.species.length, 4)) {
 				auto sp = cell.species[i];
-				if (sp.biomass < 5.0) continue;
+				if (sp.biomass.get() < 5.0) continue;
 				const tileIdx = START_SPECIES[sp.speciesId].tileIdx;
-				speciesMap.grid.set(pos + deltas[i], tileIdx);
+				speciesMap.layer[0].set(pos + deltas[i], tileIdx);
+				
+				double change = sp.biomass.changeRatio();
+				int tile2 = -1;
+				if (change < 0.95) {
+					tile2 = change < 0.9 ? 19: 18;
+				}
+				else if (change > 1.05) {
+					tile2 = change > 1.10 ? 17: 16;
+				}
+				speciesMap.layer[1].set(pos + deltas[i], tile2);
+			}
+
+
+			// save each value to calculate ratio next round
+			foreach (ref sp; cell.species) {
+				sp.biomass.tick();
 			}
 		}
 	}

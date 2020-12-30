@@ -64,7 +64,7 @@ class Cell {
 	}
 
 	double sumLivingBiomass() {
-		return reduce!((acc, cur) => acc + cur.biomass)(0.0, _species);
+		return reduce!((acc, cur) => acc + cur.biomass.get())(0.0, _species);
 	}
 
 	SimpleSpecies[] species() {
@@ -93,7 +93,7 @@ class Cell {
 	}
 
 	void removeLowestSpecies() {
-		deadBiomass += _species[$-1].biomass; // biomass converted from dead species
+		deadBiomass += _species[$-1].biomass.get(); // biomass converted from dead species
 		_species = _species[0..$-1]; // pop last one
 	}
 
@@ -105,13 +105,13 @@ class Cell {
 		if (_species.empty) return;
 
 		auto last = _species[$-1];
-		if (last.biomass < 1.0) {
+		if (last.biomass.get() < 1.0) {
 			removeLowestSpecies();
 		}
 	}
 
 	void sortSpecies() {
-		sort!"b.biomass < a.biomass"(_species); // TODO: check sort order...
+		sort!"b.biomass.get() < a.biomass.get()"(_species); // TODO: check sort order...
 	}
 
 	string speciesToString() {
@@ -145,16 +145,24 @@ Species: %s`,
 		// each species should grow and die based on local fitness.
 
 		foreach (ref sp; _species) {
-			const info = START_SPECIES[sp.speciesId]; // TODO: caching
-
+			const info = START_SPECIES[sp.speciesId];
+			sp.status = "";
+			
 			double fitness = 1.0;
 			assert (this.biotope in info.biotopeTolerances);
 			fitness *= info.biotopeTolerances[this.biotope];
 			
+			if (fitness < 0.3) {
+				sp.status = "Bad biotope";
+			}
+
 			// no chance of survival outside preferred temperature range
-			if (temperature < info.temperatureRange[0] ||
-				temperature > info.temperatureRange[1]) {
+			if (temperature < info.temperatureRange[0]) {
 				fitness *= 0.1;
+				sp.status = "Too cold";
+			} else if (temperature > info.temperatureRange[1]) {
+				fitness *= 0.1;
+				sp.status = "Too hot";
 			}
 
 			//TODO: fitness is affected by presence of symbionts
@@ -169,7 +177,15 @@ Species: %s`,
 				const minS = min(co2, h2o);
 				const rate = fitness * temperature * stellarEnergy * PHOTOSYNTHESIS_BASE_RATE * minS; // growth per tick
 				
-				const amount = min(sp.biomass * rate, this.co2, this.h2o);
+				const amount = min(sp.biomass.get() * rate, this.co2, this.h2o);
+				
+				if (co2 < sp.biomass.get() / 3) {
+					sp.status = "Not enough CO2";
+				}
+				if (h2o < sp.biomass.get() / 3) {
+					sp.status = "Too dry";
+				}
+
 				assert (amount >= 0);
 
 				co2 -= amount;
@@ -177,10 +193,11 @@ Species: %s`,
 
 				o2 += amount;
 				sp.biomass += amount;
-				assert (sp.biomass >= 0);
+				assert (sp.biomass.get() >= 0);
 			}
 			else if (info.role == ROLE.CONSUMER) {
 				// for each other species
+				double totalFood = 0;
 				foreach (ref other; _species) {
 					if (other.speciesId == sp.speciesId) continue; // don't interact with self
 
@@ -188,38 +205,50 @@ Species: %s`,
 					if (interaction == INTERACTION.EAT) {
 						// sp(ecies) eats other (species)
 						// take some of the biomass from other, and adopt it as own biomass
-						const rate = fitness * CONVERSION_BASE_RATE * other.biomass;
-						const amount = min(sp.biomass * rate, other.biomass);
+						const rate = fitness * CONSUMPTION_BASE_RATE * other.biomass.get();
+						const amount = min(sp.biomass.get() * rate, other.biomass.get());
 
 						assert (amount >= 0);
 						other.biomass -= amount;
 						sp.biomass += amount;
 
-						assert(sp.biomass >= 0);
-						assert(other.biomass >= 0);
+						totalFood += other.biomass.get();
+
+						assert(sp.biomass.get() >= 0);
+						assert(other.biomass.get() >= 0);
 					}
+				}
+				if (totalFood < sp.biomass.get() / 4) {
+					sp.status = "Hungry";
 				}
 			}
 			else if  (info.role == ROLE.REDUCER) {
 				// reducers take some of the dead biomass, and adopt it as their own biomass
-				const double rate = fitness * CONVERSION_BASE_RATE * this.deadBiomass;
-				const double amount = min(sp.biomass * rate, this.deadBiomass);
+				const double rate = fitness * REDUCTION_BASE_RATE * this.deadBiomass;
+				const double amount = min(sp.biomass.get() * rate, this.deadBiomass);
+
+				if (this.deadBiomass < sp.biomass.get() / 4) {
+					sp.status = "Not enough organic matter";
+				}
 
 				assert (amount >= 0);
 				deadBiomass -= amount;
 				sp.biomass += amount;
 
 				assert (this.deadBiomass >= 0);
-				assert (sp.biomass >= 0);
 			}
 
 			if (info.role != ROLE.PRODUCER) {
 				// simulate respiration for consumers and reducers.
 				// lowest substrate determines growth rate.
-				const double minS = min(sp.biomass, this.o2);
+				const double minS = min(sp.biomass.get(), this.o2);
+				if (this.o2 < sp.biomass.get()) {
+					sp.status = "Not enough oxygen";
+				}
+
 				// not affected by fitness - all species consume oxygen at a given rate
 				const double rate = RESPIRATION_BASE_RATE * minS;
-				const double amount = min(sp.biomass, sp.biomass * rate, this.o2);
+				const double amount = min(sp.biomass.get() * rate, sp.biomass.get(), this.o2);
 
 				assert (amount >= 0);
 				this.o2 -= amount;
@@ -228,27 +257,23 @@ Species: %s`,
 				this.co2 += amount;
 
 				assert (this.deadBiomass >= 0);
-				assert (sp.biomass >= 0);
 			}
 
 			// all species die at a given rate...
 			{
-				assert(sp.biomass >= 0, `Wrong value ${sp.biomass} ${sp.speciesId}`);
+				assert(sp.biomass.get() >= 0, `Wrong value ${sp.biomass} ${sp.speciesId}`);
 
 				// the lower the fitness, the higher the death rate
 				// divisor has a minimum just above 0, to avoid division by 0
 				// death rate has a maximum of 1.0 (instant death)
 				const double rate = min(1.0, DEATH_RATE / max(fitness, 0.0001));
-				const double amount = min(sp.biomass * rate, sp.biomass);
+				const double amount = min(sp.biomass.get() * rate, sp.biomass.get());
 
 				assert (amount >= 0);
 				this.deadBiomass += amount;
 				sp.biomass -= amount;
-
-				assert(sp.biomass >= 0);
 			}
 
-			assert(sp.biomass >= 0);
 		}
 
 		assert (this.o2 >= 0);
@@ -263,7 +288,7 @@ Species: %s`,
 		if (this._species.length == 0) return;
 
 		foreach (ref sp; _species) {
-			const amount = sp.biomass * 0.02;
+			const amount = sp.biomass.get() * 0.02;
 			
 			// do not migrate less than one unit - otherwise it will die immediately and will be a huge drain on early growth
 			if (amount < 1.0) {
@@ -340,8 +365,8 @@ Species: %s`,
 		albedoDebugStr = format(`%g * %g [ice] * %g [dryIce]`, ALBEDO_BASE, iceEffect, dryIceEffect);
 
 		foreach (ref sp; _species) {
-			const info = START_SPECIES[sp.speciesId]; // TODO: better caching
-			const speciesEffect = mapAlbedoReduction(info.albedo, sp.biomass / 500);
+			const info = START_SPECIES[sp.speciesId];
+			const speciesEffect = mapAlbedoReduction(info.albedo, sp.biomass.get() / 500);
 			this.albedo *= speciesEffect;
 			albedoDebugStr ~= format(` * %g [%s] `, speciesEffect, sp.speciesId);
 		}
@@ -375,7 +400,7 @@ Species: %s`,
 			if (!(sp.speciesId in planet.species)) {
 				planet.species[sp.speciesId] = 0;
 			}
-			planet.species[sp.speciesId] += sp.biomass;
+			planet.species[sp.speciesId] += sp.biomass.get();
 		}
 
 	}

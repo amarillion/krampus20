@@ -23,48 +23,48 @@ struct TileList {
 	}
 }
 
-alias TileGrid = Grid!(3, int);
+alias TileGrid = Grid!(2, int);
 
 struct TileMap {
 
-	TileGrid grid;
+	TileGrid[] layer;
 	TileList tilelist;
+	int width, height;
 
 	void fromTiledJSON(JSONValue node) {
 
-		int w = cast(int)node["width"].integer;
-		int h = cast(int)node["height"].integer;
+		width = cast(int)node["width"].integer;
+		height = cast(int)node["height"].integer;
 
 		int dl = 0;
 		foreach (l; node["layers"].array) {
 			if (l["type"].str == "tilelayer") { dl++; }
 		}
 		assert(dl > 0);
-		grid = new Grid!(3, int)(w, h, dl);
-
+		
 		tilelist.fromTiledJSON(node["tilesets"].array[0]);
 
-		vec3i ll = vec3i(0);
 		foreach (l; node["layers"].array) {
 			if (l["type"].str != "tilelayer") { continue; }
+			auto grid = new Grid!(2, int)(width, height);
+			layer ~= grid;
 
 			auto data = l["data"].array;
-			foreach (p; CoordRange!vec3i(vec3i(w, h, 1))) {
-				int val = to!int(data[p.x + (p.y * w)].integer - 1);
-				grid.set(ll + p, val);
+			foreach (p; PointRange(grid.size)) {
+				const val = to!int(data[grid.toIndex(p)].integer - 1);
+				grid.set(p, val);
 			}
-			ll.z = ll.z + 1;
 		}
 	}
 
 	string toString() {
-		return format("TileMap(%s, tiles: %s)", grid.size, tilelist.tilenum);
+		return format("TileMap(%s, tiles: %s)", layer[0].size, tilelist.tilenum);
 	}
 }
 
 void draw_tilemap(TileMap tilemap, Rectangle shape, Point viewPos = Point(0), int layer = 0) {
 
-	assert(tilemap.grid);
+	assert(tilemap.layer[layer]);
 	assert(tilemap.tilelist.bmp);
 
 	void teg_drawtile (const ref TileList tiles, int index, int x, int y)
@@ -101,10 +101,10 @@ void draw_tilemap(TileMap tilemap, Rectangle shape, Point viewPos = Point(0), in
 	al_set_clipping_rectangle(cx, cy, cw, ch);
 	
 	const tileSize = Point(tilemap.tilelist.tilew, tilemap.tilelist.tileh);
-	foreach (tilePos; CoordRange!Point(Point(tilemap.grid.width, tilemap.grid.height))) {
+	foreach (tilePos; CoordRange!Point(Point(tilemap.layer[layer].width, tilemap.layer[layer].height))) {
 		Point pixelPos = tilePos * tileSize - viewPos;
 
-		int i = tilemap.grid.get(vec3i(tilePos.x, tilePos.y, layer));
+		int i = tilemap.layer[layer].get(tilePos);
 		if (i >= 0 && i < tilemap.tilelist.tilenum) {
 			teg_drawtile(tilemap.tilelist, i, pixelPos.x, pixelPos.y);
 		}

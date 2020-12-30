@@ -23,8 +23,10 @@ class PlanetView : Component {
 	Model!Point selectedTile;
 
 	override void draw(GraphicsContext gc) {
-		draw_tilemap(planetMap, shape);
-		draw_tilemap(speciesMap, shape);
+		Point ofst = Point(0);
+		draw_tilemap(planetMap, shape, ofst);
+		draw_tilemap(speciesMap, shape, ofst);
+		draw_tilemap(speciesMap, shape, ofst, 1);
 		
 		Point p = selectedTile.get();
 		Point p1 = p * 64;
@@ -34,7 +36,7 @@ class PlanetView : Component {
 
 	override void onMouseDown(Point p) {
 		Point mp = p / 64;
-		if (planetMap.grid.inRange(vec3i(mp.x, mp.y, 0))) {
+		if (planetMap.layer[0].inRange(mp)) {
 			selectedTile.set(mp);
 		}
 	}

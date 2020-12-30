@@ -5,7 +5,8 @@ module constants;
 enum MAX_SPECIES_PER_CELL = 8;
 
 enum PHOTOSYNTHESIS_BASE_RATE = 1.5e-7; // rate per mol substrate, per mol organism per GJ of solar energy
-enum CONVERSION_BASE_RATE = 1.0e-3; // rate per mol substrate, per mol organism
+enum REDUCTION_BASE_RATE = 0.5e-3; // rate per mol substrate, per mol organism
+enum CONSUMPTION_BASE_RATE = 2.0e-3; // rate per mol substrate, per mol organism
 enum RESPIRATION_BASE_RATE = 1.0e-3; // rate per mol substrate, per mol organism
 enum DEATH_RATE = 0.01; // percentage death per turn. will be modified by fitness factor
 
