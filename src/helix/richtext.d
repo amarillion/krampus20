@@ -168,7 +168,7 @@ class Label : Component {
 	}
 
 	override void draw(GraphicsContext gc) {
-		al_draw_rectangle(shape.x, shape.y, shape.x + shape.w, shape.y + shape.h, Color.RED, 1.0);
+		// al_draw_rectangle(shape.x, shape.y, shape.x + shape.w, shape.y + shape.h, Color.RED, 1.0);
 
 		Style style = styles[0];
 		// TODO render multiple lines...

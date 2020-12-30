@@ -122,7 +122,7 @@ class Cell {
 	override string toString() {
 		return format(`[%d, %d] Biotope: %s
 Heat: %.2e GJ/km²
-Temperature: %.0f K
+Temperature: %.0f °K
 Heat gain from sun: %.2e GJ/km²/tick
 Heat loss to space: %.2e GJ/km²/tick
 Albedo: %.2f

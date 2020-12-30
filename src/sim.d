@@ -26,7 +26,7 @@ const TRIGGERS = [
 			.h1(`Welcome to Exo Keeper`)
 			.text(format!`After a voyage of hundreds of lightyears, you have now arrived. Before you lies the barren surface of Kepler-7311b
 Your goal is to make the surface suitable for human inhabitation. 
-But the planet is far too cold. At a breezy %.0f K %.0f C) it's impossible to 
+But the planet is far too cold. At a breezy %.0f °K / %.0f °C) it's impossible to 
 step outside without a jacket. Plus, there is no oxygen atmosphere.`(sim.planet.temperature, sim.planet.temperature - 273))
 			.p()
 			.text(`To terraform the planet, we must introduce some microbe species to the surface.`)
@@ -56,21 +56,21 @@ By introducing more species, you can decrease the albedo of the planet even furt
 		"first_ice_melting",
 		(sim) => sim.planet.maxTemperature > 273,
 		(sim) => new RichTextBuilder().h1(`First ice is melting`).text(
-format!`At the warm equator, the temperature has reached %.0f K (Or ${(sim.planet.maxTemperature - 273).toFixed(0)} C)
+format!`At the warm equator, the temperature has reached %.0f °K (Or %.0f °C)
 This means that ice starts melting and the planet is getting even more suitable for life.
-Can you reach an average temperature of 298 K?`(sim.planet.maxTemperature))
+Can you reach an average temperature of 298 °K?`(sim.planet.maxTemperature, sim.planet.maxTemperature - 273))
 			.build()
 	),
 	Trigger(
 		"room_temperature_reached",
 		(sim) => sim.planet.temperature > 298,
 		(sim) => new RichTextBuilder().h1(`Temperate climate`).text(format!
-`The average temperature of your planet now stands at $.0f K %.0f C)
+`The average temperature of your planet now stands at %.0f °K ( or %.0f °C))
 The ice has melted, there is oxygen in the atmosphere, the surface is teeming with life.
 Well done, you have taken this game as far as it goes!`(sim.planet.temperature, sim.planet.temperature - 273))
 			.p()
 			.text(`Thank you for playing.
-	Did you like it? Let us know at @Gekaremi, @Donall or @mpvaniersel on twitter!`)
+Did you like it? Let us know at @Gekaremi, @Donall or @mpvaniersel on twitter!`)
 			.build()
 	)
 ];
