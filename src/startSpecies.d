@@ -62,8 +62,8 @@ void initStartSpecies() {
 			0x69F0AE,
 			ROLE.PRODUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			null,
-			0.9, // 1.0 = light & early game 0.0 == dark & late game
-			[ 220, 260 ], // min, max temperature in Kelvin
+			1.0, // 1.0 = light & early game 0.0 == dark & late game
+			[ 225, 260 ], // min, max temperature in Kelvin
 `An ancient and strong unicellular plant, but perhaps not the most effective.
 
 Will do well in the cooler early phase of the game.`,
@@ -77,8 +77,8 @@ Will do well in the cooler early phase of the game.`,
 			0x388E3C,
 			ROLE.PRODUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			null,
-			0.8, // 1.0 = light & early game 0.0 == dark & late game
-			[ 230, 270 ], // min, max temperature in Kelvin
+			0.95, // 1.0 = light & early game 0.0 == dark & late game
+			[ 240, 270 ], // min, max temperature in Kelvin
 			
 `Legends say that this plant microbe came from a great scientist. Sounds too funny to be true.
 
@@ -107,8 +107,8 @@ One of the hardiest herbivores that will survive in low temperatures.`,
 			0x8D6E63,
 			ROLE.REDUCER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			null,
-			0.8, // 1.0 = light & early game 0.0 == dark & late game
-			[ 240, 270 ], // min, max temperature in Kelvin
+			0.95, // 1.0 = light & early game 0.0 == dark & late game
+			[ 245, 270 ], // min, max temperature in Kelvin
 			
 `Recycle useful substances and return them to the circle of life. Sometimes it feels like a radio wave.
 

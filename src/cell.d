@@ -44,7 +44,7 @@ class Cell {
 	SimpleSpecies[] _species;
 
 	/** constructor */
-	this(int x, int y) {
+	this(int x, int y, int height) {
 		this.x = x;
 		this.y = y;
 
@@ -53,7 +53,7 @@ class Cell {
 		co2 = START_CO2;
 		o2 = 0;
 		h2o = START_H2O;
-		latitude = ((y * 160 / (MAP_HEIGHT - 1)) - 80);
+		latitude = ((y * 160 / (height - 1)) - 80);
 		heat = START_HEAT;
 		
 		// constant amount of stellar energy per tick
@@ -288,7 +288,7 @@ Species: %s`,
 		if (this._species.length == 0) return;
 
 		foreach (ref sp; _species) {
-			const amount = sp.biomass.get() * 0.02;
+			const amount = sp.biomass.get() * MIGRATION_BASE_RATE;
 			
 			// do not migrate less than one unit - otherwise it will die immediately and will be a huge drain on early growth
 			if (amount < 1.0) {

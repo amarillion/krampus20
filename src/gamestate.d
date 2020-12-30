@@ -262,11 +262,11 @@ class GameState : State {
 				
 				double change = sp.biomass.changeRatio();
 				int tile2 = -1;
-				if (change < 0.95) {
-					tile2 = change < 0.9 ? 19: 18;
+				if (change < 0.99) {
+					tile2 = change < 0.98 ? 19: 18;
 				}
-				else if (change > 1.05) {
-					tile2 = change > 1.10 ? 17: 16;
+				else if (change > 1.01) {
+					tile2 = change > 1.02 ? 17: 16;
 				}
 				speciesMap.layer[1].set(pos + deltas[i], tile2);
 			}

@@ -124,7 +124,7 @@ class Sim {
 		// TODO: return to larger grid
 		grid = new Grid!(2, Cell)(w, h);
 		foreach(p; PointRange(Point(w, h))) {
-			grid.set(p, new Cell(p.x, p.y));
+			grid.set(p, new Cell(p.x, p.y, grid.height));
 		}
 		planet = new Planet(); // planetary properties
 		init();

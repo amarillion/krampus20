@@ -4,11 +4,12 @@ module constants;
 
 enum MAX_SPECIES_PER_CELL = 8;
 
-enum PHOTOSYNTHESIS_BASE_RATE = 1.5e-7; // rate per mol substrate, per mol organism per GJ of solar energy
-enum REDUCTION_BASE_RATE = 0.5e-3; // rate per mol substrate, per mol organism
-enum CONSUMPTION_BASE_RATE = 2.0e-3; // rate per mol substrate, per mol organism
-enum RESPIRATION_BASE_RATE = 1.0e-3; // rate per mol substrate, per mol organism
-enum DEATH_RATE = 0.01; // percentage death per turn. will be modified by fitness factor
+enum PHOTOSYNTHESIS_BASE_RATE = 1.5e-8; // rate per mol substrate, per mol organism per GJ of solar energy
+enum REDUCTION_BASE_RATE = 0.5e-4; // rate per mol substrate, per mol organism
+enum CONSUMPTION_BASE_RATE = 2.0e-4; // rate per mol substrate, per mol organism
+enum RESPIRATION_BASE_RATE = 1.0e-4; // rate per mol substrate, per mol organism
+enum MIGRATION_BASE_RATE = 2.0e-3;
+enum DEATH_RATE = 1.0e-3; // percentage death per turn. will be modified by fitness factor
 
 enum START_CO2 = 1000.0; // starting amount of CO2 per km^2, in GMol
 enum START_H2O = 1000.0; // starting amount of H2O per km^2, in GMol
@@ -24,4 +25,3 @@ enum H2O_MELTING_POINT = 273.0;
 
 // GUI parameters
 enum TILESIZE = 64;
-enum MAP_HEIGHT = 10; //TODO - make dynamic
