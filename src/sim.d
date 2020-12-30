@@ -75,8 +75,8 @@ Did you like it? Let us know at @Gekaremi, @Donall or @mpvaniersel on twitter!`)
 	)
 ];
 
-AdjacentRange!(2, Cell) getAdjacent(Grid!(2, Cell) grid, Point pos) {
-	return AdjacentRange!(2, Cell)(grid, pos);
+AdjacentRange!(2, T) getAdjacent(T)(Grid!(2, T) grid, Point pos) {
+	return AdjacentRange!(2, T)(grid, pos);
 }
 
 struct AdjacentRange(int N, T) {

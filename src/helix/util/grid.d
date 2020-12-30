@@ -47,12 +47,12 @@ class Grid(int N, T) {
 		return result;
 	}
 
-	void set(vec!(N, int) p, T val) {
+	void set(const vec!(N, int) p, T val) {
 		assert(inRange(p));
 		data[toIndex(p)] = val;
 	}
 
-	ref T get(vec!(N, int) p) {
+	ref T get(const vec!(N, int) p) {
 		assert(inRange(p));
 		return data[toIndex(p)];
 	}

@@ -26,8 +26,6 @@ void main()
 		mainloop.resources.addFile("data/title-layout.json");
 		mainloop.resources.addFile("data/game-layout.json");
 		mainloop.resources.addFile("data/dialog-layout.json");
-		mainloop.resources.addFile("data/planetscape.json");
-		mainloop.resources.addFile("data/speciesmap.json");
 
 		mainloop.resources.addFile("data/images/species/angry1.png");
 		mainloop.resources.addFile("data/images/species/catcrobe1.png");

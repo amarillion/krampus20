@@ -25,3 +25,6 @@ enum H2O_MELTING_POINT = 273.0;
 
 // GUI parameters
 enum TILESIZE = 64;
+enum MAP_HEIGHT = 10;
+enum MAP_WIDTH = 20;
+enum NUM_BIOTOPES = 8;

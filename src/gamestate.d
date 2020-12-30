@@ -22,6 +22,8 @@ import helix.signal;
 import helix.timer;
 import helix.richtext;
 import dialog;
+import std.random;
+import constants;
 
 class RadioGroup(T) {
 
@@ -103,17 +105,42 @@ class GameState : State {
 	RadioGroup!ulong speciesGroup;
 	PlanetView planetView;
 
+	final void initMap() {
+		// planetMap.fromTiledJSON(window.resources.getJSON("planetscape")); 
+		planetMap = new TileMap(MAP_WIDTH, MAP_HEIGHT, 1);
+		planetMap.tilelist = TileList(64, 64, 8, window.resources.getBitmap("biotope"));
+
+		foreach (p; PointRange(Point(planetMap.width, planetMap.height))) {
+			planetMap.layers[0].set(p, uniform(0, NUM_BIOTOPES));
+		}
+
+		// do some sort of voting rule
+		foreach (i; 0 .. (MAP_WIDTH * MAP_HEIGHT) * 5) {
+			// pick random cell, and copy biotope to random adjacent cell
+			Point rndpos = Point (uniform(0, planetMap.width), uniform(0, planetMap.height));
+			const Point[] adj = getAdjacent(planetMap.layers[0], rndpos).array;
+			Point choice = adj[uniform(0, adj.length)];
+			planetMap.layers[0].set(choice, planetMap.layers[0].get(rndpos));
+		}
+
+		// initialize species map
+		speciesMap = new TileMap(MAP_WIDTH * 2, MAP_HEIGHT * 2, 2);
+		foreach (p; PointRange(Point(speciesMap.width, speciesMap.height))) {
+			speciesMap.layers[0].set(p, -1);
+			speciesMap.layers[1].set(p, -1);
+		}
+		speciesMap.tilelist = TileList(32, 32, 32, window.resources.getBitmap("species"));
+
+	}
+
 	this(MainLoop window) {
 		super(window);
 
 		/* GAME SCREEN */
 		buildDialog(window.resources.getJSON("game-layout"));
 
-		planetMap.fromTiledJSON(window.resources.getJSON("planetscape")); 
-		planetMap.tilelist.bmp = window.resources.getBitmap("biotope");
+		initMap();
 
-		speciesMap.fromTiledJSON(window.resources.getJSON("speciesmap"));
-		speciesMap.tilelist.bmp = window.resources.getBitmap("species");
 
 		auto planetViewParentElt = getElementById("div_planet_view");
 		
@@ -214,8 +241,8 @@ class GameState : State {
 
 	void initBiotopes(TileMap map) {
 		// copy biotopes from layer to cells
-		foreach(pos; PointRange(map.layer[0].size)) {
-			int biotope = map.layer[0].get(pos);
+		foreach(pos; PointRange(map.layers[0].size)) {
+			int biotope = map.layers[0].get(pos);
 			sim.grid.get(pos).biotope = biotope;
 		}
 	}
@@ -249,8 +276,8 @@ class GameState : State {
 			Point pos = Point(cell.x, cell.y) * 2;
 			Point[] deltas = PointRange(Point(2)).array;
 			foreach (delta; deltas) {
-				speciesMap.layer[0].set(pos + delta, -1);
-				speciesMap.layer[1].set(pos + delta, -1);
+				speciesMap.layers[0].set(pos + delta, -1);
+				speciesMap.layers[1].set(pos + delta, -1);
 			}
 
 			// get top 4 species from cell...
@@ -258,7 +285,7 @@ class GameState : State {
 				auto sp = cell.species[i];
 				if (sp.biomass.get() < 5.0) continue;
 				const tileIdx = START_SPECIES[sp.speciesId].tileIdx;
-				speciesMap.layer[0].set(pos + deltas[i], tileIdx);
+				speciesMap.layers[0].set(pos + deltas[i], tileIdx);
 				
 				double change = sp.biomass.changeRatio();
 				int tile2 = -1;
@@ -268,7 +295,7 @@ class GameState : State {
 				else if (change > 1.01) {
 					tile2 = change > 1.02 ? 17: 16;
 				}
-				speciesMap.layer[1].set(pos + deltas[i], tile2);
+				speciesMap.layers[1].set(pos + deltas[i], tile2);
 			}
 
 

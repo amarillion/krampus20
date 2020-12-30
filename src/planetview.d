@@ -36,7 +36,7 @@ class PlanetView : Component {
 
 	override void onMouseDown(Point p) {
 		Point mp = p / 64;
-		if (planetMap.layer[0].inRange(mp)) {
+		if (planetMap.layers[0].inRange(mp)) {
 			selectedTile.set(mp);
 		}
 	}

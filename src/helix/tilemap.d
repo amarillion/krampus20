@@ -25,16 +25,29 @@ struct TileList {
 
 alias TileGrid = Grid!(2, int);
 
-struct TileMap {
+class TileMap {
 
-	TileGrid[] layer;
+	TileGrid[] layers;
 	TileList tilelist;
-	int width, height;
 
-	void fromTiledJSON(JSONValue node) {
+	private int _width, _height;
+	@property int width() { return _width; }
+	@property int height() { return _height; }
+	
+	this(int width, int height, int numLayers) {
+		this._width = width;
+		this._height = height;
+		foreach (l; 0..numLayers) {
+			layers ~= new Grid!(2, int)(width, height);
+		}
+	}
+	
+	static TileMap fromTiledJSON(JSONValue node) {
 
-		width = cast(int)node["width"].integer;
-		height = cast(int)node["height"].integer;
+		int width = cast(int)node["width"].integer;
+		int height = cast(int)node["height"].integer;
+
+		TileMap result = new TileMap(width, height, 0);
 
 		int dl = 0;
 		foreach (l; node["layers"].array) {
@@ -42,12 +55,12 @@ struct TileMap {
 		}
 		assert(dl > 0);
 		
-		tilelist.fromTiledJSON(node["tilesets"].array[0]);
+		result.tilelist.fromTiledJSON(node["tilesets"].array[0]);
 
 		foreach (l; node["layers"].array) {
 			if (l["type"].str != "tilelayer") { continue; }
 			auto grid = new Grid!(2, int)(width, height);
-			layer ~= grid;
+			result.layers ~= grid;
 
 			auto data = l["data"].array;
 			foreach (p; PointRange(grid.size)) {
@@ -55,16 +68,18 @@ struct TileMap {
 				grid.set(p, val);
 			}
 		}
+
+		return result;
 	}
 
-	string toString() {
-		return format("TileMap(%s, tiles: %s)", layer[0].size, tilelist.tilenum);
+	override string toString() {
+		return format("TileMap(%s, tiles: %s)", layers[0].size, tilelist.tilenum);
 	}
 }
 
 void draw_tilemap(TileMap tilemap, Rectangle shape, Point viewPos = Point(0), int layer = 0) {
 
-	assert(tilemap.layer[layer]);
+	assert(tilemap.layers[layer]);
 	assert(tilemap.tilelist.bmp);
 
 	void teg_drawtile (const ref TileList tiles, int index, int x, int y)
@@ -101,10 +116,10 @@ void draw_tilemap(TileMap tilemap, Rectangle shape, Point viewPos = Point(0), in
 	al_set_clipping_rectangle(cx, cy, cw, ch);
 	
 	const tileSize = Point(tilemap.tilelist.tilew, tilemap.tilelist.tileh);
-	foreach (tilePos; CoordRange!Point(Point(tilemap.layer[layer].width, tilemap.layer[layer].height))) {
+	foreach (tilePos; PointRange(tilemap.layers[layer].size)) {
 		Point pixelPos = tilePos * tileSize - viewPos;
 
-		int i = tilemap.layer[layer].get(tilePos);
+		int i = tilemap.layers[layer].get(tilePos);
 		if (i >= 0 && i < tilemap.tilelist.tilenum) {
 			teg_drawtile(tilemap.tilelist, i, pixelPos.x, pixelPos.y);
 		}
