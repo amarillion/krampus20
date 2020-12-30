@@ -422,10 +422,6 @@ class MainLoop
 			}
 		}
 
-		void clearChildren() {
-			children = [];
-		}
-
 		void removeLastChild() {
 			children = children[0..$-1];
 		}

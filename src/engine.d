@@ -53,6 +53,10 @@ class State : Component {
 					div = new Button(window);
 					break;
 				}
+				case "richtext": {
+					div = new RichText(window);
+					break;
+				}
 				case "image": {
 					ImageComponent img = new ImageComponent(window);
 					img.img = window.resources.getBitmap(eltData["src"].str);
@@ -75,7 +79,7 @@ class State : Component {
 			}
 			
 			Style style = window.getStyle(type);
-			Style selectedStyle = window.getStyle(type, "selected");
+			Style selectedStyle = window.getStyle(type, "selected"); //TODO
 			if ("style" in eltData) {
 				div.setStyle(new Style(window.resources, eltData["style"], style));
 			}

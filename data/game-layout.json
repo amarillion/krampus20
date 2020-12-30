@@ -17,7 +17,7 @@
 			"bottom": 200
 		}
 	}, {
-		"type": "panel",
+		"type": "div",
 		"id": "pnl_cell_view",
 		"layout": {
 			"rule": "stretch-right",
@@ -25,11 +25,15 @@
 			"bottom": 200
 		},
 		"children": [{
-			"type": "pre",
-			"id": "pre_cell_info",
+			"type": "richtext",
+			"id": "rt_cell_info",
 			"layout": {
 				"rule": "stretch",
 				"top": 8, "left": 8, "right": 8, "bottom": 8
+			},
+			"style": {
+				"color": "#8285a9",
+				"font-size": 15
 			}
 		}]
 	}, {

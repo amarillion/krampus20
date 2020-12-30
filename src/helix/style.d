@@ -6,6 +6,7 @@ import allegro5.allegro_font;
 import helix.color;
 import std.conv;
 import helix.resources;
+import std.format: format;
 
 // unittest {
 // 	parseColorStr()
@@ -19,6 +20,12 @@ class Style {
 	ResourceManager resources;
 	JSONValue styleData;
 	
+	this(Style base, Style parent) {
+		this.resources = base.resources;
+		this.styleData = base.styleData;
+		this.parent = parent;
+	}
+
 	this(ResourceManager resources) {
 		this.resources = resources;
 	}
@@ -100,5 +107,11 @@ class Style {
 		const fontName = getString("font");
 		const fontSize = getNumber("font-size");
 		return resources.getFont(fontName, cast(int)fontSize);
+	}
+
+	override string toString() {
+		char[] result = format!"Style{%(%s: %s, %)}"(styleData.object).dup;
+		if (parent) result ~= format!", parent: %s"(parent);
+		return result.idup;
 	}
 }

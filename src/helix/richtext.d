@@ -16,14 +16,10 @@ import std.conv : to;
 import helix.util.math;
 
 import helix.color; //TODO: debug
+import std.stdio; //TODO: debug
 import allegro5.allegro_primitives; // TODO: debug
 
-void multilineTextLayout(string text, ALLEGRO_FONT *font, int max_width, int openingIndent,
-	void delegate(string line, int x, int y) cb) {
-
-}
-
-enum defaultLineHeight = 16; //TODO: customizable
+enum defaultLineHeight = 16; // For lines with nothing in it. TODO: should depend on current font...
 
 class Context {
 	MainLoop window;
@@ -31,7 +27,22 @@ class Context {
 	int lineHeight;
 	int maxWidth;
 
-	this(MainLoop window, int maxWidth) {
+	//TODO: this can be re-used between layouts
+	Style parentStyle;
+	Style[string] styleMap;
+
+	Style getStyle(string styleName) {
+		if (!(styleName in styleMap)) {
+			Style child = styleName == "default"
+				? parentStyle
+				: new Style (window.getStyle(styleName), parentStyle);
+			styleMap[styleName] = child;
+		}
+		return styleMap[styleName];
+	}
+
+	this(MainLoop window, int maxWidth, Style parentStyle) {
+		this.parentStyle = parentStyle;
 		cursor = Point(0);
 		this.window = window;
 		this.maxWidth = maxWidth;
@@ -56,6 +67,7 @@ class TextSpan : Span {
 
 	private string text;
 	private string styleName;
+	private Style parentStyle;
 
 	this(string text, string styleName = "default") { this.text = text; this.styleName = styleName; }
 
@@ -63,7 +75,7 @@ class TextSpan : Span {
 		Label label = new Label(context.window);
 		label.text = text;
 		label.initialIndent = context.cursor.x;
-		label.setStyle(context.window.getStyle(styleName));
+		label.setStyle(context.getStyle(styleName));
 		int totalHeight;
 		int originalY = context.cursor.y;
 		int lineHeight;
@@ -260,6 +272,7 @@ class RichText : Component {
 	bool dirty = true;
 
 	void setSpans(Span[] spans) {
+		clearChildren();
 		this.spans = spans;
 		dirty = true;
 	}
@@ -268,7 +281,7 @@ class RichText : Component {
 
 	override void draw(GraphicsContext gc) {
 		if (dirty) {
-			Context context = new Context(window, shape.w);
+			Context context = new Context(window, shape.w, styles[0]);
 			foreach (span; spans) {
 				Component[] clist = span.layout(context);
 				foreach(c; clist) {

@@ -43,10 +43,55 @@ class RadioGroup(T) {
 	}
 }
 
+RichTextBuilder biotope(RichTextBuilder b, MainLoop window, int biotope) {
+	const biotopes = [
+		0: "sorry_sulfuric2",
+		1: "mountain3",
+		2: "sulfur4",
+		3: "lava1",
+		4: "canyon1",
+		5: "lowland0",
+		6: "salt4",
+		7: "canyon2",
+	];
+	return b.img(window.resources.getBitmap(biotopes[biotope]));
+}
+
+RichTextBuilder species(RichTextBuilder b, MainLoop window, int sp) {
+	return b.img(window.resources.getBitmap(START_SPECIES[sp].iconUrl));
+}
+
+	RichTextBuilder cellInfo(RichTextBuilder b, MainLoop window, Cell c) {
+		b
+		.biotope(window, c.biotope)
+		.text(format!`[%d, %d]`(c.x, c.y))
+		.br()
+		.text(format!
+`Heat: %.2e GJ/km²
+Temperature: %.0f °K
+Heat gain from sun: %.2e GJ/km²/tick
+Heat loss to space: %.2e GJ/km²/tick
+Albedo: %.2f
+%s
+Latitude: %d deg
+
+CO₂: %.1f
+H₂O: %.1f
+O₂: %.1f
+Organic: %.1f`(
+	c.heat, c.temperature, c.stellarEnergy, c.heatLoss, c.albedo, c.albedoDebugStr, 
+	c.latitude, c.co2, c.h2o, c.o2, c.deadBiomass)).p();
+		foreach(ref sp; c._species) {
+			b.species(window, to!int(sp.speciesId)).text(format(": %.1f", sp.biomass)).br();
+		}
+		return b;
+	}
+
+
 class GameState : State {
 
 	Sim sim;
-	Component logElement;
+	RichText logElement;
 	Component planetElement;
 	TileMap planetMap;
 	TileMap speciesMap;
@@ -77,8 +122,9 @@ class GameState : State {
 		planetViewParentElt.addChild(planetView);
 	
 		planetElement = getElementById("pre_planet_info");
-		logElement = getElementById("pre_cell_info");
-		
+		logElement = cast(RichText)getElementById("rt_cell_info");
+		assert(logElement);
+
 		auto btn1 = getElementById("btn_species_info");
 		btn1.onAction.add({ 
 			Component slotted = new Component(window);
@@ -99,25 +145,15 @@ class GameState : State {
 				.text(format("Albedo: %.2f", info.albedo)).br()
 				.text("Likes:").br();
 
-			const biotopes = [
-				0: "sorry_sulfuric2",
-				1: "mountain3",
-				2: "sulfur4",
-				3: "lava1",
-				4: "canyon1",
-				5: "lowland0",
-				6: "salt4",
-				7: "canyon2",
-			];
 			foreach (k, v; info.biotopeTolerances) {
 				if (v > 0.5) {
-					rtb.img(window.resources.getBitmap(biotopes[k]));
+					rtb.biotope(window, k);
 				}
 			}
 			rtb.p().text("Dislikes:").br();
 			foreach (k, v; info.biotopeTolerances) {
 				if (v < 0.5) {
-					rtb.img(window.resources.getBitmap(biotopes[k]));
+					rtb.biotope(window, k);
 				}
 			}
 
@@ -195,7 +231,7 @@ class GameState : State {
 	void tickAndLog() {
 		sim.tick();
 		// gridView.update(); // TODO
-		logElement.text = to!string(currentCell);
+		logElement.setSpans (new RichTextBuilder().cellInfo(window, currentCell).build());
 		planetElement.text = format("Tick: %s\n%s", sim.tickCounter, sim.planet);
 		updateSpeciesMap();
 		sim.checkAchievements(window);

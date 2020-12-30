@@ -129,9 +129,9 @@ Albedo: %.2f
 %s
 Latitude: %d deg
 
-CO2: %.1f
-H2O: %.1f
-O2: %.1f
+CO₂: %.1f
+H₂O: %.1f
+O₂: %.1f
 Organic: %.1f
 
 Species: %s`, 

@@ -77,7 +77,11 @@ class Component
 	void addChild(Component c) {
 		children ~= c;
 	}
-		
+
+	void clearChildren() {
+		children = [];
+	}
+
 	void update() {
 		if (killed) return;
 		foreach(child; children) {
