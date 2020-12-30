@@ -5,6 +5,7 @@ import helix.mainloop;
 import helix.widgets;
 import engine;
 import helix.component;
+import helix.richtext;
 
 class Dialog : State {
 
@@ -28,6 +29,14 @@ void openDialog(MainLoop window, string msg) {
 	PreformattedText slotted = new PreformattedText(window);
 	slotted.text = msg;
 	slotted.setStyle(window.getStyle("pre"));
+	Dialog dlg = new Dialog(window, slotted);
+	window.pushScene(dlg);
+}
+
+void openDialog(MainLoop window, Span[] spans) {
+	RichText slotted = new RichText(window);
+	slotted.setSpans(spans);
+	slotted.setStyle(window.getStyle("default"));
 	Dialog dlg = new Dialog(window, slotted);
 	window.pushScene(dlg);
 }

@@ -38,6 +38,19 @@
 
 	"pre": {
 		"font-size": 14
+	},
+
+	"h1": {
+		"font-size": 28
+	},
+
+	"a": {
+		"text-decoration": "underline",
+		"color": "blue"
+	},
+
+	"b": {
+		"color": "red"
 	}
 
 }

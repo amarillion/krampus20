@@ -9,6 +9,7 @@ import helix.util.vec;
 import helix.util.rect;
 import helix.tilemap;
 import helix.widgets;
+import helix.richtext;
 
 import std.stdio;
 import std.conv;
@@ -119,24 +120,18 @@ class TitleState : State {
 		});
 
 		getElementById("btn_credits").onAction.add({ 
-			const text = 
-`<h1>Exo Keeper</h1>
-<p>
-Exo Keeper is a game about surviving and thriving on an exo-planet.
-<p>
-Exo Keeper was made in just 72hours for the <a href="https://ldjam.com/events/ludum-dare/46/">Ludum Dare 46</a> Game Jam. The theme of LD46 was:
-<blockquote>
-<b>Keep it alive</b>
-</blockquote>
-<p>Authors:</p>
-<dl>
-<dd><a href="https://twitter.com/mpvaniersel">Amarillion</a> (Code)
-<dd><a href="https://github.com/gekaremi">Gekaremi</a> (Design)
-<dd><a href="https://www.instagram.com/l_p_kongroo">Tatiana Kondratieva</a> (Art)
-<dd><a href="http://www.dodonoghue.com/">Dónall O'Donoghue</a> (Music)
-</dl>
-`;
-			openDialog(window, text);
+			RichTextBuilder builder = new RichTextBuilder()
+				.h1("Exo Keeper")
+				.text("Exo Keeper is a game about surviving and thriving on an exo-planet.").p()
+				.text("Exo Keeper was made in just 72hours for the ").link("Ludum Dare 46", "https://ldjam.com/events/ludum-dare/46/")
+				.text(" Game Jam. The theme of LD46 was:").p()
+				.indent().b("Keep it alive").p()
+				.text("Authors").p()
+				.link("Amarillion", "https://twitter.com/mpvaniersel").text(" (Code)").br()
+				.link("Gekaremi", "https://github.com/gekaremi").text(" (Design)").br()
+				.link("Tatiana Kondratieva", "https://www.instagram.com/l_p_kongroo").text(" (Art)").br()
+				.link("Dónall O'Donoghue", "http://www.dodonoghue.com/").text(" (Music)").br();
+			openDialog(window, builder.build());
 		});
 
 	}

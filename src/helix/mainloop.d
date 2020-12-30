@@ -320,7 +320,7 @@ class MainLoop
 		}
 	}
 
-	void calculateLayout() {
+	void calculateLayout(Component c = null) {
 
 		void calculateRecursive(Component comp, Rectangle parentRect, int depth = 0) {
 			comp.shape = comp.layoutData.calculate(parentRect);
@@ -330,8 +330,13 @@ class MainLoop
 			}
 		}
 
-		Rectangle displayRect = Rectangle(0, 0, display.al_get_display_width, display.al_get_display_height);
-		calculateRecursive (rootComponent, displayRect);
+		if (c is null) {
+			Rectangle displayRect = Rectangle(0, 0, display.al_get_display_width, display.al_get_display_height);
+			calculateRecursive (rootComponent, displayRect);
+		}
+		else {
+			calculateRecursive (c, c.shape);
+		}
 	}
 
 	private void done()
