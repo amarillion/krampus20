@@ -256,6 +256,11 @@ class RichTextBuilder {
 		return this;
 	}
 
+	RichTextBuilder i(string text) {
+		spans ~= new TextSpan(text, "i");
+		return this;
+	}
+
 	RichTextBuilder link(string text, string url) {
 		spans ~= new TextSpan(text, "a");
 		return this;

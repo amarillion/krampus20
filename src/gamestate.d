@@ -73,10 +73,11 @@ RichTextBuilder species(RichTextBuilder b, MainLoop window, int sp) {
 		.h1("Selected area")
 		.biotope(window, c.biotope)
 		.text(format!`[%d, %d]`(c.x, c.y))
-		.br()
+		.p()
+		.i(format!"Temperature: %.0f °K"(c.temperature))
+		.p()
 		.text(format!
 `Heat: %.2e GJ/km²
-Temperature: %.0f °K
 Heat gain from sun: %.2e GJ/km²/tick
 Heat loss to space: %.2e GJ/km²/tick
 Albedo: %.2f
@@ -87,7 +88,7 @@ CO₂: %.1f
 H₂O: %.1f
 O₂: %.1f
 Organic: %.1f`(
-	c.heat, c.temperature, c.stellarEnergy, c.heatLoss, c.albedo, 
+	c.heat, c.stellarEnergy, c.heatLoss, c.albedo, 
 	c.latitude, c.co2, c.h2o, c.o2, c.deadBiomass)).p();
 		foreach(ref sp; c._species) { b
 			.species(window, to!int(sp.speciesId))

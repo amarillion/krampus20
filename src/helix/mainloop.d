@@ -175,7 +175,6 @@ class MainLoop
 		foreach (k, v; styleBySelector) {
 			string[] parts = k.split('[');
 			if (parts.length > 1 && parts[0] in styleBySelector) {
-				writefln("Hooking up %s to %s", k, parts[0]);
 				v.parent = styleBySelector[parts[0]];
 			}
 		}
