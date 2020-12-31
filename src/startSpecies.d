@@ -92,7 +92,7 @@ Will do well in the cooler early phase of terraformation.`,
 			0xF8BBD0,
 			ROLE.CONSUMER, // one of ROLE.PRODUCER, ROLE.CONSUMER, ROLE.REDUCER
 			[ 0: INTERACTION.EAT, 1: INTERACTION.EAT, 7: INTERACTION.EAT, 8: INTERACTION.EAT ],
-			0.9, // 1.0 = light & early game 0.0 == dark & late game
+			0.8, // 1.0 = light & early game 0.0 == dark & late game
 			[ 230, 265 ], // min, max temperature in Kelvin
 			
 `A sweet but dangerous creature. Arghhh yarr! Watch yourself, be careful!
