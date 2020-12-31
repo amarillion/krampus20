@@ -72,7 +72,7 @@ class Cell {
 	}
 
 	// introduce a given amount of species to this cell
-	void addSpecies(long speciesId, double biomass) {
+	void addSpecies(int speciesId, double biomass) {
 		auto existing = _species.find!(i => i.speciesId == speciesId);
 		if (!existing.empty) {
 			existing[0].biomass += biomass;

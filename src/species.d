@@ -65,12 +65,12 @@ double reaction(T)(Substance!T from, Substance!T to, double amount) {
 
 struct SimpleSpecies {
 	
-	this(long speciesId, double biomass) {
+	this(int speciesId, double biomass) {
 		this.speciesId = speciesId;
 		this.biomass.set(biomass);
 	}
 	
-	long speciesId;
+	int speciesId;
 	Substance!double biomass;
 	
 	string status = ""; // something to explain what it's doing...

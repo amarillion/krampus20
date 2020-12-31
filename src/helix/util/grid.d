@@ -38,8 +38,8 @@ class Grid(int N, T) {
 		return p.allGte(zero) && p.allLt(size);
 	}
 
-	ulong toIndex(vec!(N, int) p) const {
-		ulong result = p.val[$ - 1];
+	size_t toIndex(vec!(N, int) p) const {
+		size_t result = p.val[$ - 1];
 		foreach (i; 1 .. N) {
 			result *= size.val[$ - i - 1];
 			result += p.val[$ - i - 1];
