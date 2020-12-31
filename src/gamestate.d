@@ -80,14 +80,14 @@ Temperature: %.0f °K
 Heat gain from sun: %.2e GJ/km²/tick
 Heat loss to space: %.2e GJ/km²/tick
 Albedo: %.2f
-%s
+
 Latitude: %d deg
 
 CO₂: %.1f
 H₂O: %.1f
 O₂: %.1f
 Organic: %.1f`(
-	c.heat, c.temperature, c.stellarEnergy, c.heatLoss, c.albedo, c.albedoDebugStr, 
+	c.heat, c.temperature, c.stellarEnergy, c.heatLoss, c.albedo, 
 	c.latitude, c.co2, c.h2o, c.o2, c.deadBiomass)).p();
 		foreach(ref sp; c._species) { b
 			.species(window, to!int(sp.speciesId))
@@ -166,11 +166,13 @@ class GameState : State {
 		
 		auto btn1 = getElementById("btn_species_info");
 		btn1.onAction.add({ 
+			const selectedSpecies = speciesGroup.value.get();
+			if(selectedSpecies < 0) {
+				return;
+			}
 			Component slotted = new Component(window);
 			slotted.setStyle(window.getStyle("default")); //TODO: should not have to do this every time...
 
-			const selectedSpecies = speciesGroup.value.get();
-			assert(selectedSpecies >= 0);
 			auto info = START_SPECIES[selectedSpecies];
 			ImageComponent img = new ImageComponent(window);
 			img.layoutData = LayoutData(0, 0, 0, 0, 512, 384, LayoutRule.BEGIN, LayoutRule.CENTER);
