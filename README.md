@@ -57,12 +57,13 @@ Science: the game is a scientific model for albedo, photosynthesis, temperature,
 
 I'm not joking when I say the game was completely re-written. It took most of the holidays just to get the game back to a playable state. It wasn't rewriting the simulation code from JavaScript to D, that took only an hour or 2 (And then maybe an extra hour to chase some floating point truncation bugs). There is actually a lot of overlap between JavaScript and D, for example, both can use the 'const' keyword for auto-typed constant variables, so there are whole sections of code that could be transferred unchanged. Actually, most of the effort was in writing a decent GUI system, with buttons, dialogs, and rich text, to replace what the browser environment provides for free. 
 
-Only in the last couple of days of December I was acually able to add a few new features compared to the original. After LD46, a lot of the feedback we got is that the game was hard and confusing. (A typical complaint for my "science" games). So my goal for this remake was to explain the game better. I doubt that I have succeeded to make it completely easy and intuitive, but at least it should be easier now to find out why certain species are growing or not.
+Only in the last couple of days of December I was acually able to add a few new features compared to the original. After LD46, we got feedback that the game was hard and confusing. (A typical complaint for my "science" games). I even made a [walkthrough video](https://youtu.be/c1PgdhizHl0) to clear up some confusion. So my goal for this remake was to explain the game better. I doubt that I have succeeded to make it completely easy and intuitive, but at least it should be easier now to find out why certain species are growing or not.
 
 Here is what's changed specifically: 
 * I styled the right panel to make it easier to find the information you need. 
 * Species will now explain what ails them: are they hungry? cold? hot? ...
 * The map has little arrow indicators to show which species are growing / decaying.
+* The simulation parameters have been tweaked to make it all run slower, and to make consumer species more important.
 * Finally, Planetscapes are now procedurally generated.
 
 I had plans for a lot more, but the year ran out on me. Oh well, I'm sure I will come back to it for another *Hack!
