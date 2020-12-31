@@ -65,12 +65,12 @@ Can you reach an average temperature of 298 °K?`(sim.planet.maxTemperature, sim
 		"room_temperature_reached",
 		(sim) => sim.planet.temperature > 298,
 		(sim) => new RichTextBuilder().h1(`Temperate climate`).text(format!
-`The average temperature of your planet now stands at %.0f °K ( or %.0f °C))
+`The average temperature of your planet now stands at %.0f °K ( or %.0f °C)
 The ice has melted, there is oxygen in the atmosphere, the surface is teeming with life.
 Well done, you have taken this game as far as it goes!`(sim.planet.temperature, sim.planet.temperature - 273))
 			.p()
 			.text(`Thank you for playing.
-Did you like it? Let us know at @Gekaremi, @Donall or @mpvaniersel on twitter!`)
+Did you like it? Send me a message to @mpvaniersel on twitter!`)
 			.build()
 	)
 ];

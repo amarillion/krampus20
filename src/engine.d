@@ -125,16 +125,17 @@ class TitleState : State {
 
 		getElementById("btn_credits").onAction.add({ 
 			RichTextBuilder builder = new RichTextBuilder()
-				.h1("Exo Keeper")
-				.text("Exo Keeper is a game about surviving and thriving on an exo-planet.").p()
-				.text("Exo Keeper was made in just 72hours for the ").link("Ludum Dare 46", "https://ldjam.com/events/ludum-dare/46/")
-				.text(" Game Jam. The theme of LD46 was:").p()
-				.indent().b("Keep it alive").p()
-				.text("Authors").p()
-				.link("Amarillion", "https://twitter.com/mpvaniersel").text(" (Code)").br()
-				.link("Gekaremi", "https://github.com/gekaremi").text(" (Design)").br()
-				.link("Tatiana Kondratieva", "https://www.instagram.com/l_p_kongroo").text(" (Art)").br()
-				.link("Dónall O'Donoghue", "http://www.dodonoghue.com/").text(" (Music)").br();
+				.h1("Exo Keeper II")
+				.text("Exo Keeper II is a game about surviving and thriving on an exo-planet.").br()
+				.text("It was made by ").b("Amarillion").text(" for ").b("Relpatseht").text(" during KrampusHack 2020, a secret santa game jam.").p()
+				.h1("Happy holidays Relpatseht, and best wishes for 2021!")
+				.text("This is an Allegro remake of a game originally made for ").link("Ludum Dare 46", "https://ldjam.com/events/ludum-dare/46/").p()
+				.text("The game was coded by").p()
+				.link("Martijn 'Amarillion' van Iersel", "https://twitter.com/mpvaniersel").p()
+				.text("The following people also contributed during LD46").p()
+				.link("Georgii 'Gekaremi' Karelin", "https://github.com/gekaremi").text(" (Concept & scientific discussion)").br()
+				.link("Tatiana Kondratieva", "https://www.instagram.com/l_p_kongroo").text(" (Microbe Art)").br()
+				.link("Dónall O'Donoghue", "http://www.dodonoghue.com/").text(" (Music out of this world)").br();
 			openDialog(window, builder.build());
 		});
 
