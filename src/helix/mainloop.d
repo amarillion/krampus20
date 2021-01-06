@@ -30,7 +30,9 @@ import helix.style;
 import helix.util.vec;
 import helix.util.rect;
 import helix.util.string;
+import helix.util.math;
 import helix.audio;
+import helix.allegro.config;
 
 /**
 	MainLoop is responsible for:
@@ -119,7 +121,6 @@ class MainLoop
 			config = al_create_config();
 		}
 
-		// getFromConfig(config);
 		// getFromArgs (argc, argv);
 
 		// parseOpts(options);
@@ -138,7 +139,15 @@ class MainLoop
 
 		//TODO: make configurable
 		al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
-		display = al_create_display(1280, 720);
+		
+		const DEFAULT_WINDOW_WIDTH = 1280;
+		const DEFAULT_WINDOW_HEIGHT = 720;
+		const top = max(0, get_config!int(config, "window", "top", int.max));
+		const left = max(0, get_config!int(config, "window", "left", int.max));
+		const width = bound(320, 4096, get_config!int(config, "window", "width", DEFAULT_WINDOW_WIDTH));
+		const height = bound(320, 4096, get_config!int(config, "window", "height", DEFAULT_WINDOW_HEIGHT));
+		al_set_new_window_position(top, left);
+		display = al_create_display(width, height);
 		queue = al_create_event_queue();
 
 		al_register_event_source(queue, al_get_display_event_source(display));
@@ -265,6 +274,13 @@ class MainLoop
 		// cleanup
 		if (configPath != null)
 		{
+			int top, left;
+			al_get_window_position(display, &top, &left);
+			set_config!int(config, "window", "top", top);
+			set_config!int(config, "window", "left", left);
+			set_config!int(config, "window", "width", display.al_get_display_width);
+			set_config!int(config, "window", "height", display.al_get_display_height);
+
 			al_save_config_file(al_path_cstr(configPath, ALLEGRO_NATIVE_PATH_SEP), config);
 		}
 
