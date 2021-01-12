@@ -140,8 +140,8 @@ class MainLoop
 		//TODO: make configurable
 		al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
 		
-		const DEFAULT_WINDOW_WIDTH = 1280;
-		const DEFAULT_WINDOW_HEIGHT = 720;
+		const DEFAULT_WINDOW_WIDTH = 1200;
+		const DEFAULT_WINDOW_HEIGHT = 675;
 		const top = max(0, get_config!int(config, "window", "top", int.max));
 		const left = max(0, get_config!int(config, "window", "left", int.max));
 		const width = bound(320, 4096, get_config!int(config, "window", "width", DEFAULT_WINDOW_WIDTH));
