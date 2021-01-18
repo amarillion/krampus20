@@ -100,6 +100,26 @@ class MainLoop
 		this.appname = appname;
 	}
 
+	/** use config, monitor size and defaults */
+	private Rectangle determineWindowPosition(int defaultW, int defaultH) {
+		Rectangle result;
+
+		// obtain monitor size
+		ALLEGRO_MONITOR_INFO info;
+		al_get_monitor_info(0, &info);
+		const monitorW = info.x2 - info.x1;
+		const monitorH = info.y2 - info.y1;
+		
+		//NOTE: int.max means: automatic positioning
+		result.x = max(0, get_config!int(config, "window", "top", int.max));
+		result.y = max(0, get_config!int(config, "window", "left", int.max));
+
+		// leave some room around window for window border, start bar etc.
+		result.w = bound(256, monitorW - 128, get_config!int(config, "window", "width", defaultW));
+		result.h = bound(128, monitorH - 128, get_config!int(config, "window", "height", defaultH));
+		return result;
+	}
+
 	void init()
 	{
 		al_set_app_name(toStringz(appname));
@@ -137,17 +157,14 @@ class MainLoop
 		audio.initSound();
 		audio.getSoundFromConfig(config);
 
-		//TODO: make configurable
-		al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
-		
 		const DEFAULT_WINDOW_WIDTH = 1200;
 		const DEFAULT_WINDOW_HEIGHT = 675;
-		const top = max(0, get_config!int(config, "window", "top", int.max));
-		const left = max(0, get_config!int(config, "window", "left", int.max));
-		const width = bound(320, 4096, get_config!int(config, "window", "width", DEFAULT_WINDOW_WIDTH));
-		const height = bound(320, 4096, get_config!int(config, "window", "height", DEFAULT_WINDOW_HEIGHT));
-		al_set_new_window_position(top, left);
-		display = al_create_display(width, height);
+
+		Rectangle windowPos = determineWindowPosition(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+		writeln(windowPos);
+		al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
+		al_set_new_window_position(windowPos.x, windowPos.y);
+		display = al_create_display(windowPos.w, windowPos.h);
 		queue = al_create_event_queue();
 
 		al_register_event_source(queue, al_get_display_event_source(display));
