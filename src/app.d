@@ -5,6 +5,7 @@ import helix.mainloop;
 import engine;
 import gamestate;
 import allegro5.allegro;
+import allegro5.allegro_audio;
 import startSpecies;
 
 void main()
@@ -68,14 +69,20 @@ void main()
 		mainloop.resources.addFile("data/images/biotope/sorry_sulfuric1.png");
 
 		mainloop.resources.addMusicFile("data/music/ExoMusicIntro.ogg");
-		mainloop.resources.addMusicFile("data/music/ExoMusicLoop.ogg");
+		// mainloop.resources.addMusicFile("data/music/ExoMusicLoop.ogg");
 
 		mainloop.applyStyling("style");
 		mainloop.addState("TitleState", new TitleState(mainloop));
 		mainloop.addState("GameState", new GameState(mainloop));
 		mainloop.switchState("TitleState");
 
-		mainloop.audio.playMusic(mainloop.resources.getMusic("ExoMusicLoop"), 1.0);
+		// play the intro in pattern A,B,B,B...
+		// see discussion: https://www.allegro.cc/forums/thread/618332
+		ALLEGRO_AUDIO_STREAM *introMusic = mainloop.resources.getMusic("ExoMusicIntro");
+		const endSecs =  al_get_audio_stream_length_secs(introMusic);
+		al_set_audio_stream_loop_secs(introMusic, 119.981, endSecs);
+		mainloop.audio.playMusic(mainloop.resources.getMusic("ExoMusicIntro"), 1.0);
+
 		mainloop.run();
 
 		return 0;
