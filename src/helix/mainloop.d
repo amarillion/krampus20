@@ -147,9 +147,9 @@ class MainLoop
 
 		enforce (al_install_keyboard(), "install keyboard failed");
 		enforce (al_install_mouse(), "install mouse failed");
-		enforce (al_init_image_addon(), "init image addon failed");
+		enforce (al_init_image_addon(), "Could not initialize image addon");
 		enforce (al_init_acodec_addon(), "Could not initialze acoded addon");
-		al_init_font_addon(); // never fails, no return value
+		enforce (al_init_font_addon(), "Could not intialize font addon");
 		enforce (al_init_ttf_addon(), "Could not initialze ttf addon");
 		enforce (al_init_primitives_addon(), "Could not initialize primitives addon");
 		
