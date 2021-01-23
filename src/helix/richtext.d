@@ -13,6 +13,7 @@ import allegro5.allegro_font;
 import std.exception;
 import std.string;
 import std.conv : to;
+import std.regex;
 import helix.util.math;
 
 import helix.color; //TODO: debug
@@ -151,14 +152,50 @@ class Label : Component {
 	}
 
 	int initialIndent;
-	bool ignoreHardBreaks = false;
+	bool ignoreHardBreaks = true;
 	
 	struct Line {
 		int xofst;
 		int w;
-		immutable char* line;
+		immutable(char)* line;
 	}
 	Line[] lines;
+
+	private static void softBreaks(ref Line[] lines, string line, ref int xofst, int maxWidth, ALLEGRO_FONT *font) {
+		if (line.empty) return; // do not insert empty newLine in this case...
+		
+		string sep = "";
+		Line prevLine = Line(xofst, 0, toStringz("")); // in case first word doesn't fit, we start with an empty line
+		string currentString = "";
+		
+		// Merge whitespace, remove tabs
+		foreach(word; line.splitter(regex(`\s+`))) {
+			// line.splitter has an oddity that we rely on in this case
+			// if there is leading whitespace, the first word is the empty string
+			// this is useful, because we want a leading whitespace in the output as well.
+			currentString ~= sep; 
+			currentString ~= word;
+			sep = " ";
+			// There was a weird bug here - lz & currentString point to same memory even though toStringz should have made a copy...
+			// we force duplication with .dup
+			immutable(char)*lz = toStringz(currentString.dup); 
+			int ww = al_get_text_width(font, lz);
+
+			if (xofst + ww > maxWidth) {
+				lines ~= prevLine;
+				currentString = word;
+				xofst = 0;
+				lz = toStringz(currentString);
+				ww = al_get_text_width(font, lz);
+			}
+
+			prevLine = Line(xofst, ww, lz);
+		}
+
+		lines ~= prevLine;
+		xofst = prevLine.xofst + prevLine.w;
+
+	}
 
 	void calculateLayout(int maxWidth, out int lineHeight, out int totalHeight, ref Point cursor) {		
 		assert(styles.length != 0, "must set style before calculateLayout()");
@@ -170,13 +207,16 @@ class Label : Component {
 		
 		lines = [];
 		int xofst = initialIndent;
-		foreach (l; text.split("\n")) {
-			// TODO: Merge whitespace, remove tabs
-			// TODO - soft line breaks...
-			immutable char *lz = toStringz(l);
-			const ww = al_get_text_width(font, lz);
-			lines ~= Line(xofst, ww, lz);
-			xofst = 0;
+
+		// newline characters as hard breaks
+		if (ignoreHardBreaks) {
+			softBreaks(lines, text, xofst, maxWidth, font);
+		}
+		else {
+			foreach (l; text.split("\n")) {
+				softBreaks(lines, l, xofst, maxWidth, font);
+				xofst = 0;
+			}
 		}
 
 		const lineNum = to!int(lines.length);
@@ -220,6 +260,18 @@ class RichTextBuilder {
 		return spans;
 	}
 
+	/** same as .text(), but treats newlines as hard line breaks */
+	RichTextBuilder lines(string text) {
+		foreach (l; text.split("\n")) {
+			if (!l.empty) {
+				spans ~= new TextSpan(l);
+			}
+			spans ~= new LineBreak();
+		}
+		return this;
+	}
+	
+	/** ignores hard line breaks. If you need them, use .lines() instead */
 	RichTextBuilder text(string text) {
 		spans ~= new TextSpan(text);
 		return this;

@@ -138,8 +138,7 @@ This creature is a herbivore that can survive in moderately cold climates.`,
 			null,
 			0.6, // 1.0 = light & early game 0.0 == dark & late game
 			[ 250, 290 ], // min, max temperature in Kelvin
-			`
-Inspired by space and ready for complexity, the purple mushroom! 
+`Inspired by space and ready for complexity, the purple mushroom! 
 
 A useful decomposer in a moderately cold climate.`,
 			[ 0: 0.5, 1: 0.1, 2: 0.1, 3: 0.9, 4: 0.9, 5: 0.5, 6: 0.5, 7: 0.5 ]
@@ -153,8 +152,7 @@ A useful decomposer in a moderately cold climate.`,
 			[ 2: INTERACTION.EAT, 3: INTERACTION.EAT, 4: INTERACTION.EAT, 5: INTERACTION.EAT, 9: INTERACTION.EAT, 10: INTERACTION.EAT, 11: INTERACTION.EAT ],
 			0.6, // 1.0 = light & early game 0.0 == dark & late game
 			[ 255, 300 ], // min, max temperature in Kelvin
-			`
-This is a cat? Is it a microbe? This is a catcrobe! Micro meow!
+`This is a cat? Is it a microbe? This is a catcrobe! Micro meow!
 
 This microbe will attack and eat other microbes.`,
 			[ 0: 0.5, 1: 0.1, 2: 0.1, 3: 0.5, 4: 0.9, 5: 0.9, 6: 0.5, 7: 0.5 ]

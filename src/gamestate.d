@@ -76,7 +76,7 @@ RichTextBuilder species(RichTextBuilder b, MainLoop window, int sp) {
 		.p()
 		.i(format!"Temperature: %.0f °K"(c.temperature))
 		.p()
-		.text(format!
+		.lines(format!
 `Heat: %.2e GJ/km²
 Heat gain from sun: %.2e GJ/km²/tick
 Heat loss to space: %.2e GJ/km²/tick
@@ -187,7 +187,7 @@ class GameState : State {
 				.text(format!"Name: %s"(info.name)).br()
 				.text(info.backstory)
 				.p()
-				.text(format("Temperature tolerance between %.0f °K and %.0f °K\nAlbedo contribution: %.2f (lower is better)", 
+				.lines(format("Temperature tolerance between %.0f °K and %.0f °K\nAlbedo contribution: %.2f (lower is better)", 
 					info.temperatureRange[0], info.temperatureRange[1], info.albedo)).br()
 				.text("Likes:").br();
 
@@ -257,7 +257,7 @@ class GameState : State {
 			}
 			auto info = START_SPECIES[selectedSpecies];
 			auto rtb = new RichTextBuilder()
-				.text(format("Temperature range: %.0f °K - %.0f °K\nAlbedo: %.2f", 
+				.lines(format("Temperature range: %.0f °K - %.0f °K\nAlbedo: %.2f", 
 					info.temperatureRange[0], info.temperatureRange[1], info.albedo)).br()
 				.text("Likes: ");
 
