@@ -198,9 +198,23 @@ class Sim {
 	void migrate() {
 		// for each pair of cells, do migration
 		foreach (cell; grid.eachNodeCheckered()) {
-			foreach (other; grid.getAdjacent(Point(cell.x, cell.y))) {
-				cell.migrateTo(grid.get(other));
-			}
+			
+			const deltas = [
+				Point(0,-1), 
+				Point(1,0), 
+				Point(0,1), 
+				Point(-1,0)
+			];
+
+			// migration direction depends on tick, with position to mix it up.
+			Point delta = deltas[(tickCounter + cell.x + cell.y) % 4];
+			Point neighbor = Point(
+				(cell.x + grid.width + delta.x) % grid.width, 
+				cell.y + delta.y
+			);
+			if (!grid.inRange(neighbor)) continue;
+			
+			cell.migrateTo(grid.get(neighbor));
 		}
 
 	}

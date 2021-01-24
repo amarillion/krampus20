@@ -10,7 +10,7 @@ enum CONSUMPTION_BASE_RATE = 2.0e-4; // rate per mol substrate, per mol organism
 enum RESPIRATION_BASE_RATE = 1.0e-4; // rate per mol substrate, per mol organism
 enum MIGRATION_BASE_RATE = 0.8e-2;
 enum DEATH_RATE = 1.0e-3; // percentage death per turn. will be modified by fitness factor
-enum SPECIES_MINIMUM = 0.2; // minimum presence before a species is removed altogether
+enum SPECIES_MINIMUM = 0.1; // minimum presence before a species is removed altogether
 
 enum START_CO2 = 1000.0; // starting amount of CO2 per km^2, in GMol
 enum START_H2O = 1000.0; // starting amount of H2O per km^2, in GMol
