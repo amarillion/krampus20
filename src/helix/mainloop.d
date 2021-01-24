@@ -316,6 +316,8 @@ class MainLoop
 		while (goDeeper) {
 			bool match = false;
 			foreach (child; retro(comp.children)) {
+				if (child.killed || child.hidden) continue;
+
 				// TODO also take into account scrollbars, viewports & offsets
 				if (child.contains(cursor)) {
 					match = true;

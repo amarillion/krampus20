@@ -212,16 +212,17 @@ class GameState : State {
 		});
 
 		auto btn2 = getElementById("btn_species_introduce");
+		btn2.setStyle(window.getStyle("button", "selected"), 1);
+		btn2.setStyle(window.getStyle("button", "disabled"), 2);
 		btn2.onAction.add({
 			if (currentCell) {
 				int selectedSpecies = speciesGroup.value.get();
 				if (selectedSpecies >= 0) {
 					currentCell.addSpecies(selectedSpecies, 10);
 					
-					speciesGroup.buttons[selectedSpecies].disabled = true;
-					speciesGroup.select(-1); // nothing selected.
-					addChild (new Timer(window, 200, {
-						speciesGroup.buttons[selectedSpecies].disabled = false;
+					btn2.disabled = true;
+					addChild (new Timer(window, 100, {
+						btn2.disabled = false;
 					}));
 				}
 			}
