@@ -137,6 +137,8 @@ class AudioManager {
 	~this() {
 		if (soundInstalled) {
 			stopMusic();
+			al_destroy_mixer(mixer);
+			al_destroy_voice(voice);
 			al_uninstall_audio();
 			soundInstalled = false;
 		}
