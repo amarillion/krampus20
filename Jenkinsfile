@@ -8,7 +8,7 @@ node {
 
 		stage('Build Linux') {
 			docker.image('amarillion/alleg5-dallegro:latest').inside() {		
-				sh "dub build"
+				sh "dub -v build"
 			}
 		}
 
