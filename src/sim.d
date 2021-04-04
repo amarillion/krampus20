@@ -11,6 +11,7 @@ import std.stdio; //TODO - debug only
 import helix.mainloop;
 import helix.richtext;
 import std.format : format;
+import std.conv : to;
 
 struct Trigger {
 	string id;
@@ -207,7 +208,7 @@ class Sim {
 			];
 
 			// migration direction depends on tick, with position to mix it up.
-			Point delta = deltas[(tickCounter + cell.x + cell.y) % 4];
+			Point delta = deltas[to!size_t((tickCounter + cell.x + cell.y) % 4)];
 			Point neighbor = Point(
 				(cell.x + grid.width + delta.x) % grid.width, 
 				cell.y + delta.y
