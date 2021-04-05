@@ -111,12 +111,14 @@ class MainLoop
 		const monitorH = info.y2 - info.y1;
 		
 		//NOTE: int.max means: automatic positioning
-		result.x = max(0, get_config!int(config, "window", "top", int.max));
-		result.y = max(0, get_config!int(config, "window", "left", int.max));
+		//Trying to persist x,y was too buggy
+		result.x = int.max;
+		result.y = int.max;
 
 		// leave some room around window for window border, start bar etc.
 		result.w = bound(256, monitorW - 128, get_config!int(config, "window", "width", defaultW));
 		result.h = bound(128, monitorH - 128, get_config!int(config, "window", "height", defaultH));
+		
 		return result;
 	}
 
@@ -161,7 +163,6 @@ class MainLoop
 		const DEFAULT_WINDOW_HEIGHT = 675;
 
 		Rectangle windowPos = determineWindowPosition(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-		writeln(windowPos);
 		al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
 		al_set_new_window_position(windowPos.x, windowPos.y);
 		display = al_create_display(windowPos.w, windowPos.h);
@@ -291,13 +292,8 @@ class MainLoop
 		// cleanup
 		if (configPath != null)
 		{
-			int top, left;
-			al_get_window_position(display, &top, &left);
-			set_config!int(config, "window", "top", top);
-			set_config!int(config, "window", "left", left);
 			set_config!int(config, "window", "width", display.al_get_display_width);
 			set_config!int(config, "window", "height", display.al_get_display_height);
-
 			al_save_config_file(al_path_cstr(configPath, ALLEGRO_NATIVE_PATH_SEP), config);
 		}
 
