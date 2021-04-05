@@ -8,7 +8,11 @@ node {
 
 		stage('Build Linux') {
 			docker.image('amarillion/alleg5-dallegro:latest').inside() {		
-				sh "dub -v build"
+				// dub will try to write to `$HOME/.dub`, as user `jenkins`
+				// make sure $HOME maps to the workspace or we'll get a permission denied here. 
+				withEnv(['HOME=.']) {
+					sh "dub -v build"
+				}
 			}
 		}
 
