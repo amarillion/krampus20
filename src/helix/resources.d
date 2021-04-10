@@ -9,7 +9,9 @@ import std.json;
 import std.stdio;
 import std.format : format;
 import std.string : toStringz;
-import helix.allegro.bitmap : Bitmap;
+import helix.allegro.bitmap;
+import helix.allegro.sample;
+import helix.allegro.audiostream;
 
 /*
 struct ResourceHandle(T)
@@ -147,10 +149,11 @@ class ResourceManager
 
 	public ResourceMap!FontWrapper fonts;
 	public ResourceMap!Bitmap bitmaps;
-	private JSONValue[string] jsons;
-	private ALLEGRO_AUDIO_STREAM*[string] musics;
-	private ALLEGRO_SAMPLE*[string] samples;
+	public ResourceMap!Sample samples;
+	public ResourceMap!AudioStream music;
 
+	private JSONValue[string] jsons;
+	
 	private JSONValue loadJson(string filename) {
 		File file = File(filename, "rt");
 		char[] buffer;
@@ -178,10 +181,8 @@ class ResourceManager
 			jsons[base] = loadJson(filename);
 		}
 		else if (ext == ".ogg") {
-			ALLEGRO_SAMPLE *sample_data = al_load_sample(toStringz(filename));
-			assert (sample_data, format ("error loading OGG %s", filename));
-			//TODO: write to log but don't quit. Sound is not essential.
-			samples[base] = sample_data;
+			Sample sample = Sample.load(filename);
+			samples.put(base, sample);
 		}
 	}
 	
@@ -189,10 +190,10 @@ class ResourceManager
 		// string ext = extension(filename); // ext includes '.'
 		string base = baseName(stripExtension(filename));
 
-		auto temp = al_load_audio_stream (toStringz(filename), 4, 2048); //TODO: correct values for al_load_audio_stream
+		auto temp = AudioStream.load(filename, 4, 2048); //TODO: correct values for al_load_audio_stream
 		assert (temp, format ("error loading Music %s", filename));
-		al_set_audio_stream_playmode(temp, ALLEGRO_PLAYMODE.ALLEGRO_PLAYMODE_LOOP);
-		musics[base] = temp;
+		al_set_audio_stream_playmode(temp.ptr, ALLEGRO_PLAYMODE.ALLEGRO_PLAYMODE_LOOP);
+		music.put(base, temp);
 	}
 
 	public JSONValue getJSON(string name) {
@@ -200,25 +201,4 @@ class ResourceManager
 		return jsons[name];
 	}
 
-	public ALLEGRO_SAMPLE *getSample (string name) {
-		assert (name in samples, format("There is no sample named [%s]", name)); 
-		return samples[name];
-	}
-	
-	public ALLEGRO_AUDIO_STREAM *getMusic (string name) {
-		assert (name in musics, format("There is no music named [%s]", name)); 
-		return musics[name];
-	}
-
-	~this() {
-		foreach (v; musics) {
-			al_destroy_audio_stream(v);
-		}
-		musics = null;
-
-		foreach (v; samples) {
-			al_destroy_sample(v);
-		}
-		samples = null;
-	}
 }
