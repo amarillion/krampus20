@@ -6,6 +6,7 @@ import helix.layout;
 import helix.util.vec;
 import helix.mainloop;
 import helix.style;
+import helix.allegro.bitmap;
 
 import allegro5.allegro;
 import allegro5.allegro_font;
@@ -88,18 +89,18 @@ class TextSpan : Span {
 }
 
 class InlineImage : Span {
-	private ALLEGRO_BITMAP *bitmap;
+	private Bitmap bitmap;
 	
-	this(ALLEGRO_BITMAP *bitmap) {
-		enforce(bitmap != null);
+	this(Bitmap bitmap) {
+		enforce(bitmap !is null);
 		this.bitmap = bitmap;
 	}
 
 	Component[] layout(Context context) {
 		ImageComponent img = new ImageComponent(context.window);
 		img.img = bitmap;
-		const w = al_get_bitmap_width(bitmap);
-		const h = al_get_bitmap_height(bitmap);
+		const w = bitmap.w;
+		const h = bitmap.h;
 		img.layoutData = LayoutData(context.cursor.x, context.cursor.y, 0, 0, w, h, LayoutRule.BEGIN, LayoutRule.BEGIN);
 		
 		//TODO: move to new line if there is no space left for image...
@@ -292,7 +293,7 @@ class RichTextBuilder {
 		return this;
 	}
 
-	RichTextBuilder img(ALLEGRO_BITMAP *bitmap) {
+	RichTextBuilder img(Bitmap bitmap) {
 		spans ~= new InlineImage(bitmap);
 		return this;
 	}

@@ -9,9 +9,7 @@ import std.json;
 import std.stdio;
 import std.format : format;
 import std.string : toStringz;
-
-
-
+import helix.allegro.bitmap : Bitmap;
 
 /*
 struct ResourceHandle(T)
@@ -35,22 +33,36 @@ struct ResourceHandle(T)
 	}
 }
 
-class ResourceMap(T) {
+*/
 
-	ResourceHandle!T data;
-	ref auto opIndex(string index)
-	{
+/**
+ResourceMap is a wrapper for resource handles.
+It has ownership of the given resources, and ensures they are destroyed in time.
 
+This is a struct instead of a class so that it is destroyed at the same time as ResourceManager.
+
+Note that it's important that resource managers explicitly invoke destructors of handled objects. If we rely on GC, 
+they may not be destroyed before uninstall_system is called, and then the system crashes.
+*/
+struct ResourceMap(T) {
+	private T[string] data;
+
+	void put(string key, T value) {
+		data[key] = value;
+	}
+
+	auto opIndex(string key) {
+		assert (key in data, format("There is no resource named [%s]", key));
+		return data[key];
+	}
+
+	~this() {
+		foreach (f; data) {
+			destroy(f);
+		}
+		data = null;
 	}
 }
-
-class ResourceManager {
-	ResourceMap!(ALLEGRO_FONT*) fonts;
-	ResourceMap!(ALLEGRO_BITMAP*) bitmaps;
-
-	void refreshAll();
-}
-*/
 
 unittest {
 	//TODO, make it like this: 
@@ -77,7 +89,7 @@ unittest {
 class ResourceManager
 {
 	this() {
-		fonts["builtin_font"] = new BuiltinFont();
+		fonts.put("builtin_font", new BuiltinFont());
 	}
 
 	interface FontWrapper {
@@ -87,11 +99,6 @@ class ResourceManager
 	/**
 		Remembers file locations.
 		For each size requested, reloads font on demand.
-
-		Note that it's important that resource managers explicitly invoke destructors of handled objects, especially
-		when they're in associative maps!
-
-		If we rely on GC, they may not be destroyed before uninstall_system is called, and then the system crashes.
 	*/
 	class FontLoader : FontWrapper {
 		private string filename;
@@ -138,8 +145,8 @@ class ResourceManager
 		}
 	}
 
-	private FontWrapper[string] fonts;
-	private ALLEGRO_BITMAP*[string] bitmaps;
+	public ResourceMap!FontWrapper fonts;
+	public ResourceMap!Bitmap bitmaps;
 	private JSONValue[string] jsons;
 	private ALLEGRO_AUDIO_STREAM*[string] musics;
 	private ALLEGRO_SAMPLE*[string] samples;
@@ -161,12 +168,11 @@ class ResourceManager
 		string base = baseName(stripExtension(filename));
 		
 		if (ext == ".ttf") {
-			fonts[base] = new FontLoader(filename);			
+			fonts.put(base, new FontLoader(filename));
 		}
 		else if (ext == ".png") {
-			ALLEGRO_BITMAP* bmp = al_load_bitmap (toStringz(filename));
-			assert(bmp != null, format("Something went wrong while loading %s", filename));
-			bitmaps[base] = bmp;
+			Bitmap bmp = Bitmap.load(filename);
+			bitmaps.put(base, bmp);
 		}
 		else if (ext == ".json") {
 			jsons[base] = loadJson(filename);
@@ -187,18 +193,6 @@ class ResourceManager
 		assert (temp, format ("error loading Music %s", filename));
 		al_set_audio_stream_playmode(temp, ALLEGRO_PLAYMODE.ALLEGRO_PLAYMODE_LOOP);
 		musics[base] = temp;
-	}
-
-	public ALLEGRO_FONT *getFont(string name, int size = 12)
-	{
-		assert (name in fonts, format("There is no font named [%s]", name)); 
-		return fonts[name].get(size);
-	}
-
-	public ALLEGRO_BITMAP *getBitmap(string name)
-	{
-		assert (name in bitmaps, format("There is no bitmap named [%s]", name)); 
-		return bitmaps[name];
 	}
 
 	public JSONValue getJSON(string name) {
@@ -226,15 +220,5 @@ class ResourceManager
 			al_destroy_sample(v);
 		}
 		samples = null;
-
-		foreach (v; bitmaps) {
-			al_destroy_bitmap(v);
-		}
-		bitmaps = null;
-
-		foreach (f; fonts) {
-			destroy(f);
-		}
-		fonts = null;
 	}
 }

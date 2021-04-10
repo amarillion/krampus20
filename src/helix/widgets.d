@@ -9,9 +9,11 @@ import allegro5.allegro_font;
 import std.array;
 import std.string : toStringz;
 
+import helix.allegro.bitmap;
+
 class ImageComponent : Component {
 
-	ALLEGRO_BITMAP *img = null;
+	Bitmap img = null;
 
 	this(MainLoop window) {
 		super(window);
@@ -22,9 +24,9 @@ class ImageComponent : Component {
 		
 		// stretch mode...
 		// TODO: allow ohter drawing modes...
-		int iw = img.al_get_bitmap_width;
-		int ih = img.al_get_bitmap_height;
-		al_draw_scaled_bitmap(img, 0, 0, iw, ih, x, y, w, h, 0);
+		int iw = img.w;
+		int ih = img.h;
+		al_draw_scaled_bitmap(img.ptr, 0, 0, iw, ih, x, y, w, h, 0);
 	}
 }
 

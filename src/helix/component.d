@@ -15,6 +15,7 @@ import helix.util.rect;
 import helix.util.vec;
 import helix.layout;
 import helix.color;
+import helix.allegro.bitmap;
 
 import std.string;
 import std.algorithm;
@@ -41,7 +42,7 @@ class Component
 	Component[] children;
 	string id;
 	Rectangle shape;
-	ALLEGRO_BITMAP *icon;
+	Bitmap icon;
 	string text = null;
 
 	//TODO: put collection of styles together more sensibly...
@@ -119,10 +120,10 @@ class Component
 		}
 
 		// render icon
-		if (icon != null) {
-			int iw = al_get_bitmap_width(icon);
-			int ih = al_get_bitmap_height(icon);
-			al_draw_bitmap (icon, x + (w - iw) / 2, y + (h - ih) / 2, 0);
+		if (icon !is null) {
+			int iw = icon.w;
+			int ih = icon.h;
+			al_draw_bitmap (icon.ptr, x + (w - iw) / 2, y + (h - ih) / 2, 0);
 		}
 
 		// render label

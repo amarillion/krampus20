@@ -61,11 +61,11 @@ RichTextBuilder biotope(RichTextBuilder b, MainLoop window, int biotope) {
 		6: "salt4",
 		7: "canyon2",
 	];
-	return b.img(window.resources.getBitmap(biotopes[biotope]));
+	return b.img(window.resources.bitmaps[biotopes[biotope]]);
 }
 
 RichTextBuilder species(RichTextBuilder b, MainLoop window, int sp) {
-	return b.img(window.resources.getBitmap(START_SPECIES[sp].iconUrl));
+	return b.img(window.resources.bitmaps[START_SPECIES[sp].iconUrl]);
 }
 
 	RichTextBuilder cellInfo(RichTextBuilder b, MainLoop window, Cell c) {
@@ -115,7 +115,7 @@ class GameState : State {
 	final void initMap() {
 		// planetMap.fromTiledJSON(window.resources.getJSON("planetscape")); 
 		planetMap = new TileMap(MAP_WIDTH, MAP_HEIGHT, 1);
-		planetMap.tilelist = TileList(64, 64, 8, window.resources.getBitmap("biotope"));
+		planetMap.tilelist = TileList(64, 64, 8, window.resources.bitmaps["biotope"]);
 
 		foreach (p; PointRange(Point(planetMap.width, planetMap.height))) {
 			planetMap.layers[0].set(p, uniform(0, NUM_BIOTOPES));
@@ -136,7 +136,7 @@ class GameState : State {
 			speciesMap.layers[0].set(p, -1);
 			speciesMap.layers[1].set(p, -1);
 		}
-		speciesMap.tilelist = TileList(32, 32, 32, window.resources.getBitmap("species"));
+		speciesMap.tilelist = TileList(32, 32, 32, window.resources.bitmaps["species"]);
 
 	}
 
@@ -177,7 +177,7 @@ class GameState : State {
 			auto info = START_SPECIES[selectedSpecies];
 			ImageComponent img = new ImageComponent(window);
 			img.layoutData = LayoutData(0, 0, 0, 0, 512, 384, LayoutRule.BEGIN, LayoutRule.CENTER);
-			img.img = window.resources.getBitmap(info.coverArt);
+			img.img = window.resources.bitmaps[info.coverArt];
 
 			RichText rt1 = new RichText(window);
 			rt1.setStyle(window.getStyle("default"));
@@ -241,7 +241,7 @@ class GameState : State {
 		foreach(i, sp; START_SPECIES) {
 			Button btn = new Button(window);
 			btn.layoutData = LayoutData(xco, yco, 0, 0, 36, 36, LayoutRule.BEGIN, LayoutRule.BEGIN);
-			btn.icon = window.resources.getBitmap(sp.iconUrl);
+			btn.icon = window.resources.bitmaps[sp.iconUrl];
 			xco += 40;
 			btn.setStyle(window.getStyle("button"));
 			btn.setStyle(window.getStyle("button", "selected"), 1);

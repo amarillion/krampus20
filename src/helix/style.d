@@ -106,7 +106,7 @@ class Style {
 	ALLEGRO_FONT *getFont() {
 		const fontName = getString("font");
 		const fontSize = getNumber("font-size");
-		return resources.getFont(fontName, cast(int)fontSize);
+		return resources.fonts[fontName].get(cast(int)fontSize);
 	}
 
 	override string toString() {

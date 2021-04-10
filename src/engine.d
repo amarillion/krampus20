@@ -59,7 +59,7 @@ class State : Component {
 				}
 				case "image": {
 					ImageComponent img = new ImageComponent(window);
-					img.img = window.resources.getBitmap(eltData["src"].str);
+					img.img = window.resources.bitmaps[eltData["src"].str];
 					div = img;
 					break;
 				}

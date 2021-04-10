@@ -6,6 +6,8 @@ import helix.util.grid;
 import helix.util.vec;
 import helix.util.rect;
 import helix.util.coordrange;
+import helix.allegro.bitmap;
+
 import allegro5.allegro;
 import std.conv;
 
@@ -13,7 +15,7 @@ struct TileList {
 	int tilew;
 	int tileh;
 	int tilenum;
-	ALLEGRO_BITMAP *bmp = null;
+	Bitmap bmp = null;
 
 	void fromTiledJSON(JSONValue node) {
 		tilew = to!int(node["tilewidth"].integer);
@@ -87,8 +89,8 @@ void draw_tilemap(TileMap tilemap, Rectangle shape, Point viewPos = Point(0), in
 		assert (index >= 0);
 		assert (index < tiles.tilenum);
 		assert (tilemap.tilelist.bmp !is null);
-		const tiles_per_row = tilemap.tilelist.bmp.al_get_bitmap_width / tiles.tilew;
-		al_draw_bitmap_region (tilemap.tilelist.bmp,
+		const tiles_per_row = tilemap.tilelist.bmp.w / tiles.tilew;
+		al_draw_bitmap_region (tilemap.tilelist.bmp.ptr,
 			(index % tiles_per_row) * tiles.tilew,
 			(index / tiles_per_row) * tiles.tileh,
 			tiles.tilew, tiles.tileh,
