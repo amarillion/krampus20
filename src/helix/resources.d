@@ -10,6 +10,9 @@ import std.stdio;
 import std.format : format;
 import std.string : toStringz;
 
+
+
+
 /*
 struct ResourceHandle(T)
 {
@@ -84,6 +87,11 @@ class ResourceManager
 	/**
 		Remembers file locations.
 		For each size requested, reloads font on demand.
+
+		Note that it's important that resource managers explicitly invoke destructors of handled objects, especially
+		when they're in associative maps!
+
+		If we rely on GC, they may not be destroyed before uninstall_system is called, and then the system crashes.
 	*/
 	class FontLoader : FontWrapper {
 		private string filename;
@@ -109,6 +117,7 @@ class ResourceManager
 			foreach (font; fonts) {
 				al_destroy_font(font);
 			}
+			fonts = null;
 		}
 	}
 	
@@ -223,6 +232,9 @@ class ResourceManager
 		}
 		bitmaps = null;
 
+		foreach (f; fonts) {
+			destroy(f);
+		}
 		fonts = null;
 	}
 }
