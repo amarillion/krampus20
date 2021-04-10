@@ -20,6 +20,7 @@ import helix.util.math;
 import helix.color; //TODO: debug
 import std.stdio; //TODO: debug
 import allegro5.allegro_primitives; // TODO: debug
+import helix.allegro.font;
 
 enum defaultLineHeight = 16; // For lines with nothing in it. TODO: should depend on current font...
 
@@ -162,7 +163,7 @@ class Label : Component {
 	}
 	Line[] lines;
 
-	private static void softBreaks(ref Line[] lines, string line, ref int xofst, int maxWidth, ALLEGRO_FONT *font) {
+	private static void softBreaks(ref Line[] lines, string line, ref int xofst, int maxWidth, Font font) {
 		if (line.empty) return; // do not insert empty newLine in this case...
 		
 		string sep = "";
@@ -180,14 +181,14 @@ class Label : Component {
 			// There was a weird bug here - lz & currentString point to same memory even though toStringz should have made a copy...
 			// we force duplication with .dup
 			immutable(char)*lz = toStringz(currentString.dup); 
-			int ww = al_get_text_width(font, lz);
+			int ww = al_get_text_width(font.ptr, lz);
 
 			if (xofst + ww > maxWidth) {
 				lines ~= prevLine;
 				currentString = word;
 				xofst = 0;
 				lz = toStringz(currentString);
-				ww = al_get_text_width(font, lz);
+				ww = al_get_text_width(font.ptr, lz);
 			}
 
 			prevLine = Line(xofst, ww, lz);
@@ -202,9 +203,9 @@ class Label : Component {
 		assert(styles.length != 0, "must set style before calculateLayout()");
 		assert(text != "", "must set text before calculateLayout()");
 		Style style = styles[0];
-		ALLEGRO_FONT *font = style.getFont();
+		Font font = style.getFont();
 		
-		int w = al_get_text_width(font, toStringz(text));
+		int w = al_get_text_width(font.ptr, toStringz(text));
 		
 		lines = [];
 		int xofst = initialIndent;
@@ -221,7 +222,7 @@ class Label : Component {
 		}
 
 		const lineNum = to!int(lines.length);
-		lineHeight = al_get_font_line_height(font);
+		lineHeight = font.lineHeight;
 		totalHeight = lineNum * lineHeight;
 
 		// update cursor
@@ -237,13 +238,13 @@ class Label : Component {
 			assert (!lines.empty, "Must invoke calculateLayout() before draw()");
 
 			ALLEGRO_COLOR color = style.getColor("color");
-			ALLEGRO_FONT *font = style.getFont();
+			Font font = style.getFont();
 
 			int yco = y;
 			int xco = x;
-			int lh = al_get_font_line_height(font);
+			int lh = font.lineHeight;
 			foreach(l; lines) {
-				al_draw_text(font, color, xco + l.xofst, yco, ALLEGRO_ALIGN_LEFT, l.line);
+				al_draw_text(font.ptr, color, xco + l.xofst, yco, ALLEGRO_ALIGN_LEFT, l.line);
 				xco = x;
 				yco += lh;
 			}

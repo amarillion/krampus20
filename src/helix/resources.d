@@ -12,6 +12,7 @@ import std.string : toStringz;
 import helix.allegro.bitmap;
 import helix.allegro.sample;
 import helix.allegro.audiostream;
+import helix.allegro.font;
 
 /*
 struct ResourceHandle(T)
@@ -95,7 +96,7 @@ class ResourceManager
 	}
 
 	interface FontWrapper {
-		ALLEGRO_FONT *get(int size = 12);
+		Font get(int size = 12);
 	}
 
 	/**
@@ -104,14 +105,14 @@ class ResourceManager
 	*/
 	class FontLoader : FontWrapper {
 		private string filename;
-		private ALLEGRO_FONT*[int] fonts;
+		private Font[int] fonts;
 		
-		ALLEGRO_FONT *get(int size = 12)
+		Font get(int size = 12)
 		{
 			if (!(size in fonts))
 			{
-				auto font = al_load_font(toStringz(filename), size, 0);
-				assert (font != null);
+				auto font = Font.load(filename, size, 0);
+				assert (font !is null);
 				fonts[size] = font;
 			}
 			return fonts[size];
@@ -124,24 +125,24 @@ class ResourceManager
 
 		~this() {
 			foreach (font; fonts) {
-				al_destroy_font(font);
+				destroy(font);
 			}
 			fonts = null;
 		}
 	}
 	
 	class BuiltinFont : FontWrapper {
-		private ALLEGRO_FONT *cache = null;
-		ALLEGRO_FONT *get(int size = 0 /* size param is ignored */) {
+		private Font cache = null;
+		Font get(int size = 0 /* size param is ignored */) {
 			if (!cache) {
-				cache = al_create_builtin_font();
+				cache = Font.builtin();
 			}
 			return cache;
 		}
 
 		~this() {
 			if (cache) {
-				al_destroy_font(cache);
+				destroy(cache);
 				cache = null;
 			}
 		}

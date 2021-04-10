@@ -10,6 +10,7 @@ import std.array;
 import std.string : toStringz;
 
 import helix.allegro.bitmap;
+import helix.allegro.font;
 
 class ImageComponent : Component {
 
@@ -51,15 +52,15 @@ class PreformattedText : Component {
 
 	override void draw(GraphicsContext gc) {
 		// given component width...
-		ALLEGRO_FONT *font = styles[0].getFont();
+		Font font = styles[0].getFont();
 		ALLEGRO_COLOR color = styles[0].getColor("color");
 			
 		// split text by newlines...
 		int y = this.shape.y;
-		const th = al_get_font_line_height(font);
+		const th = font.lineHeight;
 		
 		foreach(line; text.split("\n")) {
-			al_draw_text(font, color, this.shape.x, y,  ALLEGRO_ALIGN_LEFT, toStringz(line));
+			al_draw_text(font.ptr, color, this.shape.x, y,  ALLEGRO_ALIGN_LEFT, toStringz(line));
 			y += th;
 		}
 	}

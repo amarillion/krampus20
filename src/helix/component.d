@@ -16,6 +16,7 @@ import helix.util.vec;
 import helix.layout;
 import helix.color;
 import helix.allegro.bitmap;
+import helix.allegro.font;
 
 import std.string;
 import std.algorithm;
@@ -130,9 +131,9 @@ class Component
 		if (text != "") {
 			//TODO: use stringz...
 			ALLEGRO_COLOR color = style.getColor("color");
-			ALLEGRO_FONT *font = style.getFont();
-			int th = al_get_font_line_height(font);
-			al_draw_text(font, color, x + w / 2, y + (h - th) / 2, ALLEGRO_ALIGN_CENTER, toStringz(text));
+			Font font = style.getFont();
+			int th = font.lineHeight;
+			al_draw_text(font.ptr, color, x + w / 2, y + (h - th) / 2, ALLEGRO_ALIGN_CENTER, toStringz(text));
 		}
 
 		// render focus outline...

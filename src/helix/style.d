@@ -7,11 +7,12 @@ import helix.color;
 import std.conv;
 import helix.resources;
 import std.format: format;
+import helix.allegro.font;
 
 // unittest {
 // 	parseColorStr()
 // }
-private static ALLEGRO_FONT *builtinFont = null;
+private static Font builtinFont = null;
 
 // a properties map...
 class Style {
@@ -103,7 +104,7 @@ class Style {
 		return "";
 	}
 
-	ALLEGRO_FONT *getFont() {
+	Font getFont() {
 		const fontName = getString("font");
 		const fontSize = getNumber("font-size");
 		return resources.fonts[fontName].get(cast(int)fontSize);

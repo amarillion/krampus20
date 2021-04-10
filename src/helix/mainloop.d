@@ -394,7 +394,6 @@ class MainLoop
 		
 		destroy(audio); audio = null;
 
-		writeln("Destroy display called");		
 		al_destroy_display(display);
 		
 		al_shutdown_ttf_addon();
@@ -402,7 +401,6 @@ class MainLoop
 		al_shutdown_image_addon();
 		al_shutdown_primitives_addon();
 
-		writeln("Uninstall system called");		
 		al_uninstall_system();
 	}
 
