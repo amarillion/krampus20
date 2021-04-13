@@ -91,7 +91,8 @@ class Style {
 
 	string getString(string key) {
 		assert(key in [
-			"font": 1
+			"font": 1,
+			"text-decoration": 1
 		]);
 		if (key in styleData) {
 			return styleData[key].str;

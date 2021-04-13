@@ -21,6 +21,7 @@ import helix.color; //TODO: debug
 import std.stdio; //TODO: debug
 import allegro5.allegro_primitives; // TODO: debug
 import helix.allegro.font;
+import helix.textstyle;
 
 enum defaultLineHeight = 16; // For lines with nothing in it. TODO: should depend on current font...
 
@@ -232,6 +233,7 @@ class Label : Component {
 	override void draw(GraphicsContext gc) {
 		// al_draw_rectangle(shape.x, shape.y, shape.x + shape.w, shape.y + shape.h, Color.RED, 1.0);
 
+		
 		Style style = styles[0];
 		// TODO render multiple lines...
 		if (text != "") {
@@ -240,11 +242,16 @@ class Label : Component {
 			ALLEGRO_COLOR color = style.getColor("color");
 			Font font = style.getFont();
 
+			void delegate(float x, float y, in char *text) draw_styled_text = 
+				(style.getString("text-decoration") == "underline") 
+				? (x, y, text) => draw_text_with_underline(font.ptr, color, x, y, ALLEGRO_ALIGN_LEFT, text) 
+				: (x, y, text) => al_draw_text(font.ptr, color, x, y, ALLEGRO_ALIGN_LEFT, text);
+
 			int yco = y;
 			int xco = x;
 			int lh = font.lineHeight;
 			foreach(l; lines) {
-				al_draw_text(font.ptr, color, xco + l.xofst, yco, ALLEGRO_ALIGN_LEFT, l.line);
+				draw_styled_text(xco + l.xofst, yco, l.line);
 				xco = x;
 				yco += lh;
 			}
