@@ -15,7 +15,7 @@ import allegro5.allegro_primitives;
 class PlanetView : Component {
 
 	this(MainLoop window) {
-		super(window);
+		super(window, "default");
 	}
 
 	TileMap planetMap;

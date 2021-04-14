@@ -10,7 +10,7 @@ class Timer : Component {
 	long remain;
 
 	this(MainLoop window, long remain, void delegate() action) {
-		super(window);
+		super(window, "default");
 		hidden = true;
 		this.action = action;
 		this.remain = remain;

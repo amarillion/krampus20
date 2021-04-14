@@ -179,8 +179,8 @@ class MainLoop
 		al_start_timer(timer);
 
 		resources = new ResourceManager();
-		auto hardcodedDefaultStyle = new Style(resources, defaultRootStyleData); 
-		defaultStyle = new Style(resources, "{}", hardcodedDefaultStyle);
+		auto hardcodedDefaultStyle = new Style(resources, StyleRank.HARDCODED, "hardcoded", defaultRootStyleData); 
+		defaultStyle = new Style(resources, StyleRank.THEME, "default", "{}", hardcodedDefaultStyle);
 
 		rootComponent = new RootComponent(this);
 	}
@@ -195,7 +195,7 @@ class MainLoop
 
 		foreach (k, v; styleMap.object) {
 			if (k == "default") continue;
-			styleBySelector[k] = new Style(resources, v, defaultStyle);
+			styleBySelector[k] = new Style(resources, StyleRank.TYPED, k, v, defaultStyle);
 		}
 
 		// link up modifier styles to type styles...
@@ -303,9 +303,10 @@ class MainLoop
 		done();
 	}
 
-	void dispatchMouseEvent(ALLEGRO_EVENT event) {
-		
-		Point cursor = Point(event.mouse.x, event.mouse.y);
+	private Component[] entered = [];
+	private bool capture = false;
+
+	Component findComponentAt(in Point cursor) {
 		
 		Component comp = rootComponent;
 		bool goDeeper = true;
@@ -325,8 +326,31 @@ class MainLoop
 				goDeeper = false;
 			}
 		}
+		return comp;
 
-		// TODO: enter & leave events...
+	}
+
+	void dispatchMouseEvent(ALLEGRO_EVENT event) {
+		
+		Point cursor = Point(event.mouse.x, event.mouse.y);
+		Component comp = findComponentAt(cursor);
+		
+		while (!entered.empty) {
+			if (entered[$-1] == comp) {
+				break;
+			}
+			else {
+				auto left = entered[$-1];
+				entered.popBack();
+				left.onMouseLeave();
+			}
+		}
+
+		if (entered.empty || entered[$-1] != comp) {
+			comp.onMouseEnter();
+			entered ~= comp;
+		}
+			
 		// TODO: capturing mouse events for scrollbars and sliders
 
 		// go down the component tree...
@@ -353,7 +377,7 @@ class MainLoop
 	void calculateLayout(Component c = null) {
 
 		void calculateRecursive(Component comp, Rectangle parentRect, int depth = 0) {
-			comp.shape = comp.layoutData.calculate(parentRect);
+			comp.applyLayout(parentRect);
 			// writeln(" ".rep(depth), comp.classinfo, " ", comp.shape, " from ", comp.layoutData);
 			foreach(child; comp.children) {
 				calculateRecursive(child, comp.shape, depth + 1);
@@ -451,7 +475,7 @@ class MainLoop
 	class RootComponent : Component {
 
 		this(MainLoop window) {
-			super(window);
+			super(window, "default");
 		}
 
 		override void draw(GraphicsContext gc) {

@@ -12,19 +12,21 @@ import std.string : toStringz;
 import helix.allegro.bitmap;
 import helix.allegro.font;
 
+import std.stdio;
+
 class ImageComponent : Component {
 
 	Bitmap img = null;
 
 	this(MainLoop window) {
-		super(window);
+		super(window, "img");
 	}
 
 	override void draw(GraphicsContext gc) {
 		assert(img);
 		
 		// stretch mode...
-		// TODO: allow ohter drawing modes...
+		// TODO: allow other drawing modes...
 		int iw = img.w;
 		int ih = img.h;
 		al_draw_scaled_bitmap(img.ptr, 0, 0, iw, ih, x, y, w, h, 0);
@@ -33,21 +35,32 @@ class ImageComponent : Component {
 
 class Button : Component {
 
+	this(MainLoop window, string text, void delegate() action) {
+		this(window);
+		this.text = text;
+		this.onAction.add(action);
+	}
+
 	this(MainLoop window) {
-		super(window);
+		super(window, "button");
+	}
+
+	override void onMouseUp(Point p) {
+		this.selected = false;
 	}
 
 	override void onMouseDown(Point p) {
 		if (!disabled) {
 			onAction.dispatch();
 		}
+		this.selected = true;
 	}
 }
 
 class PreformattedText : Component {
 	
 	this(MainLoop window) {
-		super(window);
+		super(window, "pre");
 	}
 
 	override void draw(GraphicsContext gc) {

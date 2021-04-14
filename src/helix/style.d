@@ -14,31 +14,47 @@ import helix.allegro.font;
 // }
 private static Font builtinFont = null;
 
+enum StyleRank {
+	HARDCODED = 0,
+	THEME = 1,
+	ANCESTOR = 2, // set on a parent element or root element
+	TYPED = 3, // for a specific tag such as "a" or "h1"
+	STATE = 4, // for "hover" or "disabled"
+	LOCAL = 5, // override for a specific element
+}
+	
 // a properties map...
 class Style {
 
 	Style parent = null;
 	ResourceManager resources;
 	JSONValue styleData;
-	
+	string name;
+	StyleRank rank;
+
 	this(Style base, Style parent) {
 		this.resources = base.resources;
 		this.styleData = base.styleData;
+		this.name = base.name;
+		this.rank = base.rank;
 		this.parent = parent;
 	}
 
 	this(ResourceManager resources) {
 		this.resources = resources;
+		this.name = "uninitialized";
 	}
 
-	this(ResourceManager resources, string styleDataStr, Style parent = null) {
-		this(resources, parseJSON(styleDataStr), parent);
+	this(ResourceManager resources, StyleRank rank, string name, string styleDataStr, Style parent = null) {
+		this(resources, rank, name, parseJSON(styleDataStr), parent);
 	}
 
-	this(ResourceManager resources, JSONValue styleData, Style parent = null) {
+	this(ResourceManager resources, StyleRank rank, string name, JSONValue styleData, Style parent = null) {
 		this(resources);
 		this.styleData = styleData;
+		this.name = name;
 		this.parent = parent;
+		this.rank = rank;
 	}
 
 	ALLEGRO_COLOR getColor(string key, string fallbackKey = "") {
@@ -71,7 +87,9 @@ class Style {
 		assert(key in [
 			"border-width": 1,
 			"font-size": 1,
-		], format("key '%s' not allowed for string property", key));
+			"min-size": 1,
+			"size": 1
+		], format("key '%s' not allowed for number property", key));
 		if (key in styleData) {
 			JSONValue val = styleData[key];
 			if (val.type == JSONType.FLOAT) {
@@ -112,7 +130,7 @@ class Style {
 	}
 
 	override string toString() {
-		char[] result = format!"Style{%(%s: %s, %)}"(styleData.object).dup;
+		char[] result = format!"Style %s {%(%s: %s, %)}"(name, styleData.object).dup;
 		if (parent) result ~= format!", parent: %s"(parent);
 		return result.idup;
 	}

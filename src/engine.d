@@ -29,7 +29,7 @@ import dialog;
 class State : Component {
 
 	this(MainLoop window) {
-		super(window);
+		super(window, "default");
 	}
 
 	//TODO: I want to move this registry to window...
@@ -68,7 +68,7 @@ class State : Component {
 					div = pre;
 					break;
 				}
-				default: div = new Component(window); break;
+				default: div = new Component(window, "div"); break;
 			}
 
 			assert("layout" in eltData);
@@ -78,13 +78,9 @@ class State : Component {
 				div.text = eltData["text"].str;
 			}
 			
-			Style style = window.getStyle(type);
-			Style selectedStyle = window.getStyle(type, "selected"); //TODO
+			// override local style. TODO: make more generic
 			if ("style" in eltData) {
-				div.setStyle(new Style(window.resources, eltData["style"], style));
-			}
-			else {
-				div.setStyle(style);
+				div.setLocalStyle(eltData["style"]);
 			}
 
 			if ("id" in eltData) {

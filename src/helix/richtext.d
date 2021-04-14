@@ -17,12 +17,11 @@ import std.conv : to;
 import std.regex;
 import helix.util.math;
 
-import helix.color; //TODO: debug
-import std.stdio; //TODO: debug
-import allegro5.allegro_primitives; // TODO: debug
 import helix.allegro.font;
 import helix.textstyle;
 import helix.util.browser;
+import std.stdio; // debug
+import std.json;
 
 enum defaultLineHeight = 16; // For lines with nothing in it. TODO: should depend on current font...
 
@@ -32,22 +31,11 @@ private class Context {
 	int lineHeight;
 	int maxWidth;
 
-	//TODO: this can be re-used between layouts
-	Style parentStyle;
-	Style[string] styleMap;
-
-	Style getStyle(string styleName) {
-		if (!(styleName in styleMap)) {
-			Style child = styleName == "default"
-				? parentStyle
-				: new Style (window.getStyle(styleName), parentStyle);
-			styleMap[styleName] = child;
-		}
-		return styleMap[styleName];
-	}
+	private Style style;
+	Style getStyle() { return style; }
 
 	this(MainLoop window, int maxWidth, Style parentStyle) {
-		this.parentStyle = parentStyle;
+		this.style = parentStyle;
 		cursor = Point(0);
 		this.window = window;
 		this.maxWidth = maxWidth;
@@ -87,17 +75,19 @@ private class TextFragment : Fragment {
 	}
 
 	Component[] layout(Context context) {
-		TextSpan TextSpan = styleName == "a" ? new Link(context.window, props["url"]) : new TextSpan(context.window);
-		TextSpan.text = text;
-		TextSpan.initialIndent = context.cursor.x;
-		TextSpan.setStyle(context.getStyle(styleName));
+		TextSpan span = styleName == "a" 
+			? new Link(context.window, props["url"]) 
+			: new TextSpan(context.window, styleName);
+		span.text = text;
+		span.initialIndent = context.cursor.x;
+		span.setAncestorStyle(context.getStyle());
 		int totalHeight;
 		int originalY = context.cursor.y;
 		int lineHeight;
-		TextSpan.calculateLayout(context.maxWidth, lineHeight, totalHeight, context.cursor);
+		span.calculateLayout(context.maxWidth, lineHeight, totalHeight, context.cursor);
 		context.lineHeight = max(context.lineHeight, lineHeight);
-		TextSpan.layoutData = LayoutData(0, originalY, 0, 0, 0, totalHeight, LayoutRule.STRETCH, LayoutRule.BEGIN);
-		return [ TextSpan ];
+		span.layoutData = LayoutData(0, originalY, 0, 0, 0, totalHeight, LayoutRule.STRETCH, LayoutRule.BEGIN);
+		return [ span ];
 	}
 }
 
@@ -176,8 +166,8 @@ Some properties of text spans:
 */
 class TextSpan : Component {
 
-	this(MainLoop window) {
-		super(window);
+	this(MainLoop window, string styleName) {
+		super(window, styleName);
 	}
 
 	int initialIndent;
@@ -297,7 +287,7 @@ class Link : TextSpan {
 	string url;
 
 	this(MainLoop window, string _url = null) {
-		super(window);
+		super(window, "a");
 		this.url = _url;
 		this.onAction.add(() => this.onClick());
 	}
@@ -385,7 +375,7 @@ class RichTextBuilder {
 class RichText : Component {
 
 	this(MainLoop window) {
-		super(window);
+		super(window, "default");
 	}
 
 	private Fragment[] Fragments;
@@ -402,8 +392,8 @@ class RichText : Component {
 	override void draw(GraphicsContext gc) {
 		if (dirty) {
 			Context context = new Context(window, shape.w, styles[0]);
-			foreach (Fragment; Fragments) {
-				Component[] clist = Fragment.layout(context);
+			foreach (fragment; Fragments) {
+				Component[] clist = fragment.layout(context);
 				foreach(c; clist) {
 					addChild(c);
 				}

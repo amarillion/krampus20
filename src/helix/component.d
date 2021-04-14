@@ -21,6 +21,7 @@ import helix.allegro.font;
 import std.string;
 import std.algorithm;
 import std.range;
+import std.json;
 
 class GraphicsContext
 {
@@ -41,13 +42,14 @@ class Component
 {		
 	//TODO: encapsulate
 	Component[] children;
+	string type;
 	string id;
-	Rectangle shape;
+	private Rectangle _shape;
 	Bitmap icon;
 	string text = null;
 
 	//TODO: put collection of styles together more sensibly...
-	protected Style[] styles = []; // 0: normal, 1: selected, 2: disabled...
+	protected Style[] styles = []; // 0: normal, 1: selected, 2: disabled, 3: hover...
 
 	LayoutData layoutData;
 
@@ -55,6 +57,7 @@ class Component
 	
 	// FLAGS:
 	bool selected = false; // indicates toggled, checked, pressed or selected state 
+	bool hover = false; // indicates mouse is hovering over element - hover state.
 	bool hidden = false;
 	bool focused = false; // used for keyboard focus. Display with outline.
 	bool disabled = false;
@@ -63,13 +66,43 @@ class Component
 	bool canFocus = false;
 	bool killed = false;
 
-	this(MainLoop window) {
+	this(MainLoop window, string type) {
 		this.window = window;
-		styles.length = 3; //TODO: currently can only store 3 styles...
+		this.type = type;
+		styles.length = 4; //TODO: better way of storing styles...
+		styles[0] = window.getStyle(type);
+		styles[1] = window.getStyle(type, "selected");
+		styles[2] = window.getStyle(type, "disabled");
+		styles[3] = window.getStyle(type, "hover");
 	}
 
-	void setStyle(Style value, int mode = 0) {
-		styles[mode] = value;
+	/** 
+		style override for this particular element,
+		most specific, overrides all others
+	 */
+	void setLocalStyle(JSONValue value) {
+		//TODO: better way to override local style for all four states
+		for (int i = 0; i < 4; ++i) {
+			styles[i] = new Style(window.resources, StyleRank.LOCAL, "local", value, styles[i]);
+		}
+	}
+
+	/**
+		style from one of the ancestors of this node.
+		should be behind local style and type-specific styles
+		(TODO: currently only applied to RichTextComponent)
+	*/
+	void setAncestorStyle(Style ancestorStyle) {
+		for (int i = 0; i < 4; ++i) {
+			// rudimentary sorting...
+			// ancestor style sorts before type-specific styles, but after default style.
+			if (styles[i].rank < StyleRank.ANCESTOR) {
+				styles[i] = new Style(ancestorStyle, styles[i]);
+			}
+			else {
+				styles[i] = new Style(styles[i], ancestorStyle);
+			}
+		}
 	}
 
 	void setText(string value) {
@@ -82,6 +115,15 @@ class Component
 
 	void clearChildren() {
 		children = [];
+	}
+
+	@property Rectangle shape() {
+		return this._shape;
+	}
+
+	/** calculate shape for this component. Non-recursive. */
+	void applyLayout(Rectangle parentRect) {
+		_shape = layoutData.calculate(parentRect);
 	}
 
 	void update() {
@@ -99,9 +141,9 @@ class Component
 	void draw(GraphicsContext gc) {
 		if (killed || hidden) return;
 		
-		Style style = disabled ? styles[2] : (selected ? styles[1] : styles[0]);
-		assert(style, "You must set a style for the current state");
-		
+		const state = disabled ? 2 : (selected ? 1 : (hover ? 3 : 0));
+		Style style = styles[state];
+		assert(style, format ("You must set a style for state %s", state));
 		// render shadow
 		// TODO
 
@@ -144,17 +186,19 @@ class Component
 		foreach (child; children) {
 			child.draw(gc);
 		}
-
 	}
 	
-	
-	/** set both position and size together */
+	public void setRelative(int x1, int y1, int x2, int y2, int _w, int _h, LayoutRule horizontalRule, LayoutRule verticalRule) {
+		layoutData = LayoutData(x1, y1, x2, y2, _w, _h, horizontalRule, verticalRule);
+	}
+
+	/** 
+		set both position and size together 
+		@deprecated use layoutData instead.
+	*/
 	public void setShape (int _x, int _y, int _w, int _h)
 	{
-		shape.x = _x;
-		shape.y = _y;
-		shape.w = _w;
-		shape.h = _h;
+		setRelative(_x, _y, 0, 0, _w, _h, LayoutRule.BEGIN, LayoutRule.BEGIN);
 	}
 
 	/** set both x and y together */
@@ -169,9 +213,14 @@ class Component
 	
 	Signal onAction;
 
-	public void onMouseEnter() { }
+	public void onMouseEnter() {
+		this.hover = true;
+	}
 
-	public void onMouseLeave() { }
+	public void onMouseLeave() {
+		this.hover = false;
+		this.selected = false;
+	}
 	
 	public void onMouseMove(Point p) { }
 

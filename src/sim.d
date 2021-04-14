@@ -7,7 +7,6 @@ import cell;
 import helix.util.vec;
 import helix.util.coordrange;
 import dialog;
-import std.stdio; //TODO - debug only
 import helix.mainloop;
 import helix.richtext;
 import std.format : format;

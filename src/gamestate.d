@@ -17,7 +17,6 @@ import std.format;
 import std.array;
 import std.algorithm;
 import startSpecies;
-import std.stdio; // TODO: debug only
 import helix.signal;
 import helix.timer;
 import helix.richtext;
@@ -171,8 +170,7 @@ class GameState : State {
 			if(selectedSpecies < 0) {
 				return;
 			}
-			Component slotted = new Component(window);
-			slotted.setStyle(window.getStyle("default")); //TODO: should not have to do this every time...
+			Component slotted = new Component(window, "default");
 
 			auto info = START_SPECIES[selectedSpecies];
 			ImageComponent img = new ImageComponent(window);
@@ -180,7 +178,6 @@ class GameState : State {
 			img.img = window.resources.bitmaps[info.coverArt];
 
 			RichText rt1 = new RichText(window);
-			rt1.setStyle(window.getStyle("default"));
 			rt1.layoutData = LayoutData(528, 0, 0, 0, 0, 0, LayoutRule.STRETCH, LayoutRule.STRETCH);
 			
 			auto rtb = new RichTextBuilder().h1("Species info")
@@ -212,8 +209,6 @@ class GameState : State {
 		});
 
 		auto btn2 = getElementById("btn_species_introduce");
-		btn2.setStyle(window.getStyle("button", "selected"), 1);
-		btn2.setStyle(window.getStyle("button", "disabled"), 2);
 		btn2.onAction.add({
 			if (currentCell) {
 				int selectedSpecies = speciesGroup.value.get();
@@ -243,9 +238,6 @@ class GameState : State {
 			btn.layoutData = LayoutData(xco, yco, 0, 0, 36, 36, LayoutRule.BEGIN, LayoutRule.BEGIN);
 			btn.icon = window.resources.bitmaps[sp.iconUrl];
 			xco += 40;
-			btn.setStyle(window.getStyle("button"));
-			btn.setStyle(window.getStyle("button", "selected"), 1);
-			btn.setStyle(window.getStyle("button", "disabled"), 2);
 			parentElt.addChild(btn);
 			speciesGroup.addButton(btn, to!int(i));
 		}

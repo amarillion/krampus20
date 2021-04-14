@@ -21,6 +21,13 @@
 		"border-bottom": "#DDDDDD", 
 	},
 
+	"button[hover]": {
+		"background": "#9999BB", 
+		"border": "#888888", 
+		"border-left": "#DDDDDD", 
+		"border-top": "#DDDDDD" 
+	},
+
 	"button[disabled]": {
 		"color": "#888888",
 		"background": "#444444",

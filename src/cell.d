@@ -8,7 +8,6 @@ import std.algorithm;
 import std.range;
 import species;
 import std.format;
-import std.stdio; // TODO debugging
 
 //TODO: switch back to struct.
 //We switched to class, because struct semantics do not work well with forEach, getAdjacent etc...

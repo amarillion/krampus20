@@ -28,7 +28,6 @@ class Dialog : State {
 void openDialog(MainLoop window, string msg) {
 	PreformattedText slotted = new PreformattedText(window);
 	slotted.text = msg;
-	slotted.setStyle(window.getStyle("pre"));
 	Dialog dlg = new Dialog(window, slotted);
 	window.pushScene(dlg);
 }
@@ -36,7 +35,6 @@ void openDialog(MainLoop window, string msg) {
 void openDialog(MainLoop window, Fragment[] Fragments) {
 	RichText slotted = new RichText(window);
 	slotted.setFragments(Fragments);
-	slotted.setStyle(window.getStyle("default"));
 	Dialog dlg = new Dialog(window, slotted);
 	window.pushScene(dlg);
 }
