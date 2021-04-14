@@ -261,7 +261,7 @@ Species: %s`,
 
 			// all species die at a given rate...
 			{
-				assert(sp.biomass.get() >= 0, `Wrong value ${sp.biomass} ${sp.speciesId}`);
+				assert(sp.biomass.get() >= 0, format(`Wrong value %s %s`, sp.biomass, sp.speciesId));
 
 				// the lower the fitness, the higher the death rate
 				// divisor has a minimum just above 0, to avoid division by 0

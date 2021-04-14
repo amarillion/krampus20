@@ -50,7 +50,7 @@ class Style {
 			"border-left":1, 
 			"border-right":1,
 			"border-bottom":1
-		]);
+		], format("key '%s' not allowed for color property", key));
 		if (key in styleData) {
 			string val = styleData[key].str;
 			return parseColor(val);
@@ -71,7 +71,7 @@ class Style {
 		assert(key in [
 			"border-width": 1,
 			"font-size": 1,
-		]);
+		], format("key '%s' not allowed for string property", key));
 		if (key in styleData) {
 			JSONValue val = styleData[key];
 			if (val.type == JSONType.FLOAT) {
@@ -93,7 +93,7 @@ class Style {
 		assert(key in [
 			"font": 1,
 			"text-decoration": 1
-		]);
+		], format("key '%s' not allowed for string property", key));
 		if (key in styleData) {
 			return styleData[key].str;
 		}
