@@ -203,7 +203,7 @@ class GameState : State {
 				}
 			}
 
-			rt1.setSpans(rtb.build());
+			rt1.setFragments(rtb.build());
 			
 			slotted.addChild(img);
 			slotted.addChild(rt1);
@@ -253,7 +253,7 @@ class GameState : State {
 		speciesGroup.value.onChange.add({
 			int selectedSpecies = speciesGroup.value.get();
 			if (selectedSpecies < 0) {
-				speciesInfoElement.setSpans([]);
+				speciesInfoElement.setFragments([]);
 				return;
 			}
 			auto info = START_SPECIES[selectedSpecies];
@@ -275,7 +275,7 @@ class GameState : State {
 			}
 
 				// TODO: likes and dislikes
-			speciesInfoElement.setSpans(rtb.build());
+			speciesInfoElement.setFragments(rtb.build());
 
 		});
 
@@ -311,7 +311,7 @@ class GameState : State {
 	void tickAndLog() {
 		sim.tick();
 		// gridView.update(); // TODO
-		logElement.setSpans (new RichTextBuilder().cellInfo(window, currentCell).build());
+		logElement.setFragments (new RichTextBuilder().cellInfo(window, currentCell).build());
 		planetElement.text = format("Tick: %s\n%s", sim.tickCounter, sim.planet);
 		updateSpeciesMap();
 		sim.checkAchievements(window);

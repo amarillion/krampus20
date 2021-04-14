@@ -127,7 +127,7 @@ class Component
 			al_draw_bitmap (icon.ptr, x + (w - iw) / 2, y + (h - ih) / 2, 0);
 		}
 
-		// render label
+		// render TextSpan
 		if (text != "") {
 			//TODO: use stringz...
 			ALLEGRO_COLOR color = style.getColor("color");
@@ -189,7 +189,6 @@ class Component
 	
 	public void loseFocus() { }
 	
-	//TODO: add to Rectangle	
 	public bool contains(Point p)
 	{
 		return shape.contains(p);
@@ -200,7 +199,6 @@ class Component
 	@property int w() { return shape.w; }
 	@property int h() { return shape.h; }
 
-	//TODO: store in rectangle struct
 	@property void x(int val) { shape.x = val; }
 	@property void y(int val) { shape.y = val; }
 	@property void w(int val) { shape.w = val; }

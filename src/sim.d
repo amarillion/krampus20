@@ -16,7 +16,7 @@ import std.conv : to;
 struct Trigger {
 	string id;
 	bool delegate(Sim) condition;
-	Span[] delegate(Sim) toMessage;
+	Fragment[] delegate(Sim) toMessage;
 }
 
 const TRIGGERS = [

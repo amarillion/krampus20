@@ -22,10 +22,11 @@ import std.stdio; //TODO: debug
 import allegro5.allegro_primitives; // TODO: debug
 import helix.allegro.font;
 import helix.textstyle;
+import helix.util.browser;
 
 enum defaultLineHeight = 16; // For lines with nothing in it. TODO: should depend on current font...
 
-class Context {
+private class Context {
 	MainLoop window;
 	Point cursor;
 	int lineHeight;
@@ -63,34 +64,44 @@ class Context {
 	}
 }
 
-interface Span {
+/** 
+A fragment of a document that carries a single style.
+Could be a piece of text, a break, or an inline image.
+Fragments do not have a reified layout. Call Fragment.layout() to turn this section of a document into components with a specific layout.
+*/
+interface Fragment {
 	Component[] layout(Context context);
 }
 
-class TextSpan : Span {
+private class TextFragment : Fragment {
 
 	private string text;
 	private string styleName;
 	private Style parentStyle;
+	private string[string] props; // mostly used for link urls at the moment.
 
-	this(string text, string styleName = "default") { this.text = text; this.styleName = styleName; }
+	this(string text, string styleName = "default", string[string] props = null) { 
+		this.text = text; 
+		this.styleName = styleName; 
+		this.props = props;
+	}
 
 	Component[] layout(Context context) {
-		Label label = new Label(context.window);
-		label.text = text;
-		label.initialIndent = context.cursor.x;
-		label.setStyle(context.getStyle(styleName));
+		TextSpan TextSpan = styleName == "a" ? new Link(context.window, props["url"]) : new TextSpan(context.window);
+		TextSpan.text = text;
+		TextSpan.initialIndent = context.cursor.x;
+		TextSpan.setStyle(context.getStyle(styleName));
 		int totalHeight;
 		int originalY = context.cursor.y;
 		int lineHeight;
-		label.calculateLayout(context.maxWidth, lineHeight, totalHeight, context.cursor);
+		TextSpan.calculateLayout(context.maxWidth, lineHeight, totalHeight, context.cursor);
 		context.lineHeight = max(context.lineHeight, lineHeight);
-		label.layoutData = LayoutData(0, originalY, 0, 0, 0, totalHeight, LayoutRule.STRETCH, LayoutRule.BEGIN);
-		return [ label ];
+		TextSpan.layoutData = LayoutData(0, originalY, 0, 0, 0, totalHeight, LayoutRule.STRETCH, LayoutRule.BEGIN);
+		return [ TextSpan ];
 	}
 }
 
-class InlineImage : Span {
+private class InlineImage : Fragment {
 	private Bitmap bitmap;
 	
 	this(Bitmap bitmap) {
@@ -112,14 +123,14 @@ class InlineImage : Span {
 	}
 }
 
-class LineBreak : Span {
+private class LineBreak : Fragment {
 	Component[] layout(Context context) {
 		context.nextLine();
 		return [];
 	}	
 }
 
-class ParagraphBreak : Span {
+private class ParagraphBreak : Fragment {
 
 	Component[] layout(Context context) {
 		context.nextLine();
@@ -128,7 +139,7 @@ class ParagraphBreak : Span {
 	}
 }
 
-class Indent : Span {
+private class Indent : Fragment {
 
 	Component[] layout(Context context) {
 		context.cursor.x = context.cursor.x + 32; //TODO customizable...
@@ -138,17 +149,32 @@ class Indent : Span {
 }
 
 /** 
-	a section of text with a uniform style
-	at a specific position, rendered and clickable (for links...)
-	
-	* all with a single style
-	* may span multiple lines
-	* optionally breaks at / ignores hard line breaks ('\n')
-	* TODO: handling of tabs...
-	* will insert soft line breaks
-	* first line may have hanging indent
+A section of text with a uniform style
+at a specific position, rendered and clickable (for links...)
+
+The text will be broken accross multiple lines depending on 
+the width available, for example:
+
+`
+................This piece
+of text is a TextSpan that
+spans multiple lines......
+`
+
+Multiple textspans together form a piece of rich text, the bounding
+boxes of the textspans could overlap.
+
+Some properties of text spans:
+
+* all text carries the same text style
+* may span multiple lines
+* optionally breaks at / ignores hard line breaks ('\\n')
+* will insert soft line breaks
+* first line may have hanging indent
+* TODO: handling of tabs...
+
 */
-class Label : Component {
+class TextSpan : Component {
 
 	this(MainLoop window) {
 		super(window);
@@ -261,69 +287,97 @@ class Label : Component {
 	}
 }
 
+/** 
+	a textSpan that is clickable and opens a url in a browser window 
+
+	TODO: change mouse cursor when hovering over an url.
+*/
+class Link : TextSpan {
+
+	string url;
+
+	this(MainLoop window, string _url = null) {
+		super(window);
+		this.url = _url;
+		this.onAction.add(() => this.onClick());
+	}
+
+	private void onClick() {
+		openUrl(url);
+	}
+
+	override void onMouseDown(Point p) {
+		if (!disabled) {
+			onAction.dispatch();
+			
+		}
+	}
+
+}
+
 class RichTextBuilder {
 
-	private Span[] spans;
+	private Fragment[] Fragments;
 	
-	Span[] build() { 
-		return spans;
+	Fragment[] build() { 
+		return Fragments;
 	}
 
 	/** same as .text(), but treats newlines as hard line breaks */
 	RichTextBuilder lines(string text) {
 		foreach (l; text.split("\n")) {
 			if (!l.empty) {
-				spans ~= new TextSpan(l);
+				Fragments ~= new TextFragment(l);
 			}
-			spans ~= new LineBreak();
+			Fragments ~= new LineBreak();
 		}
 		return this;
 	}
 	
 	/** ignores hard line breaks. If you need them, use .lines() instead */
 	RichTextBuilder text(string text) {
-		spans ~= new TextSpan(text);
+		Fragments ~= new TextFragment(text);
 		return this;
 	}
 
 	RichTextBuilder br() {
-		spans ~= new LineBreak();
+		Fragments ~= new LineBreak();
 		return this;
 	}
 
 	RichTextBuilder p() {
-		spans ~= new ParagraphBreak();
+		Fragments ~= new ParagraphBreak();
 		return this;
 	}
 
 	RichTextBuilder indent() {
-		spans ~= new Indent();
+		Fragments ~= new Indent();
 		return this;
 	}
 
 	RichTextBuilder img(Bitmap bitmap) {
-		spans ~= new InlineImage(bitmap);
+		Fragments ~= new InlineImage(bitmap);
 		return this;
 	}
 
 	RichTextBuilder h1(string text) {
-		spans ~= new TextSpan(text, "h1");
-		spans ~= new ParagraphBreak();
+		Fragments ~= new TextFragment(text, "h1");
+		Fragments ~= new ParagraphBreak();
 		return this;
 	}
 
 	RichTextBuilder b(string text) {
-		spans ~= new TextSpan(text, "b");
+		Fragments ~= new TextFragment(text, "b");
 		return this;
 	}
 
 	RichTextBuilder i(string text) {
-		spans ~= new TextSpan(text, "i");
+		Fragments ~= new TextFragment(text, "i");
 		return this;
 	}
 
 	RichTextBuilder link(string text, string url) {
-		spans ~= new TextSpan(text, "a");
+		Fragments ~= new TextFragment(text, "a", ["url": url]);
 		return this;
 	}
 }
@@ -334,12 +388,12 @@ class RichText : Component {
 		super(window);
 	}
 
-	private Span[] spans;
+	private Fragment[] Fragments;
 	bool dirty = true;
 
-	void setSpans(Span[] spans) {
+	void setFragments(Fragment[] Fragments) {
 		clearChildren();
-		this.spans = spans;
+		this.Fragments = Fragments;
 		dirty = true;
 	}
 
@@ -348,8 +402,8 @@ class RichText : Component {
 	override void draw(GraphicsContext gc) {
 		if (dirty) {
 			Context context = new Context(window, shape.w, styles[0]);
-			foreach (span; spans) {
-				Component[] clist = span.layout(context);
+			foreach (Fragment; Fragments) {
+				Component[] clist = Fragment.layout(context);
 				foreach(c; clist) {
 					addChild(c);
 				}

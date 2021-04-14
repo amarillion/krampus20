@@ -33,9 +33,9 @@ void openDialog(MainLoop window, string msg) {
 	window.pushScene(dlg);
 }
 
-void openDialog(MainLoop window, Span[] spans) {
+void openDialog(MainLoop window, Fragment[] Fragments) {
 	RichText slotted = new RichText(window);
-	slotted.setSpans(spans);
+	slotted.setFragments(Fragments);
 	slotted.setStyle(window.getStyle("default"));
 	Dialog dlg = new Dialog(window, slotted);
 	window.pushScene(dlg);
