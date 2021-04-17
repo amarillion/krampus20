@@ -248,7 +248,9 @@ class TextSpan : Component {
 	override void draw(GraphicsContext gc) {
 		// al_draw_rectangle(shape.x, shape.y, shape.x + shape.w, shape.y + shape.h, Color.RED, 1.0);
 
-		Style style = getStyle();
+		const state = disabled ? 2 : (selected ? 1 : (hover ? 3 : 0));
+		Style style = getStyle(state);
+		
 		// TODO render multiple lines...
 		if (text != "") {
 			assert (!lines.empty, "Must invoke calculateLayout() before draw()");
