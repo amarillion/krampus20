@@ -4,6 +4,7 @@ import allegro5.allegro;
 import std.conv;
 import std.regex;
 import std.math;
+import std.string : format;
 
 // for testing
 import std.stdio;
@@ -70,6 +71,19 @@ private bool colorEq(ALLEGRO_COLOR a, ALLEGRO_COLOR b) {
 		abs(a.g - b.g) < 0.01 &&
 		abs(a.b - b.b) < 0.01 &&
 		abs(a.a - b.a) < 0.01;
+}
+
+string formatColor(ALLEGRO_COLOR v) {
+	if (v.a == 1.0) {
+		return format!"#%02x%02x%02x"(
+			to!int(v.r * 255), to!int(v.g * 255), to!int(v.b * 255)
+		);
+	}
+	else {
+		return format!"#%02x%02x%02x%02x"(
+			to!int(v.r * 255), to!int(v.g * 255), to!int(v.b * 255), to!int(v.a * 255)
+		);
+	}
 }
 
 unittest {

@@ -60,9 +60,8 @@ class MainLoop
 	ResourceManager resources;
 	AudioManager audio;
 
-	private Style defaultStyle;
-	private Style[string] styleBySelector;
-		
+	StyleManager styles;
+
 	ALLEGRO_DISPLAY* display;
 	ALLEGRO_CONFIG *config;
 	private ALLEGRO_PATH *localAppData;
@@ -179,49 +178,13 @@ class MainLoop
 		al_start_timer(timer);
 
 		resources = new ResourceManager();
-		auto hardcodedDefaultStyle = new Style(resources, StyleRank.HARDCODED, "hardcoded", defaultRootStyleData); 
-		defaultStyle = new Style(resources, StyleRank.THEME, "default", "{}", hardcodedDefaultStyle);
-
+		styles = new StyleManager(resources);
 		rootComponent = new RootComponent(this);
 	}
 
-
+	// TODO: deprecated. Call styles.apply() directly
 	void applyStyling(string resourceKey) {
-		auto styleMap = resources.getJSON(resourceKey);
-
-		if ("default" in styleMap) {
-			defaultStyle.styleData = styleMap["default"];
-		}
-
-		foreach (k, v; styleMap.object) {
-			if (k == "default") continue;
-			styleBySelector[k] = new Style(resources, StyleRank.TYPED, k, v, defaultStyle);
-		}
-
-		// link up modifier styles to type styles...
-		foreach (k, v; styleBySelector) {
-			string[] parts = k.split('[');
-			if (parts.length > 1 && parts[0] in styleBySelector) {
-				v.parent = styleBySelector[parts[0]];
-			}
-		}
-	}
-
-	Style getStyle(string selector) {
-		if (selector in styleBySelector) {
-			return styleBySelector[selector];
-		}
-		else {
-			return defaultStyle;
-		}
-	}
-
-	Style getStyle(string selector, string modifier) {
-		string modifiedSelector = format("%s[%s]", selector, modifier); 
-		if (modifiedSelector in styleBySelector) {
-			return styleBySelector[modifiedSelector];
-		}
-		else return getStyle(selector);
+		styles.applyStyling(resources.getJSON(resourceKey));
 	}
 
 	void run()

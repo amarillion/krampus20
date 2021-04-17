@@ -8,119 +8,291 @@ import std.conv;
 import helix.resources;
 import std.format: format;
 import helix.allegro.font;
+import std.array : appender;
 
-// unittest {
-// 	parseColorStr()
-// }
-private static Font builtinFont = null;
+private enum rootStyleData = parseJSON(`{
+	"root": {
+		"font": "builtin_font", 
+		"font-size": 17, 
+		"color": "white", 
+		"background": "transparent" 
+	},
 
-enum StyleRank {
-	HARDCODED = 0,
-	THEME = 1,
-	ANCESTOR = 2, // set on a parent element or root element
-	TYPED = 3, // for a specific tag such as "a" or "h1"
-	STATE = 4, // for "hover" or "disabled"
-	LOCAL = 5, // override for a specific element
-}
-	
-// a properties map...
-class Style {
+	"button": {
+		"background": "#BBBBBB", 
+		"border": "#888888", 
+		"border-left": "#DDDDDD", 
+		"border-top": "#DDDDDD", 
+		"border-width": 2.0, 
+		"color": "black"
+	},
+	"button[selected]": {
+		"background": "#999999", 
+		"border": "#888888", 
+		"border-right": "#DDDDDD", 
+		"border-bottom": "#DDDDDD", 
+	},
+	"button[hover]": {
+		"background": "#9999BB", 
+		"border": "#888888", 
+		"border-left": "#DDDDDD", 
+		"border-top": "#DDDDDD" 
+	},
+	"button[disabled]": {
+		"color": "#888888",
+		"background": "#444444",
+		"border-width": 0.0
+	},
 
-	Style parent = null;
-	ResourceManager resources;
-	JSONValue styleData;
-	string name;
-	StyleRank rank;
+	"panel": {
+		"background": "#BBBBBB", 
+		"border": "#888888",
+		"border-left": "#DDDDDD", 
+		"border-top": "#DDDDDD", 
+		"border-width": 2.0, 
+		"color": "black"
+	},
 
-	this(Style base, Style parent) {
-		this.resources = base.resources;
-		this.styleData = base.styleData;
-		this.name = base.name;
-		this.rank = base.rank;
-		this.parent = parent;
+	"pre": {
+		"font-size": 14
+	},
+
+	"h1": {
+		"font-size": 28
+	},
+
+	"a": {
+		"color": "blue"
+	},
+	"a[hover]": {
+		"text-decoration": "underline"
+	},
+
+	"b": {
+		"color": "red"
+	},
+
+	"i": {
+		"color": "white"
 	}
+}
+`);
+
+private enum PropertyType {
+	NUMBER, STRING, COLOR
+}
+
+private enum PropertyType[string] PROPERTY_TYPES = [
+	"color": PropertyType.COLOR, // foreground color / text color
+	"background": PropertyType.COLOR, 
+	"border-top": PropertyType.COLOR,
+	"border-left": PropertyType.COLOR, 
+	"border-right": PropertyType.COLOR,
+	"border-bottom": PropertyType.COLOR,
+	"border": PropertyType.COLOR,
+	"border-width": PropertyType.NUMBER,
+	"font-size": PropertyType.NUMBER,
+	"min-size": PropertyType.NUMBER,
+	"size": PropertyType.NUMBER,
+	"font": PropertyType.STRING,
+	"text-decoration": PropertyType.STRING
+];
+
+private enum string[string] fallbackProperties = [
+	"border-top": "border",
+	"border-left": "border",
+	"border-right": "border",
+	"border-bottom": "border",
+];
+
+/**
+ a properties map with styles for a single component type, component state or specific component instance.
+*/
+class StyleData {
+
+	ALLEGRO_COLOR[string] colors;
+	double[string] numbers;
+	string[string] strings;
+	string name;
+
+	static StyleData fromJSONString(string name, string jsonStr) {
+		return fromJSON(name, parseJSON(jsonStr));
+	}
+
+	static StyleData fromJSON(string name, JSONValue json) {
+		StyleData result = new StyleData();
+		result.name = name;
+
+		foreach (key; json.object().keys()) {
+			assert (key in PROPERTY_TYPES, format("Unexpected key [%s]", key));
+			const type = PROPERTY_TYPES[key];
+			final switch (type) {
+				case PropertyType.COLOR:
+					result.colors[key] = parseColor(json[key].str);
+				break;
+				case PropertyType.STRING:
+					result.strings[key] = json[key].str;
+				break;
+				case PropertyType.NUMBER:
+					if (json[key].type == JSONType.FLOAT) {
+						result.numbers[key] = json[key].floating;
+					}
+					else {
+						result.numbers[key] = json[key].integer;
+					}
+				break;
+			}
+		}
+
+		return result;
+	}
+}
+
+class StyleManager {
+	
+	private StyleData[string] rootStyleBySelector;
+	private StyleData[string] themeStyleBySelector;
+	private Style[string] styleCache;
+	private ResourceManager resources;
 
 	this(ResourceManager resources) {
+		rootStyleBySelector = parseStyling(rootStyleData);
 		this.resources = resources;
-		this.name = "uninitialized";
 	}
 
-	this(ResourceManager resources, StyleRank rank, string name, string styleDataStr, Style parent = null) {
-		this(resources, rank, name, parseJSON(styleDataStr), parent);
+	void applyStyling(JSONValue styleMap) {
+		themeStyleBySelector = parseStyling(styleMap);
 	}
 
-	this(ResourceManager resources, StyleRank rank, string name, JSONValue styleData, Style parent = null) {
-		this(resources);
-		this.styleData = styleData;
-		this.name = name;
-		this.parent = parent;
-		this.rank = rank;
-	}
+	private StyleData[string] parseStyling(JSONValue styleMap) {
+		StyleData[string] result;
 
-	ALLEGRO_COLOR getColor(string key, string fallbackKey = "") {
-		assert(key in [
-			"color": 1, // foreground color / text color
-			"background":1, 
-			"border":1,
-			"border-top":1,
-			"border-left":1, 
-			"border-right":1,
-			"border-bottom":1
-		], format("key '%s' not allowed for color property", key));
-		if (key in styleData) {
-			string val = styleData[key].str;
-			return parseColor(val);
+		foreach (k, v; styleMap.object) {
+			result[k] = StyleData.fromJSON(k, v);
 		}
-		else if (fallbackKey != "" && fallbackKey in styleData) {
-			string val = styleData[fallbackKey].str;
-			return parseColor(val);
+		return result;
+	}
+
+	Style getStyle(string type, string modifier = "", StyleData ancestor = null, StyleData local = null) {
+		const modifiedSelector = format("%s[%s]", type, modifier); 
+
+		// we are going through the cascade of styles in order, from least specific to most specific
+
+		// embedded fallback provided by library
+		Style result = new Style(rootStyleBySelector["root"], resources);
+		assert(result);
+
+		// fallback provided by theme
+		if ("root" in themeStyleBySelector) {
+			result = new Style(themeStyleBySelector["root"], result);
+		}
+		
+		// ancestor in the document hierarchy 
+		if (ancestor) {
+			result = new Style(ancestor, result);
+		}
+		
+		// embedded typed styles (for types such as "button" or "h1")
+		if (type in rootStyleData) {
+			result = new Style(rootStyleBySelector[type], result);
+		}
+
+		// embedded typed style with state modifier (for types such as button[disabled] or a[hover])
+		if (modifier && modifiedSelector in rootStyleBySelector) {
+			result = new Style(rootStyleBySelector[modifiedSelector], result);
+		}
+		
+		// theme typed style
+		if (type in themeStyleBySelector) {
+			result = new Style(themeStyleBySelector[type], result);
+		}
+
+		// theme typed style with state modifier
+		if (modifier && modifiedSelector in themeStyleBySelector) {
+			result = new Style(themeStyleBySelector[modifiedSelector], result);
+		}
+
+		// TODO: ancestor typed goes here
+		// TODO: ancestor typed with state modifier goes here
+
+		// local type data, supplied directly on element
+		if (local) {
+			result = new Style(local, result);
+		}
+
+		// TODO: local type data with state modifier goes here
+
+		return result;
+	}
+
+}
+
+
+class Style {
+
+	StyleData data;
+	Style parent;
+	ResourceManager resources;
+
+	//TODO: templatize for Color, Number and String
+	ALLEGRO_COLOR getColor(string key) {
+		if (key in data.colors) {
+			return data.colors[key];
+		}
+		else if (key in fallbackProperties && fallbackProperties[key] in data.colors) {
+			return data.colors[fallbackProperties[key]];
+		}
+		else if (parent) {
+			return parent.getColor(key);
 		}
 		else {
-			if (parent) {
-				return parent.getColor(key, fallbackKey);
-			}
+			return Color.BLACK;
 		}
-		return Color.BLACK;
 	}
 
+	//TODO: templatize for Color,Number and String
 	double getNumber(string key) {
-		assert(key in [
-			"border-width": 1,
-			"font-size": 1,
-			"min-size": 1,
-			"size": 1
-		], format("key '%s' not allowed for number property", key));
-		if (key in styleData) {
-			JSONValue val = styleData[key];
-			if (val.type == JSONType.FLOAT) {
-				return styleData[key].floating;
-			}
-			else {
-				return styleData[key].integer;
-			}
+		if (key in data.numbers) {
+			return data.numbers[key];
+		}
+		else if (key in fallbackProperties && fallbackProperties[key] in data.numbers) {
+			return data.numbers[fallbackProperties[key]];
+		}
+		else if (parent) {
+			return parent.getNumber(key);
 		}
 		else {
-			if (parent) {
-				return parent.getNumber(key);
-			}
+			return double.nan;
 		}
-		return double.nan;
 	}
 
+
+	//TODO: templatize for Color,Number and String
 	string getString(string key) {
-		assert(key in [
-			"font": 1,
-			"text-decoration": 1
-		], format("key '%s' not allowed for string property", key));
-		if (key in styleData) {
-			return styleData[key].str;
+		if (key in data.strings) {
+			return data.strings[key];
+		}
+		else if (key in fallbackProperties && fallbackProperties[key] in data.strings) {
+			return data.strings[fallbackProperties[key]];
+		}
+		else if (parent) {
+			return parent.getString(key);
 		}
 		else {
-			if (parent) {
-				return parent.getString(key);
-			}
+			return "";
 		}
-		return "";
+	}
+
+	this(StyleData base, ResourceManager resources) {
+		this.data = base;
+		this.parent = null;
+		this.resources = resources;
+	}
+
+	this(StyleData base, Style parent) {
+		this.resources = parent.resources;
+		this.data = base;
+		this.parent = parent;
 	}
 
 	Font getFont() {
@@ -130,8 +302,40 @@ class Style {
 	}
 
 	override string toString() {
-		char[] result = format!"Style %s {%(%s: %s, %)}"(name, styleData.object).dup;
-		if (parent) result ~= format!", parent: %s"(parent);
-		return result.idup;
+		auto strBuilder = appender!string;
+		strBuilder.put(format!"Style: %s "(data.name));
+		string sep = "";
+		foreach(k, v; data.colors) {
+			strBuilder.put(sep);
+			strBuilder.put(format("%s: %s", k, formatColor(v)));
+			sep = " ";
+		}
+		foreach(k, v; data.strings) {
+			strBuilder.put(sep);
+			strBuilder.put(format("%s: %s", k, v));
+			sep = " ";
+		}
+		foreach(k, v; data.numbers) {
+			strBuilder.put(sep);
+			strBuilder.put(format("%s: %s", k, v));
+			sep = " ";
+		}
+		if (parent) {
+			strBuilder.put(format!"; parent: (%s)"(parent));
+		}
+		return strBuilder.data;
 	}
+}
+
+
+unittest {
+// 	parseColorStr()
+}
+
+unittest {
+	// hardcoded typed + state, 
+	// theme typed + state
+
+	// Style fallback = new Style()
+	// Style theme = new Style("", ["":""]);
 }

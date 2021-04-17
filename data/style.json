@@ -1,6 +1,6 @@
 {
 
-	"default": { 
+	"root": { 
 		"font": "DejaVuSans",
 		"color": "black"
 	},
@@ -52,8 +52,11 @@
 	},
 
 	"a": {
-		"text-decoration": "underline",
 		"color": "blue"
+	},
+
+	"a[hover]": {
+		"text-decoration": "underline"
 	},
 
 	"b": {

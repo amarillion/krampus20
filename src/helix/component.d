@@ -49,7 +49,9 @@ class Component
 	string text = null;
 
 	//TODO: put collection of styles together more sensibly...
-	protected Style[] styles = []; // 0: normal, 1: selected, 2: disabled, 3: hover...
+	protected Style[4] styleCache = [null, null, null, null]; // 0: normal, 1: selected, 2: disabled, 3: hover...
+	StyleData localStyle;
+	StyleData ancestorStyle;
 
 	LayoutData layoutData;
 
@@ -69,11 +71,21 @@ class Component
 	this(MainLoop window, string type) {
 		this.window = window;
 		this.type = type;
-		styles.length = 4; //TODO: better way of storing styles...
-		styles[0] = window.getStyle(type);
-		styles[1] = window.getStyle(type, "selected");
-		styles[2] = window.getStyle(type, "disabled");
-		styles[3] = window.getStyle(type, "hover");
+	}
+
+	Style getStyle(int mode = 0) {	
+		if (styleCache[mode] is null) {
+			Style result;
+			switch (mode) {
+				case 0: result = window.styles.getStyle(type, "", ancestorStyle, localStyle); break;
+				case 1: result = window.styles.getStyle(type, "selected", ancestorStyle, localStyle); break;
+				case 2: result = window.styles.getStyle(type, "disabled", ancestorStyle, localStyle); break;
+				case 3: result = window.styles.getStyle(type, "hover", ancestorStyle, localStyle); break;
+				default: assert(0);
+			}
+			styleCache[mode] = result;
+		}
+		return styleCache[mode];
 	}
 
 	/** 
@@ -81,10 +93,8 @@ class Component
 		most specific, overrides all others
 	 */
 	void setLocalStyle(JSONValue value) {
-		//TODO: better way to override local style for all four states
-		for (int i = 0; i < 4; ++i) {
-			styles[i] = new Style(window.resources, StyleRank.LOCAL, "local", value, styles[i]);
-		}
+		localStyle = StyleData.fromJSON("local", value);
+		styleCache = [null, null, null, null]; // clear cache
 	}
 
 	/**
@@ -92,18 +102,10 @@ class Component
 		should be behind local style and type-specific styles
 		(TODO: currently only applied to RichTextComponent)
 	*/
-	void setAncestorStyle(Style ancestorStyle) {
-		for (int i = 0; i < 4; ++i) {
-			// rudimentary sorting...
-			// ancestor style sorts before type-specific styles, but after default style.
-			if (styles[i].rank < StyleRank.ANCESTOR) {
-				styles[i] = new Style(ancestorStyle, styles[i]);
-			}
-			else {
-				styles[i] = new Style(styles[i], ancestorStyle);
-			}
-		}
-	}
+	void setAncestorStyle(StyleData value) {
+		ancestorStyle = value;
+		styleCache = [null, null, null, null]; // clear cache
+	}		
 
 	void setText(string value) {
 		text = value;
@@ -142,8 +144,8 @@ class Component
 		if (killed || hidden) return;
 		
 		const state = disabled ? 2 : (selected ? 1 : (hover ? 3 : 0));
-		Style style = styles[state];
-		assert(style, format ("You must set a style for state %s", state));
+		Style style = getStyle(state);
+		
 		// render shadow
 		// TODO
 
@@ -156,10 +158,10 @@ class Component
 		// render border
 		const borderWidth = style.getNumber("border-width");
 		if (borderWidth > 0) {
-			al_draw_line(x, y, x + w, y, style.getColor("border-top", "border"), borderWidth);
-			al_draw_line(x + w, y, x + w, y + h, style.getColor("border-right", "border"), borderWidth);
-			al_draw_line(x + w, y + h, x, y + h, style.getColor("border-bottom", "border"), borderWidth);
-			al_draw_line(x, y + h, x, y, style.getColor("border-left", "border"), borderWidth);
+			al_draw_line(x, y, x + w, y, style.getColor("border-top"), borderWidth);
+			al_draw_line(x + w, y, x + w, y + h, style.getColor("border-right"), borderWidth);
+			al_draw_line(x + w, y + h, x, y + h, style.getColor("border-bottom"), borderWidth);
+			al_draw_line(x, y + h, x, y, style.getColor("border-left"), borderWidth);
 		}
 
 		// render icon

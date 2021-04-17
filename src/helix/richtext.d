@@ -31,10 +31,10 @@ private class Context {
 	int lineHeight;
 	int maxWidth;
 
-	private Style style;
-	Style getStyle() { return style; }
+	private StyleData style;
+	StyleData getStyle() { return style; }
 
-	this(MainLoop window, int maxWidth, Style parentStyle) {
+	this(MainLoop window, int maxWidth, StyleData parentStyle) {
 		this.style = parentStyle;
 		cursor = Point(0);
 		this.window = window;
@@ -216,12 +216,11 @@ class TextSpan : Component {
 
 	}
 
-	void calculateLayout(int maxWidth, out int lineHeight, out int totalHeight, ref Point cursor) {		
-		assert(styles.length != 0, "must set style before calculateLayout()");
+	void calculateLayout(int maxWidth, out int lineHeight, out int totalHeight, ref Point cursor) {
 		assert(text != "", "must set text before calculateLayout()");
-		Style style = styles[0];
+		Style style = getStyle();
 		Font font = style.getFont();
-		
+
 		int w = al_get_text_width(font.ptr, toStringz(text));
 		
 		lines = [];
@@ -249,8 +248,7 @@ class TextSpan : Component {
 	override void draw(GraphicsContext gc) {
 		// al_draw_rectangle(shape.x, shape.y, shape.x + shape.w, shape.y + shape.h, Color.RED, 1.0);
 
-		
-		Style style = styles[0];
+		Style style = getStyle();
 		// TODO render multiple lines...
 		if (text != "") {
 			assert (!lines.empty, "Must invoke calculateLayout() before draw()");
@@ -391,7 +389,7 @@ class RichText : Component {
 
 	override void draw(GraphicsContext gc) {
 		if (dirty) {
-			Context context = new Context(window, shape.w, styles[0]);
+			Context context = new Context(window, shape.w, getStyle().data /* TODO: should be private */);
 			foreach (fragment; Fragments) {
 				Component[] clist = fragment.layout(context);
 				foreach(c; clist) {
