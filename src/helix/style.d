@@ -3,11 +3,13 @@ module helix.style;
 import std.json;
 import allegro5.allegro;
 import allegro5.allegro_font;
+import allegro5.allegro_primitives;
 import helix.color;
 import std.conv;
 import helix.resources;
 import std.format: format;
 import helix.allegro.font;
+import helix.allegro.bitmap;
 import std.array : appender;
 
 private enum rootStyleData = parseJSON(`{
@@ -158,10 +160,43 @@ class StyleManager {
 	this(ResourceManager resources) {
 		rootStyleBySelector = parseStyling(rootStyleData);
 		this.resources = resources;
+		initIcons();
 	}
 
-	void applyStyling(JSONValue styleMap) {
-		themeStyleBySelector = parseStyling(styleMap);
+	private void makeIcon(string key, void delegate() draw) {
+		Bitmap icon = Bitmap.create(16, 16);
+		al_set_target_bitmap(icon.ptr);
+		al_clear_to_color(Color.TRANSPARENT);
+		draw();
+		resources.bitmaps.put(key, icon);
+	}
+
+	// TODO: more generic way to initialize icons...
+	private void initIcons() {
+		ALLEGRO_BITMAP *saved = al_get_target_bitmap();
+
+		makeIcon("icon-arrow-down", {
+			float[] vertices = [ 15, 5,   1, 5,   8, 11 ];
+			al_draw_filled_polygon(&vertices[0], to!int(vertices.length / 2), Color.DARK_BLUE);
+		});
+		makeIcon("icon-arrow-right", {
+			float[] vertices = [ 5, 1,   5, 15,   11, 8 ];
+			al_draw_filled_polygon(&vertices[0], to!int(vertices.length / 2), Color.DARK_BLUE);
+		});
+		makeIcon("icon-arrow-up", {
+			float[] vertices = [ 1, 11,   15, 11,   8, 5 ];
+			al_draw_filled_polygon(&vertices[0], to!int(vertices.length / 2), Color.DARK_BLUE);
+		});
+		makeIcon("icon-arrow-left", {
+			float[] vertices = [ 11, 15,   11, 1,   5, 8 ];
+			al_draw_filled_polygon(&vertices[0], to!int(vertices.length / 2), Color.DARK_BLUE);
+		});
+		
+		al_set_target_bitmap(saved);
+	}
+
+	void apply(string resourceKey) {
+		themeStyleBySelector = parseStyling(resources.getJSON(resourceKey));
 	}
 
 	private StyleData[string] parseStyling(JSONValue styleMap) {

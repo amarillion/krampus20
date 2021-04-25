@@ -161,7 +161,7 @@ Some properties of text spans:
 * optionally breaks at / ignores hard line breaks ('\\n')
 * will insert soft line breaks
 * first line may have hanging indent
-* TODO: handling of tabs...
+* Stretches of whitespace (including tabs) are collapsed
 
 */
 class TextSpan : Component {
@@ -246,8 +246,6 @@ class TextSpan : Component {
 	}
 
 	override void draw(GraphicsContext gc) {
-		// al_draw_rectangle(shape.x, shape.y, shape.x + shape.w, shape.y + shape.h, Color.RED, 1.0);
-
 		const state = disabled ? 2 : (selected ? 1 : (hover ? 3 : 0));
 		Style style = getStyle(state);
 		

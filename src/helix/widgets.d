@@ -79,3 +79,11 @@ class PreformattedText : Component {
 		}
 	}
 }
+
+/** 
+	Simple single-line text component.
+	No word-wrapping...
+*/
+class Label : Component {
+	this(MainLoop window, string text) { super(window, "default"); this.text = text; }
+}

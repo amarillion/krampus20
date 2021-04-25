@@ -182,11 +182,6 @@ class MainLoop
 		rootComponent = new RootComponent(this);
 	}
 
-	// TODO: deprecated. Call styles.apply() directly
-	void applyStyling(string resourceKey) {
-		styles.applyStyling(resources.getJSON(resourceKey));
-	}
-
 	void run()
 	{
 		assert (!rootComponent.children.empty, "Must add & switch to a state");
@@ -341,7 +336,7 @@ class MainLoop
 
 		void calculateRecursive(Component comp, Rectangle parentRect, int depth = 0) {
 			comp.applyLayout(parentRect);
-			// writeln(" ".rep(depth), comp.classinfo, " ", comp.shape, " from ", comp.layoutData);
+			// writeln(" ".rep(depth), comp.type, " ", comp.classinfo, " ", comp.shape, " from ", comp.layoutData);
 			foreach(child; comp.children) {
 				calculateRecursive(child, comp.shape, depth + 1);
 			}
@@ -349,7 +344,7 @@ class MainLoop
 
 		if (c is null) {
 			Rectangle displayRect = Rectangle(0, 0, display.al_get_display_width, display.al_get_display_height);
-			calculateRecursive (rootComponent, displayRect);
+			calculateRecursive(rootComponent, displayRect);
 		}
 		else {
 			foreach(child; c.children) {

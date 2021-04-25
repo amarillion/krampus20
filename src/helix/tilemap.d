@@ -36,6 +36,9 @@ class TileMap {
 	@property int width() { return _width; }
 	@property int height() { return _height; }
 	
+	int pxWidth() { return _width * tilelist.tilew; }
+	int pxHeight() { return _height * tilelist.tileh; }
+	
 	this(int width, int height, int numLayers) {
 		this._width = width;
 		this._height = height;
