@@ -114,7 +114,7 @@ class GameState : State {
 	final void initMap() {
 		// planetMap.fromTiledJSON(window.resources.getJSON("planetscape")); 
 		planetMap = new TileMap(MAP_WIDTH, MAP_HEIGHT, 1);
-		planetMap.tilelist = TileList(64, 64, 8, window.resources.bitmaps["biotope"]);
+		planetMap.tilelist = TileList(Point(64, 64), 8, window.resources.bitmaps["biotope"]);
 
 		foreach (p; PointRange(Point(planetMap.width, planetMap.height))) {
 			planetMap.layers[0].set(p, uniform(0, NUM_BIOTOPES));
@@ -135,7 +135,7 @@ class GameState : State {
 			speciesMap.layers[0].set(p, -1);
 			speciesMap.layers[1].set(p, -1);
 		}
-		speciesMap.tilelist = TileList(32, 32, 32, window.resources.bitmaps["species"]);
+		speciesMap.tilelist = TileList(Point(32, 32), 32, window.resources.bitmaps["species"]);
 
 	}
 
@@ -174,11 +174,11 @@ class GameState : State {
 
 			auto info = START_SPECIES[selectedSpecies];
 			ImageComponent img = new ImageComponent(window);
-			img.layoutData = LayoutData(0, 0, 0, 0, 512, 384, LayoutRule.BEGIN, LayoutRule.CENTER);
+			img.setRelative(0, 0, 0, 0, 512, 384, LayoutRule.BEGIN, LayoutRule.CENTER);
 			img.img = window.resources.bitmaps[info.coverArt];
 
 			RichText rt1 = new RichText(window);
-			rt1.layoutData = LayoutData(528, 0, 0, 0, 0, 0, LayoutRule.STRETCH, LayoutRule.STRETCH);
+			rt1.setRelative(528, 0, 0, 0, 0, 0, LayoutRule.STRETCH, LayoutRule.STRETCH);
 			
 			auto rtb = new RichTextBuilder().h1("Species info")
 				.text(format!"Name: %s"(info.name)).br()
@@ -235,7 +235,7 @@ class GameState : State {
 		
 		foreach(i, sp; START_SPECIES) {
 			Button btn = new Button(window);
-			btn.layoutData = LayoutData(xco, yco, 0, 0, 36, 36, LayoutRule.BEGIN, LayoutRule.BEGIN);
+			btn.setRelative(xco, yco, 0, 0, 36, 36, LayoutRule.BEGIN, LayoutRule.BEGIN);
 			btn.icon = window.resources.bitmaps[sp.iconUrl];
 			xco += 40;
 			parentElt.addChild(btn);

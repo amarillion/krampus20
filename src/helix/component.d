@@ -22,11 +22,18 @@ import std.string;
 import std.algorithm;
 import std.range;
 import std.json;
+import std.conv;
 
 class GraphicsContext
 {
 	Rectangle area;
 }
+
+enum SizeRule {
+	AUTO,
+	HEIGHT_DEPENDS_ON_WIDTH,
+	MANUAL
+};
 
 /**
 A component occupies an area (x,y,w,h) and 
@@ -35,8 +42,8 @@ knows how to draw itself.
 It does not need to opaquely fill the area,
 i.e. it can be transparent or non-rectangular.
 
-A component may receive mouse events or keyboard events
-from its parent.
+A component receives mouse events (if the mouse is over it)
+or keyboard events (if it has keyboard focus).
 */
 class Component
 {		
@@ -44,7 +51,6 @@ class Component
 	Component[] children;
 	string type;
 	string id;
-	private Rectangle _shape;
 	Bitmap icon;
 	string text = null;
 
@@ -52,21 +58,19 @@ class Component
 	protected Style[4] styleCache = [null, null, null, null]; // 0: normal, 1: selected, 2: disabled, 3: hover...
 	StyleData localStyle;
 	StyleData ancestorStyle;
-
-	LayoutData layoutData;
-
+	
 	protected MainLoop window = null;
 	
 	// FLAGS:
 	bool selected = false; // indicates toggled, checked, pressed or selected state 
 	bool hover = false; // indicates mouse is hovering over element - hover state.
-	bool hidden = false;
+	bool hidden = false; // invisible, draw() not called.
 	bool focused = false; // used for keyboard focus. Display with outline.
-	bool disabled = false;
+	bool disabled = false; // grayed out
 	bool invalid = false; // used for input validation
 	bool readonly = false; // used for edit controls
-	bool canFocus = false;
-	bool killed = false;
+	bool canFocus = false; // accepts the focus if clicked on or tabbed to.
+	bool killed = false; // destroyed, waiting to be removed from parent.
 
 	this(MainLoop window, string type) {
 		this.window = window;
@@ -111,21 +115,57 @@ class Component
 		text = value;
 	}
 
-	void addChild(Component c) {
+	final void addChild(Component c) {
 		children ~= c;
 	}
 
-	void clearChildren() {
+	final void clearChildren() {
 		children = [];
 	}
 
-	@property Rectangle shape() {
+	// NOTE: can not be set directly. Will always be derived from applyLayout.
+	private Rectangle _shape;
+
+	@property final Rectangle shape() {
 		return this._shape;
 	}
 
+	protected SizeRule sizeRule = SizeRule.MANUAL; //TODO: part of layout data?
+	// TODO: always AUTO unless manually set?
+	private LayoutData layoutData;
+
+	void layoutFromJSON(JSONValue[string] jsonObj) {
+		layoutData.fromJSON(jsonObj);
+	}
+
 	/** calculate shape for this component. Non-recursive. */
-	void applyLayout(Rectangle parentRect) {
-		_shape = layoutData.calculate(parentRect);
+	final void applyLayout(Rectangle parentRect) {
+		// TODO - can this be done at the "layoutData" level? It doesn't have access to preferredSize... Pass as lazy parameter?
+		if (sizeRule == SizeRule.AUTO) {
+			const p = getPreferredSize();
+			layoutData.width = p.x; 
+			layoutData.height = p.y;
+		}
+		else if (sizeRule == SizeRule.HEIGHT_DEPENDS_ON_WIDTH) {
+			layoutData.height = calculateHeight(layoutData.width);
+		}
+		
+		const newShape = layoutData.calculate(parentRect);
+		if (newShape != _shape) {
+			_shape = newShape;
+			this.onResize.dispatch();
+		}
+	}
+
+	// designed for overriding
+	protected int calculateHeight(int width) {
+		return 0;
+	}
+
+	Point getPreferredSize() {
+		const width = getStyle().getNumber("width");
+		const height = getStyle().getNumber("height");
+		return Point(to!int(width), to!int(height));
 	}
 
 	void update() {
@@ -140,6 +180,23 @@ class Component
 		killed = true;
 	}
 
+	protected final void drawBackground(Style style) {
+		ALLEGRO_COLOR background = style.getColor("background");
+		if (!background.isTransparent()) {
+			al_draw_filled_rectangle(x, y, x + w, y + h, background);
+		}
+	}
+
+	protected final void drawBorder(Style style) {
+		const borderWidth = style.getNumber("border-width");
+		if (borderWidth > 0) {
+			al_draw_line(x, y, x + w, y, style.getColor("border-top"), borderWidth);
+			al_draw_line(x + w, y, x + w, y + h, style.getColor("border-right"), borderWidth);
+			al_draw_line(x + w, y + h, x, y + h, style.getColor("border-bottom"), borderWidth);
+			al_draw_line(x, y + h, x, y, style.getColor("border-left"), borderWidth);
+		}
+	}
+
 	void draw(GraphicsContext gc) {
 		if (killed || hidden) return;
 		
@@ -149,20 +206,8 @@ class Component
 		// render shadow
 		// TODO
 
-		// render background
-		ALLEGRO_COLOR background = style.getColor("background");
-		if (!background.isTransparent()) {
-			al_draw_filled_rectangle(x, y, x + w, y + h, background);
-		}
-		
-		// render border
-		const borderWidth = style.getNumber("border-width");
-		if (borderWidth > 0) {
-			al_draw_line(x, y, x + w, y, style.getColor("border-top"), borderWidth);
-			al_draw_line(x + w, y, x + w, y + h, style.getColor("border-right"), borderWidth);
-			al_draw_line(x + w, y + h, x, y + h, style.getColor("border-bottom"), borderWidth);
-			al_draw_line(x, y + h, x, y, style.getColor("border-left"), borderWidth);
-		}
+		drawBackground(style);		
+		drawBorder(style);
 
 		// render icon
 		if (icon !is null) {
@@ -190,7 +235,7 @@ class Component
 		}
 	}
 	
-	public void setRelative(int x1, int y1, int x2, int y2, int _w, int _h, LayoutRule horizontalRule, LayoutRule verticalRule) {
+	public final void setRelative(int x1, int y1, int x2, int y2, int _w, int _h, LayoutRule horizontalRule, LayoutRule verticalRule) {
 		layoutData = LayoutData(x1, y1, x2, y2, _w, _h, horizontalRule, verticalRule);
 	}
 
@@ -198,13 +243,13 @@ class Component
 		set both position and size together 
 		@deprecated use layoutData instead.
 	*/
-	public void setShape (int _x, int _y, int _w, int _h)
+	public final void setShape (int _x, int _y, int _w, int _h)
 	{
 		setRelative(_x, _y, 0, 0, _w, _h, LayoutRule.BEGIN, LayoutRule.BEGIN);
 	}
 
 	/** set both x and y together */
-	public void setPosition (int _x, int _y)
+	public final void setPosition (int _x, int _y)
 	{
 		shape.x = _x;
 		shape.y = _y;
@@ -240,6 +285,11 @@ class Component
 	
 	public void loseFocus() { }
 	
+	/**
+		Called whenever the shape of this component has been recalculated 
+	*/
+	Signal onResize;
+
 	public bool contains(Point p)
 	{
 		return shape.contains(p);

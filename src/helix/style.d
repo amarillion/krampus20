@@ -12,6 +12,8 @@ import helix.allegro.font;
 import helix.allegro.bitmap;
 import std.array : appender;
 
+import std.stdio; // debugging
+
 private enum rootStyleData = parseJSON(`{
 	"root": {
 		"font": "builtin_font", 
@@ -85,19 +87,32 @@ private enum PropertyType {
 }
 
 private enum PropertyType[string] PROPERTY_TYPES = [
-	"color": PropertyType.COLOR, // foreground color / text color
+	// foreground color / text color
+	"color": PropertyType.COLOR, 
+	// background fill color. If transparent, no background
 	"background": PropertyType.COLOR, 
+
+	// border colors, for each direction
 	"border-top": PropertyType.COLOR,
 	"border-left": PropertyType.COLOR, 
 	"border-right": PropertyType.COLOR,
-	"border-bottom": PropertyType.COLOR,
+	"border-bottom": PropertyType.COLOR,	
+	// color of border
 	"border": PropertyType.COLOR,
+	// width in pixels
 	"border-width": PropertyType.NUMBER,
+
 	"font-size": PropertyType.NUMBER,
 	"min-size": PropertyType.NUMBER,
 	"size": PropertyType.NUMBER,
 	"font": PropertyType.STRING,
-	"text-decoration": PropertyType.STRING
+
+	// underline
+	"text-decoration": PropertyType.STRING,
+
+	// cursor blink rate, for input fields
+	"blinkrate": PropertyType.NUMBER,
+	"cursor-color": PropertyType.COLOR,
 ];
 
 private enum string[string] fallbackProperties = [
@@ -148,6 +163,28 @@ class StyleData {
 
 		return result;
 	}
+
+	override string toString() {
+		auto strBuilder = appender!string;
+		strBuilder.put(format!"Style: %s "(name));
+		string sep = "";
+		foreach(k, v; colors) {
+			strBuilder.put(sep);
+			strBuilder.put(format("%s: %s", k, formatColor(v)));
+			sep = " ";
+		}
+		foreach(k, v; strings) {
+			strBuilder.put(sep);
+			strBuilder.put(format("%s: %s", k, v));
+			sep = " ";
+		}
+		foreach(k, v; numbers) {
+			strBuilder.put(sep);
+			strBuilder.put(format("%s: %s", k, v));
+			sep = " ";
+		}
+		return strBuilder.data;
+	}
 }
 
 class StyleManager {
@@ -195,8 +232,12 @@ class StyleManager {
 		al_set_target_bitmap(saved);
 	}
 
+	void apply(JSONValue jsonData) {
+		themeStyleBySelector = parseStyling(jsonData);
+	}
+
 	void apply(string resourceKey) {
-		themeStyleBySelector = parseStyling(resources.getJSON(resourceKey));
+		apply(resources.getJSON(resourceKey));
 	}
 
 	private StyleData[string] parseStyling(JSONValue styleMap) {
@@ -271,6 +312,7 @@ class Style {
 
 	//TODO: templatize for Color, Number and String
 	ALLEGRO_COLOR getColor(string key) {
+		assert (key in PROPERTY_TYPES && PROPERTY_TYPES[key] == PropertyType.COLOR, format("Unexpected key [%s]", key));
 		if (key in data.colors) {
 			return data.colors[key];
 		}
@@ -287,6 +329,7 @@ class Style {
 
 	//TODO: templatize for Color,Number and String
 	double getNumber(string key) {
+		assert (key in PROPERTY_TYPES && PROPERTY_TYPES[key] == PropertyType.NUMBER, format("Unexpected key [%s]", key));
 		if (key in data.numbers) {
 			return data.numbers[key];
 		}
@@ -304,6 +347,7 @@ class Style {
 
 	//TODO: templatize for Color,Number and String
 	string getString(string key) {
+		assert (key in PROPERTY_TYPES && PROPERTY_TYPES[key] == PropertyType.STRING, format("Unexpected key [%s]", key));
 		if (key in data.strings) {
 			return data.strings[key];
 		}
@@ -338,23 +382,7 @@ class Style {
 
 	override string toString() {
 		auto strBuilder = appender!string;
-		strBuilder.put(format!"Style: %s "(data.name));
-		string sep = "";
-		foreach(k, v; data.colors) {
-			strBuilder.put(sep);
-			strBuilder.put(format("%s: %s", k, formatColor(v)));
-			sep = " ";
-		}
-		foreach(k, v; data.strings) {
-			strBuilder.put(sep);
-			strBuilder.put(format("%s: %s", k, v));
-			sep = " ";
-		}
-		foreach(k, v; data.numbers) {
-			strBuilder.put(sep);
-			strBuilder.put(format("%s: %s", k, v));
-			sep = " ";
-		}
+		strBuilder.put(data.toString());
 		if (parent) {
 			strBuilder.put(format!"; parent: (%s)"(parent));
 		}

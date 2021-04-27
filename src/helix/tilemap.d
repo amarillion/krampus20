@@ -12,14 +12,20 @@ import allegro5.allegro;
 import std.conv;
 
 struct TileList {
-	int tilew;
-	int tileh;
+	/** deprecated */
+	@property int tilew() { return tileSize.x; }
+	/** deprecated */
+	@property int tileh() { return tileSize.y; }
+
+	Point tileSize;
+	
 	int tilenum;
 	Bitmap bmp = null;
 
 	void fromTiledJSON(JSONValue node) {
-		tilew = to!int(node["tilewidth"].integer);
-		tileh = to!int(node["tileheight"].integer);
+		int tilew = to!int(node["tilewidth"].integer);
+		int tileh = to!int(node["tileheight"].integer);
+		tileSize = Point(tilew, tileh); 
 		tilenum = to!int(node["tilecount"].integer);
 		// TODO: also link up bitmap...
 	}
@@ -92,11 +98,11 @@ void draw_tilemap(TileMap tilemap, Rectangle shape, Point viewPos = Point(0), in
 		assert (index >= 0);
 		assert (index < tiles.tilenum);
 		assert (tilemap.tilelist.bmp !is null);
-		const tiles_per_row = tilemap.tilelist.bmp.w / tiles.tilew;
+		const tiles_per_row = tilemap.tilelist.bmp.w / tiles.tileSize.x;
 		al_draw_bitmap_region (tilemap.tilelist.bmp.ptr,
-			(index % tiles_per_row) * tiles.tilew,
-			(index / tiles_per_row) * tiles.tileh,
-			tiles.tilew, tiles.tileh,
+			(index % tiles_per_row) * tiles.tileSize.x,
+			(index / tiles_per_row) * tiles.tileSize.y,
+			tiles.tileSize.x, tiles.tileSize.y,
 			x, y,
 			0);
 	}

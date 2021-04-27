@@ -86,7 +86,7 @@ private class TextFragment : Fragment {
 		int lineHeight;
 		span.calculateLayout(context.maxWidth, lineHeight, totalHeight, context.cursor);
 		context.lineHeight = max(context.lineHeight, lineHeight);
-		span.layoutData = LayoutData(0, originalY, 0, 0, 0, totalHeight, LayoutRule.STRETCH, LayoutRule.BEGIN);
+		span.setRelative(0, originalY, 0, 0, 0, totalHeight, LayoutRule.STRETCH, LayoutRule.BEGIN);
 		return [ span ];
 	}
 }
@@ -104,7 +104,7 @@ private class InlineImage : Fragment {
 		img.img = bitmap;
 		const w = bitmap.w;
 		const h = bitmap.h;
-		img.layoutData = LayoutData(context.cursor.x, context.cursor.y, 0, 0, w, h, LayoutRule.BEGIN, LayoutRule.BEGIN);
+		img.setRelative(context.cursor.x, context.cursor.y, 0, 0, w, h, LayoutRule.BEGIN, LayoutRule.BEGIN);
 		
 		//TODO: move to new line if there is no space left for image...
 		context.cursor.x = context.cursor.x + w; //TODO add margin?
@@ -374,6 +374,7 @@ class RichText : Component {
 
 	this(MainLoop window) {
 		super(window, "default");
+		sizeRule = SizeRule.HEIGHT_DEPENDS_ON_WIDTH;
 	}
 
 	private Fragment[] Fragments;
@@ -385,7 +386,7 @@ class RichText : Component {
 		dirty = true;
 	}
 
-	int calculateHeight(int inputWidth) { return 0; /* TODO */ }
+	override int calculateHeight(int inputWidth) { return 200; /* TODO */ }
 
 	override void draw(GraphicsContext gc) {
 		if (dirty) {

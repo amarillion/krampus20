@@ -72,7 +72,7 @@ class State : Component {
 			}
 
 			assert("layout" in eltData);
-			div.layoutData.fromJSON(eltData["layout"].object);
+			div.layoutFromJSON(eltData["layout"].object);
 
 			if ("text" in eltData) {
 				div.text = eltData["text"].str;
