@@ -115,11 +115,11 @@ class TitleState : State {
 		/* MENU */
 		buildDialog(window.resources.getJSON("title-layout"));
 		
-		getElementById("btn_start_game").onAction.add({ 
+		getElementById("btn_start_game").onAction.add((e) { 
 			window.switchState("GameState");
 		});
 
-		getElementById("btn_credits").onAction.add({ 
+		getElementById("btn_credits").onAction.add((e) { 
 			RichTextBuilder builder = new RichTextBuilder()
 				.h1("Exo Keeper II")
 				.text("Exo Keeper II is a game about surviving and thriving on an exo-planet.").br()

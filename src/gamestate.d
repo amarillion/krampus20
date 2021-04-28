@@ -31,7 +31,7 @@ class RadioGroup(T) {
 	
 	void addButton(Component c, T _value) {
 		buttons[_value] = c;
-		c.onAction.add({
+		c.onAction.add((e) {
 			value.set( _value);
 			updateButtons();
 		});
@@ -153,8 +153,8 @@ class GameState : State {
 		planetView = new PlanetView(window);
 		planetView.planetMap = planetMap;
 		planetView.speciesMap = speciesMap;
-		planetView.selectedTile.onChange.add({
-			currentCell = sim.grid.get(planetView.selectedTile.get());
+		planetView.selectedTile.onChange.add((e) {
+			currentCell = sim.grid.get(e.newValue);
 		});
 		planetViewParentElt.addChild(planetView);
 	
@@ -165,7 +165,7 @@ class GameState : State {
 		assert(speciesInfoElement);
 		
 		auto btn1 = getElementById("btn_species_info");
-		btn1.onAction.add({ 
+		btn1.onAction.add((e) { 
 			const selectedSpecies = speciesGroup.value.get();
 			if(selectedSpecies < 0) {
 				return;
@@ -209,7 +209,7 @@ class GameState : State {
 		});
 
 		auto btn2 = getElementById("btn_species_introduce");
-		btn2.onAction.add({
+		btn2.onAction.add((e) {
 			if (currentCell) {
 				int selectedSpecies = speciesGroup.value.get();
 				if (selectedSpecies >= 0) {
@@ -242,8 +242,8 @@ class GameState : State {
 			speciesGroup.addButton(btn, to!int(i));
 		}
 
-		speciesGroup.value.onChange.add({
-			int selectedSpecies = speciesGroup.value.get();
+		speciesGroup.value.onChange.add((e) {
+			int selectedSpecies = e.newValue;
 			if (selectedSpecies < 0) {
 				speciesInfoElement.setFragments([]);
 				return;

@@ -18,9 +18,9 @@ class Dialog : State {
 			getElementById("div_slot").addChild(slotted);
 		}
 
-		getElementById("btn_ok").onAction.add({ 
-			window.popScene(); 
-		});
+		getElementById("btn_ok").onAction.add(
+			(e) { window.popScene(); }
+		);
 	}
 
 }
