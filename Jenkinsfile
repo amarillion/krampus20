@@ -4,6 +4,7 @@ node {
 
 		stage('CheckOut') {
 			checkout scm
+			sh 'git submodule update --init'
 		}
 
 		stage('Build Linux') {
@@ -12,6 +13,7 @@ node {
 				// make sure $HOME maps to the workspace or we'll get a permission denied here. 
 				withEnv(['HOME=.']) {
 					sh "dub -v build"
+					// sh "dub -v test"
 				}
 			}
 		}

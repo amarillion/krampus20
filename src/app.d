@@ -72,7 +72,7 @@ void main()
 		mainloop.resources.addMusicFile("data/music/ExoMusicIntro.ogg");
 		// mainloop.resources.addMusicFile("data/music/ExoMusicLoop.ogg");
 
-		mainloop.styles.apply("style");
+		mainloop.styles.applyResource("style");
 		mainloop.addState("TitleState", new TitleState(mainloop));
 		mainloop.addState("GameState", new GameState(mainloop));
 		mainloop.switchState("TitleState");

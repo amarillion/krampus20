@@ -10,7 +10,12 @@
 		"allegro" : "all-addons"
 	},
 	"sourcePaths" : [
-		"src"
+		"src",
+		"dtwist/src"
+	],
+	"importPath": [
+		"src",
+		"dtwist/src"
 	],
 	"targetType" : "executable"
 }
