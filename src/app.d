@@ -17,7 +17,10 @@ void main()
 		initStartSpecies();
 
 		al_init();
-		auto mainloop = new MainLoop("krampus20");
+		auto mainloop = new MainLoop(MainConfig.of
+			.appName("krampus20")
+			.targetFps(10) // currently a slow game with not a lot of graphics...
+		);
 		mainloop.init();
 		
 		mainloop.resources.addFile("data/DejaVuSans.ttf");
