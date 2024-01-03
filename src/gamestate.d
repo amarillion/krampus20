@@ -117,7 +117,7 @@ class GameState : State {
 		planetMap.tilelist = TileList(Point(64, 64), 8, window.resources.bitmaps["biotope"]);
 
 		foreach (p; PointRange(Point(planetMap.width, planetMap.height))) {
-			planetMap.layers[0].set(p, uniform(0, NUM_BIOTOPES));
+			planetMap.layers[0][p] = uniform(0, NUM_BIOTOPES);
 		}
 
 		// do some sort of voting rule
@@ -126,14 +126,14 @@ class GameState : State {
 			Point rndpos = Point (uniform(0, planetMap.width), uniform(0, planetMap.height));
 			const Point[] adj = getAdjacent(planetMap.layers[0], rndpos).array;
 			Point choice = adj[uniform(0, adj.length)];
-			planetMap.layers[0].set(choice, planetMap.layers[0].get(rndpos));
+			planetMap.layers[0][choice] = planetMap.layers[0][rndpos];
 		}
 
 		// initialize species map
 		speciesMap = new TileMap(MAP_WIDTH * 2, MAP_HEIGHT * 2, 2);
 		foreach (p; PointRange(Point(speciesMap.width, speciesMap.height))) {
-			speciesMap.layers[0].set(p, -1);
-			speciesMap.layers[1].set(p, -1);
+			speciesMap.layers[0][p] = -1;
+			speciesMap.layers[1][p] = -1;
 		}
 		speciesMap.tilelist = TileList(Point(32, 32), 32, window.resources.bitmaps["species"]);
 
@@ -143,7 +143,7 @@ class GameState : State {
 		super(window);
 
 		/* GAME SCREEN */
-		buildDialog(window.resources.getJSON("game-layout"));
+		buildDialog(window.resources.jsons["game-layout"]);
 
 		initMap();
 
@@ -154,7 +154,7 @@ class GameState : State {
 		planetView.planetMap = planetMap;
 		planetView.speciesMap = speciesMap;
 		planetView.selectedTile.onChange.add((e) {
-			currentCell = sim.grid.get(e.newValue);
+			currentCell = sim.grid[e.newValue];
 		});
 		planetViewParentElt.addChild(planetView);
 	
@@ -276,15 +276,15 @@ class GameState : State {
 
 	void initSim(TileMap map) {
 		sim = new Sim(map.width, map.height);
-		currentCell = sim.grid.get(Point(0));
+		currentCell = sim.grid[Point(0)];
 		this.initBiotopes(map);
 	}
 
 	void initBiotopes(TileMap map) {
 		// copy biotopes from layer to cells
 		foreach(pos; PointRange(map.layers[0].size)) {
-			int biotope = map.layers[0].get(pos);
-			sim.grid.get(pos).biotope = biotope;
+			int biotope = map.layers[0][pos];
+			sim.grid[pos].biotope = biotope;
 		}
 	}
 
@@ -317,8 +317,8 @@ class GameState : State {
 			Point pos = Point(cell.x, cell.y) * 2;
 			Point[] deltas = PointRange(Point(2)).array;
 			foreach (delta; deltas) {
-				speciesMap.layers[0].set(pos + delta, -1);
-				speciesMap.layers[1].set(pos + delta, -1);
+				speciesMap.layers[0][pos + delta] = -1;
+				speciesMap.layers[1][pos + delta] = -1;
 			}
 
 			// get top 4 species from cell...
@@ -326,7 +326,7 @@ class GameState : State {
 				auto sp = cell.species[i];
 				if (sp.biomass.get() < 5.0) continue;
 				const tileIdx = START_SPECIES[sp.speciesId].tileIdx;
-				speciesMap.layers[0].set(pos + deltas[i], tileIdx);
+				speciesMap.layers[0][pos + deltas[i]] = tileIdx;
 				
 				double change = sp.biomass.changeRatio();
 				int tile2 = -1;
@@ -336,7 +336,7 @@ class GameState : State {
 				else if (change > 1.02) {
 					tile2 = change > 1.04 ? 17: 16;
 				}
-				speciesMap.layers[1].set(pos + deltas[i], tile2);
+				speciesMap.layers[1][pos + deltas[i]] = tile2;
 			}
 
 

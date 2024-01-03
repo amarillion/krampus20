@@ -124,7 +124,7 @@ class Sim {
 		// TODO: return to larger grid
 		grid = new Grid!(2, Cell)(w, h);
 		foreach(p; PointRange(Point(w, h))) {
-			grid.set(p, new Cell(p.x, p.y, grid.height));
+			grid[p] = new Cell(p.x, p.y, grid.height);
 		}
 		planet = new Planet(); // planetary properties
 		init();
@@ -176,7 +176,7 @@ class Sim {
 		// for each pair of cells, do diffusion
 		foreach (c; grid.eachNodeCheckered()) {
 			foreach (other; grid.getAdjacent(Point(c.x, c.y))) {
-				c.diffusionTo(grid.get(other));
+				c.diffusionTo(grid[other]);
 			}
 		}
 	}
@@ -214,7 +214,7 @@ class Sim {
 			);
 			if (!grid.inRange(neighbor)) continue;
 			
-			cell.migrateTo(grid.get(neighbor));
+			cell.migrateTo(grid[neighbor]);
 		}
 
 	}

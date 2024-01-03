@@ -113,7 +113,7 @@ class TitleState : State {
 		super(window);
 		
 		/* MENU */
-		buildDialog(window.resources.getJSON("title-layout"));
+		buildDialog(window.resources.jsons["title-layout"]);
 		
 		getElementById("btn_start_game").onAction.add((e) { 
 			window.switchState("GameState");
