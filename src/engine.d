@@ -6,7 +6,6 @@ import helix.style;
 import helix.resources;
 import helix.mainloop;
 import helix.util.vec;
-import helix.util.rect;
 import helix.tilemap;
 import helix.widgets;
 import helix.richtext;
